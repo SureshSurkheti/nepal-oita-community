@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - Nepal-Oita Community</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+  <!-- Header / Navbar -->
+  <header class="bg-green-700 text-white shadow-md">
+    <div class="container mx-auto flex justify-between items-center py-4 px-6">
+      <h1 class="text-2xl font-bold">Nepal-Oita Community</h1>
+      <nav>
+        <ul class="flex space-x-4">
+          <li><a href="index.html" class="hover:text-yellow-300">Home</a></li>
+          <li><a href="about.html" class="hover:text-yellow-300">About</a></li>
+          <li><a href="events.html" class="hover:text-yellow-300">Events</a></li>
+          <li><a href="gallery.html" class="hover:text-yellow-300">Gallery</a></li>
+          <li><a href="contact.html" class="hover:text-yellow-300 font-semibold">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="bg-green-100 py-16">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-4xl font-bold mb-4">Contact Us</h2>
+      <p class="text-lg max-w-2xl mx-auto">Have questions or want to join our community? Fill out the form below and we will get back to you!</p>
+    </div>
+  </section>
+
+  <!-- Contact Form Section -->
+  <section class="py-16">
+    <div class="container mx-auto px-6 max-w-2xl">
+      <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" class="bg-white p-8 rounded-lg shadow-md space-y-6">
+        
+        <!-- Name -->
+        <div>
+          <label for="name" class="block text-gray-700 font-semibold mb-2">Name</label>
+          <input type="text" id="name" name="name" required placeholder="Your Name" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-700">
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
+          <input type="email" id="email" name="_replyto" required placeholder="Your Email" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-700">
+        </div>
+
+        <!-- Message -->
+        <div>
+          <label for="message" class="block text-gray-700 font-semibold mb-2">Message</label>
+          <textarea id="message" name="message" required placeholder="Write your message..." rows="5" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-700"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center">
+          <button type="submit" class="bg-green-700 text-white px-6 py-3 rounded hover:bg-green-800 transition">Send Message</button>
+        </div>
+
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-green-700 text-white py-6 mt-12">
+    <div class="container mx-auto text-center">
+      <p>&copy; 2026 Nepal-Oita Community. All rights reserved.</p>
+      <p>Follow us on social media: 
+        <a href="#" class="underline hover:text-yellow-300">Facebook</a> | 
+        <a href="#" class="underline hover:text-yellow-300">Instagram</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

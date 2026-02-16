@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery - Nepal-Oita Community</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+  <!-- Header / Navbar -->
+  <header class="bg-green-700 text-white shadow-md">
+    <div class="container mx-auto flex justify-between items-center py-4 px-6">
+      <h1 class="text-2xl font-bold">Nepal-Oita Community</h1>
+      <nav>
+        <ul class="flex space-x-4">
+          <li><a href="index.html" class="hover:text-yellow-300">Home</a></li>
+          <li><a href="about.html" class="hover:text-yellow-300">About</a></li>
+          <li><a href="events.html" class="hover:text-yellow-300">Events</a></li>
+          <li><a href="gallery.html" class="hover:text-yellow-300 font-semibold">Gallery</a></li>
+          <li><a href="contact.html" class="hover:text-yellow-300">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="bg-green-100 py-16">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-4xl font-bold mb-4">Photo Gallery</h2>
+      <p class="text-lg max-w-2xl mx-auto">Explore photos from our past events, cultural celebrations, and community gatherings.</p>
+    </div>
+  </section>
+
+  <!-- Gallery Grid Section -->
+  <section class="py-16">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+        <!-- Gallery Item 1 -->
+        <div class="overflow-hidden rounded-lg shadow-md">
+          <img src="images/photos/photo1.jpg" alt="Event Photo 1" class="w-full h-48 object-cover transform hover:scale-105 transition duration-300">
+        </div>
+
+        <!-- Gallery Item 2 -->
+        <div class="overflow-hidden rounded-lg shadow-md">
+          <img src="images/photos/photo2.jpg" alt="Event Photo 2" class="w-full h-48 object-cover transform hover:scale-105 transition duration-300">
+        </div>
+
+        <!-- Gallery Item 3 -->
+        <div class="overflow-hidden rounded-lg shadow-md">
+          <img src="images/photos/photo3.jpg" alt="Event Photo 3" class="w-full h-48 object-cover transform hover:scale-105 transition duration-300">
+        </div>
+
+        <!-- Gallery Item 4 -->
+        <div class="overflow-hidden rounded-lg shadow-md">
+          <img src="images/photos/photo4.jpg" alt="Event Photo 4" class="w-full h-48 object-cover transform hover:scale-105 transition duration-300">
+        </div>
+
+        <!-- You can duplicate the div above for more images -->
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="bg-green-100 py-16 text-center">
+    <p class="mb-6 text-lg">Want to share your photos from our events? Send them to us!</p>
+    <a href="contact.html" class="bg-green-700 text-white px-6 py-3 rounded hover:bg-green-800 transition">Contact Us</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-green-700 text-white py-6 mt-12">
+    <div class="container mx-auto text-center">
+      <p>&copy; 2026 Nepal-Oita Community. All rights reserved.</p>
+      <p>Follow us on social media: 
+        <a href="#" class="underline hover:text-yellow-300">Facebook</a> | 
+        <a href="#" class="underline hover:text-yellow-300">Instagram</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

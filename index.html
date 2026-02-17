@@ -1,1301 +1,1990 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nepal-Oita Community | नेपाल-ओइता समुदाय</title>
-  <meta name="description" content="Connecting Nepali people in Oita, Japan. Cultural exchange, community support, and celebration of Nepali traditions.">
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <style>
-    :root {
-      --primary-green: #1e7e34;
-      --primary-red: #dc143c;
-      --primary-blue: #003893;
-      --nepal-red: #dc143c;
-      --nepal-blue: #003893;
-      --gold: #ffd700;
-      --white: #ffffff;
-      --light-gray: #f8f9fa;
-      --dark-gray: #2c3e50;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nepal-Oita Community | नेपाल-ओइता समुदाय</title>
+    <meta
+      name="description"
+      content="Connecting Nepali people in Oita, Japan. Cultural exchange, community support, and celebration of Nepali traditions."
+    />
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    html {
-      scroll-behavior: smooth;
-    }
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      overflow-x: hidden;
-    }
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
-    /* Navbar Styles */
-    .navbar {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+    <style>
+      :root {
+        --primary-green: #1e7e34;
+        --primary-red: #dc143c;
+        --primary-blue: #003893;
+        --nepal-red: #dc143c;
+        --nepal-blue: #003893;
+        --gold: #ffd700;
+        --white: #ffffff;
+        --light-gray: #f8f9fa;
+        --dark-gray: #2c3e50;
+      }
 
-    .navbar.scrolled {
-      background: rgba(30, 126, 52, 0.98);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    /* Mobile Menu */
-    .mobile-menu {
-      transform: translateX(100%);
-      transition: transform 0.3s ease-in-out;
-    }
+      html {
+        scroll-behavior: smooth;
+      }
 
-    .mobile-menu.active {
-      transform: translateX(0);
-    }
+      body {
+        font-family: "Poppins", sans-serif;
+        overflow-x: hidden;
+      }
 
-    /* Hero Section Animations */
-    @keyframes fadeInUp {
-      from {
+      /* Navbar Styles */
+      .navbar {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .navbar.scrolled {
+        background: rgba(30, 126, 52, 0.98);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Mobile Menu */
+      .mobile-menu {
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .mobile-menu.active {
+        transform: translateX(0);
+      }
+
+      /* Hero Section Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      .animate-fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+      }
+
+      .animate-float {
+        animation: float 3s ease-in-out infinite;
+      }
+
+      .delay-1 {
+        animation-delay: 0.1s;
+      }
+      .delay-2 {
+        animation-delay: 0.2s;
+      }
+      .delay-3 {
+        animation-delay: 0.3s;
+      }
+      .delay-4 {
+        animation-delay: 0.4s;
+      }
+
+      /* Nepal Flag Colors Background */
+      .nepal-gradient {
+        background: linear-gradient(135deg, #dc143c 0%, #003893 100%);
+      }
+
+      /* Card Hover Effects */
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+
+      .card-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Stats Counter Animation */
+      .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          var(--nepal-red),
+          var(--nepal-blue)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* Button Styles */
+      .btn-primary {
+        background: linear-gradient(135deg, var(--nepal-red), #ff1744);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
+      }
+
+      /* QR Code Section */
+      .qr-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+        border: 3px solid var(--gold);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .qr-container::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(255, 215, 0, 0.1),
+          transparent
+        );
+        animation: shine 3s infinite;
+      }
+
+      @keyframes shine {
+        0% {
+          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+        100% {
+          transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+      }
+
+      /* Event Card */
+      .event-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .event-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      /* Testimonial Styles */
+      .testimonial {
+        background: white;
+        border-left: 4px solid var(--nepal-red);
+      }
+
+      /* Scroll to Top Button */
+      .scroll-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background: var(--nepal-red);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
         opacity: 0;
-        transform: translateY(30px);
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
       }
-      to {
+
+      .scroll-top.visible {
         opacity: 1;
-        transform: translateY(0);
+        visibility: visible;
       }
-    }
 
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0px);
+      .scroll-top:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
       }
-      50% {
-        transform: translateY(-20px);
+
+      /* Loading Animation */
+      .loader {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--nepal-red);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
       }
-    }
 
-    .animate-fade-in-up {
-      animation: fadeInUp 0.8s ease-out forwards;
-    }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-    .animate-float {
-      animation: float 3s ease-in-out infinite;
-    }
+      /* Image placeholder with gradient */
+      .img-placeholder {
+        background: linear-gradient(135deg, #dc143c 0%, #003893 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+      }
 
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
+      /* Scroll margin for fixed header */
+      section {
+        scroll-margin-top: 80px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <!-- Navbar -->
+    <header
+      class="navbar fixed w-full top-0 z-50 bg-green-700 text-white shadow-md"
+    >
+      <div
+        class="container mx-auto flex justify-between items-center py-4 px-6"
+      >
+        <a
+          href="#home"
+          class="flex items-center space-x-4 hover:opacity-90 transition cursor-pointer group"
+        >
+          <div
+            class="relative w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all group-hover:scale-105 overflow-hidden"
+          >
+            <!-- Background gradient -->
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-red-100 via-white to-blue-100 opacity-50"
+            ></div>
 
-    /* Nepal Flag Colors Background */
-    .nepal-gradient {
-      background: linear-gradient(135deg, #dc143c 0%, #003893 100%);
-    }
-
-    /* Card Hover Effects */
-    .card-hover {
-      transition: all 0.3s ease;
-    }
-
-    .card-hover:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    /* Stats Counter Animation */
-    .stat-number {
-      font-size: 3rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--nepal-red), var(--nepal-blue));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Button Styles */
-    .btn-primary {
-      background: linear-gradient(135deg, var(--nepal-red), #ff1744);
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
-    }
-
-    /* QR Code Section */
-    .qr-container {
-      background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-      border: 3px solid var(--gold);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .qr-container::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
-      animation: shine 3s infinite;
-    }
-
-    @keyframes shine {
-      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-    }
-
-    /* Event Card */
-    .event-card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .event-card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-    }
-
-    /* Testimonial Styles */
-    .testimonial {
-      background: white;
-      border-left: 4px solid var(--nepal-red);
-    }
-
-    /* Scroll to Top Button */
-    .scroll-top {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 50px;
-      height: 50px;
-      background: var(--nepal-red);
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: 1000;
-      box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
-    }
-
-    .scroll-top.visible {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .scroll-top:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
-    }
-
-    /* Loading Animation */
-    .loader {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid var(--nepal-red);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Image placeholder with gradient */
-    .img-placeholder {
-      background: linear-gradient(135deg, #dc143c 0%, #003893 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 2rem;
-    }
-
-    /* Scroll margin for fixed header */
-    section {
-      scroll-margin-top: 80px;
-    }
-  </style>
-</head>
-<body class="bg-gray-50 text-gray-800">
-
-  <!-- Navbar -->
-  <header class="navbar fixed w-full top-0 z-50 bg-green-700 text-white shadow-md">
-    <div class="container mx-auto flex justify-between items-center py-4 px-6">
-      <a href="#home" class="flex items-center space-x-4 hover:opacity-90 transition cursor-pointer group">
-        <div class="relative w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all group-hover:scale-105 overflow-hidden">
-          <!-- Background gradient -->
-          <div class="absolute inset-0 bg-gradient-to-br from-red-100 via-white to-blue-100 opacity-50"></div>
-          
-          <!-- Flags and Handshake -->
-          <div class="relative flex items-center justify-center space-x-0.5">
-            <span class="text-lg">🇳🇵</span>
-            <span class="text-base animate-pulse">🤝</span>
-            <span class="text-lg">🇯🇵</span>
+            <!-- Flags and Handshake -->
+            <div class="relative flex items-center justify-center space-x-0.5">
+              <span class="text-lg">🇳🇵</span>
+              <span class="text-base animate-pulse">🤝</span>
+              <span class="text-lg">🇯🇵</span>
+            </div>
           </div>
-        </div>
-        <div>
-          <h1 class="text-xl md:text-2xl font-bold">Nepal-Oita Community</h1>
-        </div>
-      </a>
-      
-      <!-- Desktop Navigation -->
-      <nav class="hidden md:flex">
-        <ul class="flex space-x-6 items-center">
-          <li><a href="#home" class="hover:text-yellow-300 font-medium transition">Home</a></li>
-          <li><a href="#about" class="hover:text-yellow-300 font-medium transition">About</a></li>
-          <li><a href="#events" class="hover:text-yellow-300 font-medium transition">Events</a></li>
-          <li><a href="#gallery" class="hover:text-yellow-300 font-medium transition">Gallery</a></li>
-          <li><a href="#members" class="hover:text-yellow-300 font-medium transition">Members</a></li>
-          <li><a href="#contact" class="hover:text-yellow-300 font-medium transition">Contact</a></li>
-        </ul>
-      </nav>
-
-      <!-- Mobile Menu Button -->
-      <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
-        <i class="fas fa-bars text-2xl"></i>
-      </button>
-    </div>
-  </header>
-
-  <!-- Mobile Menu Backdrop -->
-  <div id="mobileMenuBackdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
-
-  <!-- Mobile Menu -->
-  <div id="mobileMenu" class="mobile-menu md:hidden fixed top-0 right-0 w-72 h-full bg-green-900 shadow-2xl z-50">
-    <div class="p-6">
-      <button id="closeMobileMenu" class="text-white text-2xl mb-8 float-right hover:text-yellow-300 transition">
-        <i class="fas fa-times"></i>
-      </button>
-      <ul class="space-y-4 clear-both pt-8">
-        <li><a href="#home" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">Home</a></li>
-        <li><a href="#about" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">About</a></li>
-        <li><a href="#events" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">Events</a></li>
-        <li><a href="#gallery" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">Gallery</a></li>
-        <li><a href="#members" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">Members</a></li>
-        <li><a href="#contact" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">Contact</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Hero Section -->
-  <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-    <!-- Split Background - Nepal (left) and Oita (right) -->
-    <div class="absolute inset-0">
-      <!-- Nepal side -->
-      <div class="absolute inset-y-0 left-0 w-1/2" style="background-image: url('images/nepal-oita-bg2.jpg'); background-size: cover; background-position: center right;"></div>
-      <!-- Oita side -->
-      <div class="absolute inset-y-0 right-0 w-1/2" style="background-image: url('images/oita-city.jpg'); background-size: cover; background-position: center left;"></div>
-      <!-- Center blend line with animated glow - symbolizing the bridge/connection -->
-      <div class="absolute inset-y-0 left-1/2 w-1 transform -translate-x-1/2 bg-gradient-to-b from-transparent via-white/50 to-transparent" style="box-shadow: 0 0 30px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.4);"></div>
-      <div class="absolute inset-y-0 left-1/2 w-32 transform -translate-x-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-    </div>
-    
-    <!-- Vignette overlay - darker at edges, lighter in center -->
-    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50"></div>
-    <div class="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20"></div>
-    
-    <!-- Decorative Elements -->
-    <div class="absolute top-20 left-10 text-white text-6xl opacity-30 animate-float z-10">
-      🏔️
-    </div>
-    <div class="absolute bottom-20 right-10 text-white text-6xl opacity-30 animate-float delay-2 z-10">
-      🌸
-    </div>
-    
-    <!-- Content -->
-    <div class="relative z-10 text-center text-white px-6 max-w-5xl mx-auto">
-      <h1 class="text-4xl md:text-7xl font-extrabold mb-6 animate-fade-in-up opacity-0" style="text-shadow: 0 0 20px rgba(0,0,0,1), 3px 3px 12px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.6), 1px 1px 3px rgba(255,255,255,0.3);">
-        🇳🇵 Nepal–Oita Community 🇯🇵
-      </h1>
-      <p class="text-lg md:text-2xl mb-8 max-w-3xl mx-auto animate-fade-in-up opacity-0 delay-2 font-semibold" style="text-shadow: 0 0 15px rgba(0,0,0,1), 2px 2px 10px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.6), 1px 1px 2px rgba(255,255,255,0.2);">
-        Connecting Nepali people in Oita and promoting cultural exchange with local communities
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up opacity-0 delay-3">
-        <a href="#join" class="btn-primary px-8 py-4 rounded-full text-lg font-semibold transition inline-block shadow-2xl hover:scale-105 transform">
-          <i class="fas fa-users mr-2"></i>Join Our Community
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold">Nepal-Oita Community</h1>
+          </div>
         </a>
-        <a href="#events" class="px-8 py-4 bg-white text-green-700 hover:bg-gray-100 rounded-full text-lg font-semibold transition inline-block shadow-2xl hover:scale-105 transform">
-          <i class="fas fa-calendar-alt mr-2"></i>Upcoming Events
-        </a>
-      </div>
-    </div>
 
-    <!-- Scroll Down Indicator -->
-    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce z-10">
-      <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-        <i class="fas fa-chevron-down text-white text-2xl"></i>
-      </div>
-    </div>
-  </section>
-
-  <!-- Stats Section -->
-  <section class="py-16 bg-white">
-    <div class="container mx-auto px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-        <div class="card-hover">
-          <div class="stat-number" data-count="500">0</div>
-          <p class="text-gray-600 font-medium mt-2">Active Members</p>
-        </div>
-        <div class="card-hover">
-          <div class="stat-number" data-count="50">0</div>
-          <p class="text-gray-600 font-medium mt-2">Events Held</p>
-        </div>
-        <div class="card-hover">
-          <div class="stat-number" data-count="8">0</div>
-          <p class="text-gray-600 font-medium mt-2">Years Active</p>
-        </div>
-        <div class="card-hover">
-          <div class="stat-number" data-count="1000">0</div>
-          <p class="text-gray-600 font-medium mt-2">Lives Impacted</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Who We Support Section -->
-  <section id="about" class="py-20 bg-gradient-to-br from-blue-50 to-red-50">
-    <div class="container mx-auto px-6">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">Who We Support</h2>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Building bridges and supporting every member of our community</p>
-      </div>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <!-- Student Card -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover text-center">
-          <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center img-placeholder">
-            <i class="fas fa-user-graduate text-4xl"></i>
-          </div>
-          <h4 class="font-bold text-xl mb-3">Students</h4>
-          <p class="text-gray-600">Academic guidance, visa support, and study resources for Nepali students in Oita</p>
-        </div>
-
-        <!-- Worker Card -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover text-center">
-          <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center img-placeholder">
-            <i class="fas fa-briefcase text-4xl"></i>
-          </div>
-          <h4 class="font-bold text-xl mb-3">Workers</h4>
-          <p class="text-gray-600">Job opportunities, workplace support, and professional networking for Nepali workers</p>
-        </div>
-
-        <!-- Family Card -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover text-center">
-          <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center img-placeholder">
-            <i class="fas fa-home text-4xl"></i>
-          </div>
-          <h4 class="font-bold text-xl mb-3">Families</h4>
-          <p class="text-gray-600">Family events, childcare support, and community connections for Nepali families</p>
-        </div>
-
-        <!-- Cultural Exchange Card -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover text-center">
-          <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center img-placeholder">
-            <i class="fas fa-handshake text-4xl"></i>
-          </div>
-          <h4 class="font-bold text-xl mb-3">Cultural Exchange</h4>
-          <p class="text-gray-600">Promoting understanding between Nepali and Japanese cultures through events</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- What We Do Section -->
-  <section class="py-20 bg-white">
-    <div class="container mx-auto px-6">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">What We Do</h2>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Creating meaningful connections and celebrating our heritage</p>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        <!-- Festival Card -->
-        <div class="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl shadow-lg p-8 card-hover">
-          <div class="w-20 h-20 mb-6 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center img-placeholder">
-            <i class="fas fa-calendar-day text-3xl"></i>
-          </div>
-          <h3 class="text-2xl font-bold mb-4">Cultural Festivals</h3>
-          <p class="text-gray-700 mb-4">Celebrate Dashain, Tihar, Holi, and other traditional Nepali festivals together</p>
-          <ul class="space-y-2 text-gray-600">
-            <li><i class="fas fa-check-circle text-green-600 mr-2"></i>Traditional food & music</li>
-            <li><i class="fas fa-check-circle text-green-600 mr-2"></i>Cultural performances</li>
-            <li><i class="fas fa-check-circle text-green-600 mr-2"></i>Community gatherings</li>
-          </ul>
-        </div>
-
-        <!-- Support Card -->
-        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl shadow-lg p-8 card-hover">
-          <div class="w-20 h-20 mb-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center img-placeholder">
-            <i class="fas fa-hands-helping text-3xl"></i>
-          </div>
-          <h3 class="text-2xl font-bold mb-4">Support Services</h3>
-          <p class="text-gray-700 mb-4">Comprehensive support for students, workers, and families in Oita</p>
-          <ul class="space-y-2 text-gray-600">
-            <li><i class="fas fa-check-circle text-green-600 mr-2"></i>Visa & legal assistance</li>
-            <li><i class="fas fa-check-circle text-green-600 mr-2"></i>Job placement help</li>
-            <li><i class="fas fa-check-circle text-green-600 mr-2"></i>Housing guidance</li>
-          </ul>
-        </div>
-
-        <!-- Network Card -->
-        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-8 card-hover">
-          <div class="w-20 h-20 mb-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center img-placeholder">
-            <i class="fas fa-network-wired text-3xl"></i>
-          </div>
-          <h3 class="text-2xl font-bold mb-4">Community Network</h3>
-          <p class="text-gray-700 mb-4">Stay connected with fellow Nepalis and share important information</p>
-          <ul class="space-y-2 text-gray-600">
-            <li><i class="fas fa-check-circle text-green-600 mr-2"></i>WhatsApp & Facebook groups</li>
-            <li><i class="fas fa-check-circle text-green-600 mr-2"></i>Monthly newsletters</li>
-            <li><i class="fas fa-check-circle text-green-600 mr-2"></i>Emergency support network</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Upcoming Events Section -->
-  <section id="events" class="py-20 bg-gradient-to-br from-green-50 to-blue-50">
-    <div class="container mx-auto px-6">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">Upcoming Events</h2>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Join us in our next celebrations and gatherings</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        <!-- Event 1 - Holi Festival -->
-        <div class="event-card shadow-lg">
-          <div class="h-48 overflow-hidden">
-            <img src="images/events/event1.jpg" alt="Holi Festival" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'h-48 bg-gradient-to-br from-orange-400 to-red-500 img-placeholder flex items-center justify-center\'><i class=\'fas fa-drum text-6xl text-white\'></i></div>'">
-          </div>
-          <div class="p-6">
-            <div class="flex items-center text-sm text-gray-500 mb-3">
-              <i class="fas fa-calendar mr-2"></i>
-              <span>March 15, 2026</span>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Holi Festival Celebration</h3>
-            <p class="text-gray-600 mb-4">Join us for a colorful celebration of Holi with traditional music, food, and colors!</p>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-1"></i>Oita Park</span>
-              <button onclick="showEventDetails(1)" class="text-red-600 font-semibold hover:text-red-700 transition">Learn More →</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Event 2 - Student Orientation -->
-        <div class="event-card shadow-lg">
-          <div class="h-48 overflow-hidden">
-            <img src="images/events/event2.jpg" alt="Student Orientation" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'h-48 bg-gradient-to-br from-blue-400 to-purple-500 img-placeholder flex items-center justify-center\'><i class=\'fas fa-graduation-cap text-6xl text-white\'></i></div>'">
-          </div>
-          <div class="p-6">
-            <div class="flex items-center text-sm text-gray-500 mb-3">
-              <i class="fas fa-calendar mr-2"></i>
-              <span>March 22, 2026</span>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Student Orientation</h3>
-            <p class="text-gray-600 mb-4">Welcome session for new Nepali students in Oita with guidance and networking</p>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-1"></i>Community Center</span>
-              <button onclick="showEventDetails(2)" class="text-red-600 font-semibold hover:text-red-700 transition">Learn More →</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Event 3 - Food Festival -->
-        <div class="event-card shadow-lg">
-          <div class="h-48 overflow-hidden">
-            <img src="images/events/event3.jpg" alt="Nepali Food Festival" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'h-48 bg-gradient-to-br from-green-400 to-teal-500 img-placeholder flex items-center justify-center\'><i class=\'fas fa-utensils text-6xl text-white\'></i></div>'">
-          </div>
-          <div class="p-6">
-            <div class="flex items-center text-sm text-gray-500 mb-3">
-              <i class="fas fa-calendar mr-2"></i>
-              <span>April 5, 2026</span>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Nepali Food Festival</h3>
-            <p class="text-gray-600 mb-4">Experience authentic Nepali cuisine with cooking demonstrations and tasting</p>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-1"></i>Oita Cultural Hall</span>
-              <button onclick="showEventDetails(3)" class="text-red-600 font-semibold hover:text-red-700 transition">Learn More →</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Photo Gallery Section -->
-  <section id="gallery" class="py-20 bg-gradient-to-br from-purple-50 to-pink-50">
-    <div class="container mx-auto px-6">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">Photo Gallery</h2>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Memories from our community events and celebrations</p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-        <!-- Photo 1 -->
-        <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer card-hover" onclick="openGallery(0)">
-          <img src="images/photos/photo1.jpg" alt="Community Event" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%23dc143c\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'white\' font-family=\'Arial\' font-size=\'24\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EPhoto 1%3C/text%3E%3C/svg%3E'">
-          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-            <i class="fas fa-search-plus text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity"></i>
-          </div>
-        </div>
-
-        <!-- Photo 2 -->
-        <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer card-hover" onclick="openGallery(1)">
-          <img src="images/photos/photo2.jpg" alt="Community Event" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%23003893\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'white\' font-family=\'Arial\' font-size=\'24\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EPhoto 2%3C/text%3E%3C/svg%3E'">
-          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-            <i class="fas fa-search-plus text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity"></i>
-          </div>
-        </div>
-
-        <!-- Photo 3 -->
-        <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer card-hover" onclick="openGallery(2)">
-          <img src="images/photos/photo3.jpg" alt="Community Event" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%231e7e34\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'white\' font-family=\'Arial\' font-size=\'24\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EPhoto 3%3C/text%3E%3C/svg%3E'">
-          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-            <i class="fas fa-search-plus text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity"></i>
-          </div>
-        </div>
-
-        <!-- Photo 4 -->
-        <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer card-hover" onclick="openGallery(3)">
-          <img src="images/photos/photo4.jpg" alt="Community Event" class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%23ffd700\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'white\' font-family=\'Arial\' font-size=\'24\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EPhoto 4%3C/text%3E%3C/svg%3E'">
-          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-            <i class="fas fa-search-plus text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity"></i>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-center mt-12">
-        <a href="gallery.html" class="btn-primary px-8 py-4 rounded-full text-lg font-semibold transition inline-block">
-          <i class="fas fa-images mr-2"></i>View All Photos
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Gallery Modal -->
-  <div id="galleryModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-    <button onclick="closeGallery()" class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition z-10">
-      <i class="fas fa-times"></i>
-    </button>
-    <button onclick="previousPhoto()" class="absolute left-4 text-white text-4xl hover:text-gray-300 transition z-10">
-      <i class="fas fa-chevron-left"></i>
-    </button>
-    <button onclick="nextPhoto()" class="absolute right-4 text-white text-4xl hover:text-gray-300 transition z-10">
-      <i class="fas fa-chevron-right"></i>
-    </button>
-    <img id="galleryImage" src="" alt="Gallery Image" class="max-w-full max-h-full object-contain">
-  </div>
-
-  <!-- Testimonials Section -->
-  <section id="testimonials" class="py-20 bg-white">
-    <div class="container mx-auto px-6">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">Community Stories</h2>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Hear from our members about their experiences</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        <!-- Testimonial 1 -->
-        <div class="testimonial p-6 rounded-lg shadow-lg">
-          <div class="flex items-center mb-4">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-2xl font-bold">
-              R
-            </div>
-            <div class="ml-4">
-              <h4 class="font-bold">Rajesh Shrestha</h4>
-              <p class="text-sm text-gray-500">Student, APU</p>
-            </div>
-          </div>
-          <p class="text-gray-700 italic">"This community helped me settle in Oita when I first arrived. From finding accommodation to making friends, they've been incredibly supportive!"</p>
-          <div class="mt-4 text-yellow-400">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-          </div>
-        </div>
-
-        <!-- Testimonial 2 -->
-        <div class="testimonial p-6 rounded-lg shadow-lg">
-          <div class="flex items-center mb-4">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-2xl font-bold">
-              S
-            </div>
-            <div class="ml-4">
-              <h4 class="font-bold">Sita Gurung</h4>
-              <p class="text-sm text-gray-500">Working Professional</p>
-            </div>
-          </div>
-          <p class="text-gray-700 italic">"The Dashain celebration organized by the community felt like being back home in Nepal. It's wonderful to maintain our cultural connections here in Japan."</p>
-          <div class="mt-4 text-yellow-400">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-          </div>
-        </div>
-
-        <!-- Testimonial 3 -->
-        <div class="testimonial p-6 rounded-lg shadow-lg">
-          <div class="flex items-center mb-4">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold">
-              A
-            </div>
-            <div class="ml-4">
-              <h4 class="font-bold">Anil Tamang</h4>
-              <p class="text-sm text-gray-500">Factory Worker</p>
-            </div>
-          </div>
-          <p class="text-gray-700 italic">"They helped me find a better job and provided translation support. The community is like a family away from home."</p>
-          <div class="mt-4 text-yellow-400">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-          </div>
-        </div>
-                <div class="testimonial p-6 rounded-lg shadow-lg">
-          <div class="flex items-center mb-4">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold">
-              A
-            </div>
-            <div class="ml-4">
-              <h4 class="font-bold">Anil Tamang</h4>
-              <p class="text-sm text-gray-500">Factory Worker</p>
-            </div>
-          </div>
-          <p class="text-gray-700 italic">"They helped me find a better job and provided translation support. The community is like a family away from home."</p>
-          <div class="mt-4 text-yellow-400">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-          </div>
-        </div>
-                <div class="testimonial p-6 rounded-lg shadow-lg">
-          <div class="flex items-center mb-4">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold">
-              A
-            </div>
-            <div class="ml-4">
-              <h4 class="font-bold">Anil Tamang</h4>
-              <p class="text-sm text-gray-500">Factory Worker</p>
-            </div>
-          </div>
-          <p class="text-gray-700 italic">"They helped me find a better job and provided translation support. The community is like a family away from home."</p>
-          <div class="mt-4 text-yellow-400">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-          </div>
-        </div>
-                <div class="testimonial p-6 rounded-lg shadow-lg">
-          <div class="flex items-center mb-4">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold">
-              A
-            </div>
-            <div class="ml-4">
-              <h4 class="font-bold">Anil Tamang</h4>
-              <p class="text-sm text-gray-500">Factory Worker</p>
-            </div>
-          </div>
-          <p class="text-gray-700 italic">"They helped me find a better job and provided translation support. The community is like a family away from home."</p>
-          <div class="mt-4 text-yellow-400">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Community Members Section -->
-  <section id="members" class="py-20 bg-gradient-to-br from-blue-50 via-white to-red-50">
-    <div class="container mx-auto px-6">
-      <!-- Section Header -->
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Community Members</h2>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Meet the amazing people who make our community thrive</p>
-      </div>
-
-      <!-- Member Statistics -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mb-16">
-        <div class="bg-white rounded-xl shadow-lg p-6 text-center card-hover">
-          <div class="text-5xl font-bold text-red-600 mb-2">500+</div>
-          <p class="text-gray-600 font-medium">Total Members</p>
-        </div>
-        <div class="bg-white rounded-xl shadow-lg p-6 text-center card-hover">
-          <div class="text-5xl font-bold text-blue-600 mb-2">150+</div>
-          <p class="text-gray-600 font-medium">Students</p>
-        </div>
-        <div class="bg-white rounded-xl shadow-lg p-6 text-center card-hover">
-          <div class="text-5xl font-bold text-green-600 mb-2">200+</div>
-          <p class="text-gray-600 font-medium">Workers</p>
-        </div>
-        <div class="bg-white rounded-xl shadow-lg p-6 text-center card-hover">
-          <div class="text-5xl font-bold text-purple-600 mb-2">150+</div>
-          <p class="text-gray-600 font-medium">Families</p>
-        </div>
-      </div>
-
-      <!-- Leadership Team -->
-      <div class="mb-16">
-        <h3 class="text-3xl font-bold text-center mb-12">Leadership Team</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-          <!-- President -->
-          <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
-            <div class="h-48 bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
-              <div class="w-32 h-32 rounded-full bg-white flex items-center justify-center text-4xl font-bold text-red-600 border-4 border-white shadow-xl">
-                👤
-              </div>
-            </div>
-            <div class="p-6 text-center">
-              <h4 class="font-bold text-xl mb-1">Ram Bahadur</h4>
-              <p class="text-red-600 font-semibold mb-2">President</p>
-              <p class="text-gray-600 text-sm mb-4">Leading our community since 2020</p>
-              <div class="flex justify-center space-x-3">
-                <a href="#" class="text-blue-600 hover:text-blue-700"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="text-gray-600 hover:text-gray-700"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Vice President -->
-          <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
-            <div class="h-48 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-              <div class="w-32 h-32 rounded-full bg-white flex items-center justify-center text-4xl font-bold text-blue-600 border-4 border-white shadow-xl">
-                👤
-              </div>
-            </div>
-            <div class="p-6 text-center">
-              <h4 class="font-bold text-xl mb-1">Maya Sharma</h4>
-              <p class="text-blue-600 font-semibold mb-2">Vice President</p>
-              <p class="text-gray-600 text-sm mb-4">Community coordination & events</p>
-              <div class="flex justify-center space-x-3">
-                <a href="#" class="text-blue-600 hover:text-blue-700"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="text-gray-600 hover:text-gray-700"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Secretary -->
-          <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
-            <div class="h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-              <div class="w-32 h-32 rounded-full bg-white flex items-center justify-center text-4xl font-bold text-green-600 border-4 border-white shadow-xl">
-                👤
-              </div>
-            </div>
-            <div class="p-6 text-center">
-              <h4 class="font-bold text-xl mb-1">Bikram Thapa</h4>
-              <p class="text-green-600 font-semibold mb-2">Secretary</p>
-              <p class="text-gray-600 text-sm mb-4">Documentation & communications</p>
-              <div class="flex justify-center space-x-3">
-                <a href="#" class="text-blue-600 hover:text-blue-700"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="text-gray-600 hover:text-gray-700"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Treasurer -->
-          <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
-            <div class="h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-              <div class="w-32 h-32 rounded-full bg-white flex items-center justify-center text-4xl font-bold text-purple-600 border-4 border-white shadow-xl">
-                👤
-              </div>
-            </div>
-            <div class="p-6 text-center">
-              <h4 class="font-bold text-xl mb-1">Priya Rai</h4>
-              <p class="text-purple-600 font-semibold mb-2">Treasurer</p>
-              <p class="text-gray-600 text-sm mb-4">Financial management</p>
-              <div class="flex justify-center space-x-3">
-                <a href="#" class="text-blue-600 hover:text-blue-700"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="text-gray-600 hover:text-gray-700"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Committee Members -->
-      <div class="mb-16">
-        <h3 class="text-3xl font-bold text-center mb-12">Committee Members</h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
-          <!-- Committee Member 1 -->
-          <div class="bg-white rounded-xl shadow-md p-6 text-center card-hover">
-            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-              SK
-            </div>
-            <h4 class="font-bold mb-1">Suresh KC</h4>
-            <p class="text-sm text-gray-600">Event Coordinator</p>
-          </div>
-
-          <!-- Committee Member 2 -->
-          <div class="bg-white rounded-xl shadow-md p-6 text-center card-hover">
-            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-              LP
-            </div>
-            <h4 class="font-bold mb-1">Laxmi Poudel</h4>
-            <p class="text-sm text-gray-600">Women's Wing</p>
-          </div>
-
-          <!-- Committee Member 3 -->
-          <div class="bg-white rounded-xl shadow-md p-6 text-center card-hover">
-            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-              AS
-            </div>
-            <h4 class="font-bold mb-1">Arun Subedi</h4>
-            <p class="text-sm text-gray-600">Youth Coordinator</p>
-          </div>
-
-          <!-- Committee Member 4 -->
-          <div class="bg-white rounded-xl shadow-md p-6 text-center card-hover">
-            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-              SL
-            </div>
-            <h4 class="font-bold mb-1">Suman Lama</h4>
-            <p class="text-sm text-gray-600">Sports Director</p>
-          </div>
-
-          <!-- Committee Member 5 -->
-          <div class="bg-white rounded-xl shadow-md p-6 text-center card-hover">
-            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-              RA
-            </div>
-            <h4 class="font-bold mb-1">Rita Adhikari</h4>
-            <p class="text-sm text-gray-600">Cultural Head</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Member Directory & Benefits -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-12">
-        <!-- Member Benefits -->
-        <div class="bg-white rounded-2xl shadow-lg p-8">
-          <h3 class="text-2xl font-bold mb-6 flex items-center">
-            <i class="fas fa-star text-yellow-500 mr-3"></i>
-            Membership Benefits
-          </h3>
-          <ul class="space-y-4">
-            <li class="flex items-start">
-              <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
-              <div>
-                <h4 class="font-semibold">Free Event Access</h4>
-                <p class="text-gray-600 text-sm">Attend all community events at no cost</p>
-              </div>
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex">
+          <ul class="flex space-x-6 items-center">
+            <li>
+              <a
+                href="#home"
+                class="hover:text-yellow-300 font-medium transition"
+                >Home</a
+              >
             </li>
-            <li class="flex items-start">
-              <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
-              <div>
-                <h4 class="font-semibold">Support Network</h4>
-                <p class="text-gray-600 text-sm">24/7 emergency support and guidance</p>
-              </div>
+            <li>
+              <a
+                href="#about"
+                class="hover:text-yellow-300 font-medium transition"
+                >About</a
+              >
             </li>
-            <li class="flex items-start">
-              <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
-              <div>
-                <h4 class="font-semibold">Job & Housing Help</h4>
-                <p class="text-gray-600 text-sm">Exclusive access to job postings and housing info</p>
-              </div>
+            <li>
+              <a
+                href="#events"
+                class="hover:text-yellow-300 font-medium transition"
+                >Events</a
+              >
             </li>
-            <li class="flex items-start">
-              <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
-              <div>
-                <h4 class="font-semibold">Community Groups</h4>
-                <p class="text-gray-600 text-sm">Join WhatsApp and Facebook groups</p>
-              </div>
+            <li>
+              <a
+                href="#gallery"
+                class="hover:text-yellow-300 font-medium transition"
+                >Gallery</a
+              >
             </li>
-            <li class="flex items-start">
-              <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
-              <div>
-                <h4 class="font-semibold">Cultural Programs</h4>
-                <p class="text-gray-600 text-sm">Celebrate Nepali festivals together</p>
-              </div>
+            <li>
+              <a
+                href="#members"
+                class="hover:text-yellow-300 font-medium transition"
+                >Members</a
+              >
+            </li>
+            <li>
+              <a
+                href="#contact"
+                class="hover:text-yellow-300 font-medium transition"
+                >Contact</a
+              >
             </li>
           </ul>
-        </div>
+        </nav>
 
-        <!-- How to Become a Member -->
-        <div class="bg-gradient-to-br from-red-600 to-blue-600 rounded-2xl shadow-lg p-8 text-white">
-          <h3 class="text-2xl font-bold mb-6 flex items-center">
-            <i class="fas fa-user-plus mr-3"></i>
-            Become a Member
-          </h3>
-          <div class="space-y-6">
-            <div class="flex items-start">
-              <div class="w-10 h-10 rounded-full bg-white text-red-600 flex items-center justify-center font-bold mr-4 flex-shrink-0">
-                1
-              </div>
-              <div>
-                <h4 class="font-semibold mb-1">Fill Registration Form</h4>
-                <p class="text-white text-sm opacity-90">Submit your details online or in person</p>
-              </div>
-            </div>
-            <div class="flex items-start">
-              <div class="w-10 h-10 rounded-full bg-white text-red-600 flex items-center justify-center font-bold mr-4 flex-shrink-0">
-                2
-              </div>
-              <div>
-                <h4 class="font-semibold mb-1">Membership Fee</h4>
-                <p class="text-white text-sm opacity-90">¥2,000/year (Students: ¥1,000/year)</p>
-              </div>
-            </div>
-            <div class="flex items-start">
-              <div class="w-10 h-10 rounded-full bg-white text-red-600 flex items-center justify-center font-bold mr-4 flex-shrink-0">
-                3
-              </div>
-              <div>
-                <h4 class="font-semibold mb-1">Get Your ID</h4>
-                <p class="text-white text-sm opacity-90">Receive member ID and join community groups</p>
-              </div>
-            </div>
-            <div class="mt-8">
-              <button onclick="window.location.href='#contact'" class="w-full bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-                <i class="fas fa-arrow-right mr-2"></i>Register Now
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- View All Members Button -->
-      <div class="text-center">
-        <button onclick="showMemberDirectory()" class="btn-primary px-8 py-4 rounded-full text-lg font-semibold transition inline-block">
-          <i class="fas fa-users mr-2"></i>View Complete Member Directory
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobileMenuBtn"
+          class="md:hidden text-white focus:outline-none"
+        >
+          <i class="fas fa-bars text-2xl"></i>
         </button>
-        <p class="text-gray-600 mt-4">Access to full member list (members only)</p>
+      </div>
+    </header>
+
+    <!-- Mobile Menu Backdrop -->
+    <div
+      id="mobileMenuBackdrop"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+    ></div>
+
+    <!-- Mobile Menu -->
+    <div
+      id="mobileMenu"
+      class="mobile-menu md:hidden fixed top-0 right-0 w-72 h-full bg-green-900 shadow-2xl z-50"
+    >
+      <div class="p-6">
+        <button
+          id="closeMobileMenu"
+          class="text-white text-2xl mb-8 float-right hover:text-yellow-300 transition"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+        <ul class="space-y-4 clear-both pt-8">
+          <li>
+            <a
+              href="#home"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a
+              href="#about"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >About</a
+            >
+          </li>
+          <li>
+            <a
+              href="#events"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >Events</a
+            >
+          </li>
+          <li>
+            <a
+              href="#gallery"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >Gallery</a
+            >
+          </li>
+          <li>
+            <a
+              href="#members"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >Members</a
+            >
+          </li>
+          <li>
+            <a
+              href="#contact"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >Contact</a
+            >
+          </li>
+        </ul>
       </div>
     </div>
-  </section>
 
-  <!-- Join Section with QR Code -->
-  <section id="join" class="py-20 nepal-gradient text-white">
-    <div class="container mx-auto px-6 text-center">
-      <h2 class="text-4xl md:text-5xl font-bold mb-6">Join Us Today!</h2>
-      <p class="text-xl mb-12 max-w-2xl mx-auto">
-        Become part of our vibrant community and stay connected with fellow Nepalis in Oita
-      </p>
-      
-      <div class="flex flex-col lg:flex-row items-center justify-center gap-12">
-        <!-- QR Code -->
-        <div class="qr-container inline-block p-8 rounded-2xl shadow-2xl relative">
-          <div class="w-64 h-64 bg-white flex items-center justify-center rounded-lg overflow-hidden">
-            <img src="images/qr-code.jpg" alt="Facebook QR Code" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='<div class=\'text-center\'><i class=\'fas fa-qrcode text-8xl text-gray-400 mb-4\'></i><p class=\'text-gray-600 text-sm\'>Scan to follow us</p></div>'">
+    <!-- Hero Section -->
+    <section
+      id="home"
+      class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+    >
+      <!-- Split Background - Nepal (left) and Oita (right) -->
+      <div class="absolute inset-0">
+        <!-- Nepal side -->
+        <div
+          class="absolute inset-y-0 left-0 w-1/2"
+          style="
+            background-image: url(&quot;images/nepal-oita-bg2.jpg&quot;);
+            background-size: cover;
+            background-position: center right;
+          "
+        ></div>
+        <!-- Oita side -->
+        <div
+          class="absolute inset-y-0 right-0 w-1/2"
+          style="
+            background-image: url(&quot;images/oita-city.jpg&quot;);
+            background-size: cover;
+            background-position: center left;
+          "
+        ></div>
+        <!-- Center blend line with animated glow - symbolizing the bridge/connection -->
+        <div
+          class="absolute inset-y-0 left-1/2 w-1 transform -translate-x-1/2 bg-gradient-to-b from-transparent via-white/50 to-transparent"
+          style="
+            box-shadow:
+              0 0 30px rgba(255, 255, 255, 0.8),
+              0 0 60px rgba(255, 255, 255, 0.4);
+          "
+        ></div>
+        <div
+          class="absolute inset-y-0 left-1/2 w-32 transform -translate-x-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        ></div>
+      </div>
+
+      <!-- Vignette overlay - darker at edges, lighter in center -->
+      <div
+        class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50"
+      ></div>
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20"
+      ></div>
+
+      <!-- Decorative Elements -->
+      <div
+        class="absolute top-20 left-10 text-white text-6xl opacity-30 animate-float z-10"
+      >
+        🏔️
+      </div>
+      <div
+        class="absolute bottom-20 right-10 text-white text-6xl opacity-30 animate-float delay-2 z-10"
+      >
+        🌸
+      </div>
+
+      <!-- Content -->
+      <div class="relative z-10 text-center text-white px-6 max-w-5xl mx-auto">
+        <h1
+          class="text-4xl md:text-7xl font-extrabold mb-6 animate-fade-in-up opacity-0"
+          style="
+            text-shadow:
+              0 0 20px rgba(0, 0, 0, 1),
+              3px 3px 12px rgba(0, 0, 0, 0.9),
+              0 0 40px rgba(0, 0, 0, 0.6),
+              1px 1px 3px rgba(255, 255, 255, 0.3);
+          "
+        >
+          🇳🇵 Nepal–Oita Community 🇯🇵
+        </h1>
+        <p
+          class="text-lg md:text-2xl mb-8 max-w-3xl mx-auto animate-fade-in-up opacity-0 delay-2 font-semibold"
+          style="
+            text-shadow:
+              0 0 15px rgba(0, 0, 0, 1),
+              2px 2px 10px rgba(0, 0, 0, 0.9),
+              0 0 30px rgba(0, 0, 0, 0.6),
+              1px 1px 2px rgba(255, 255, 255, 0.2);
+          "
+        >
+          Connecting Nepali people in Oita and promoting cultural exchange with
+          local communities
+        </p>
+        <div
+          class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up opacity-0 delay-3"
+        >
+          <a
+            href="#join"
+            class="btn-primary px-8 py-4 rounded-full text-lg font-semibold transition inline-block shadow-2xl hover:scale-105 transform"
+          >
+            <i class="fas fa-users mr-2"></i>Join Our Community
+          </a>
+          <a
+            href="#events"
+            class="px-8 py-4 bg-white text-green-700 hover:bg-gray-100 rounded-full text-lg font-semibold transition inline-block shadow-2xl hover:scale-105 transform"
+          >
+            <i class="fas fa-calendar-alt mr-2"></i>Upcoming Events
+          </a>
+        </div>
+      </div>
+
+      <!-- Scroll Down Indicator -->
+      <div
+        class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce z-10"
+      >
+        <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
+          <i class="fas fa-chevron-down text-white text-2xl"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-white">
+      <div class="container mx-auto px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div class="card-hover">
+            <div class="stat-number" data-count="500">0</div>
+            <p class="text-gray-600 font-medium mt-2">Active Members</p>
           </div>
-          <p class="font-bold text-xl mt-4 text-gray-800">
-            <i class="fab fa-facebook text-blue-600 mr-2"></i>Follow us on Facebook
+          <div class="card-hover">
+            <div class="stat-number" data-count="50">0</div>
+            <p class="text-gray-600 font-medium mt-2">Events Held</p>
+          </div>
+          <div class="card-hover">
+            <div class="stat-number" data-count="8">0</div>
+            <p class="text-gray-600 font-medium mt-2">Years Active</p>
+          </div>
+          <div class="card-hover">
+            <div class="stat-number" data-count="1000">0</div>
+            <p class="text-gray-600 font-medium mt-2">Lives Impacted</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Who We Support Section -->
+    <section id="about" class="py-20 bg-gradient-to-br from-blue-50 to-red-50">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold mb-4">Who We Support</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Building bridges and supporting every member of our community
           </p>
         </div>
 
-        <!-- Social Links -->
-        <div class="space-y-4">
-          <h3 class="text-2xl font-bold mb-6">Connect With Us</h3>
-          <a href="#" class="block bg-white text-blue-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg">
-            <i class="fab fa-facebook-f mr-3"></i>Follow on Facebook
-          </a>
-          <a href="#" class="block bg-white text-pink-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg">
-            <i class="fab fa-instagram mr-3"></i>Follow on Instagram
-          </a>
-          <a href="#" class="block bg-white text-green-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg">
-            <i class="fab fa-whatsapp mr-3"></i>Join WhatsApp Group
-          </a>
-          <a href="mailto:info@nepal-oita.com" class="block bg-white text-red-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg">
-            <i class="fas fa-envelope mr-3"></i>Email Us
-          </a>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <!-- Student Card -->
+          <div
+            class="bg-white rounded-2xl shadow-lg p-8 card-hover text-center"
+          >
+            <div
+              class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center img-placeholder"
+            >
+              <i class="fas fa-user-graduate text-4xl"></i>
+            </div>
+            <h4 class="font-bold text-xl mb-3">Students</h4>
+            <p class="text-gray-600">
+              Academic guidance, visa support, and study resources for Nepali
+              students in Oita
+            </p>
+          </div>
+
+          <!-- Worker Card -->
+          <div
+            class="bg-white rounded-2xl shadow-lg p-8 card-hover text-center"
+          >
+            <div
+              class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center img-placeholder"
+            >
+              <i class="fas fa-briefcase text-4xl"></i>
+            </div>
+            <h4 class="font-bold text-xl mb-3">Workers</h4>
+            <p class="text-gray-600">
+              Job opportunities, workplace support, and professional networking
+              for Nepali workers
+            </p>
+          </div>
+
+          <!-- Family Card -->
+          <div
+            class="bg-white rounded-2xl shadow-lg p-8 card-hover text-center"
+          >
+            <div
+              class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center img-placeholder"
+            >
+              <i class="fas fa-home text-4xl"></i>
+            </div>
+            <h4 class="font-bold text-xl mb-3">Families</h4>
+            <p class="text-gray-600">
+              Family events, childcare support, and community connections for
+              Nepali families
+            </p>
+          </div>
+
+          <!-- Cultural Exchange Card -->
+          <div
+            class="bg-white rounded-2xl shadow-lg p-8 card-hover text-center"
+          >
+            <div
+              class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center img-placeholder"
+            >
+              <i class="fas fa-handshake text-4xl"></i>
+            </div>
+            <h4 class="font-bold text-xl mb-3">Cultural Exchange</h4>
+            <p class="text-gray-600">
+              Promoting understanding between Nepali and Japanese cultures
+              through events
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Contact Section -->
-  <section id="contact" class="py-20 bg-gray-50">
-    <div class="container mx-auto px-6">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">Get In Touch</h2>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Have questions? We're here to help!</p>
+    <!-- What We Do Section -->
+    <section class="py-20 bg-white">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold mb-4">What We Do</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Creating meaningful connections and celebrating our heritage
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <!-- Festival Card -->
+          <div
+            class="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl shadow-lg p-8 card-hover"
+          >
+            <div
+              class="w-20 h-20 mb-6 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center img-placeholder"
+            >
+              <i class="fas fa-calendar-day text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4">Cultural Festivals</h3>
+            <p class="text-gray-700 mb-4">
+              Celebrate Dashain, Tihar, Holi, and other traditional Nepali
+              festivals together
+            </p>
+            <ul class="space-y-2 text-gray-600">
+              <li>
+                <i class="fas fa-check-circle text-green-600 mr-2"></i
+                >Traditional food & music
+              </li>
+              <li>
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>Cultural
+                performances
+              </li>
+              <li>
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>Community
+                gatherings
+              </li>
+            </ul>
+          </div>
+
+          <!-- Support Card -->
+          <div
+            class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl shadow-lg p-8 card-hover"
+          >
+            <div
+              class="w-20 h-20 mb-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center img-placeholder"
+            >
+              <i class="fas fa-hands-helping text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4">Support Services</h3>
+            <p class="text-gray-700 mb-4">
+              Comprehensive support for students, workers, and families in Oita
+            </p>
+            <ul class="space-y-2 text-gray-600">
+              <li>
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>Visa &
+                legal assistance
+              </li>
+              <li>
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>Job
+                placement help
+              </li>
+              <li>
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>Housing
+                guidance
+              </li>
+            </ul>
+          </div>
+
+          <!-- Network Card -->
+          <div
+            class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-8 card-hover"
+          >
+            <div
+              class="w-20 h-20 mb-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center img-placeholder"
+            >
+              <i class="fas fa-network-wired text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4">Community Network</h3>
+            <p class="text-gray-700 mb-4">
+              Stay connected with fellow Nepalis and share important information
+            </p>
+            <ul class="space-y-2 text-gray-600">
+              <li>
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>WhatsApp
+                & Facebook groups
+              </li>
+              <li>
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>Monthly
+                newsletters
+              </li>
+              <li>
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>Emergency
+                support network
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <div class="max-w-4xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <!-- Contact Info -->
-          <div class="space-y-6">
-            <div class="flex items-start space-x-4">
-              <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-map-marker-alt text-red-600 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="font-bold text-lg mb-1">Location</h3>
-                <p class="text-gray-600">Oita City, Oita Prefecture, Japan</p>
-              </div>
+    <!-- Upcoming Events Section -->
+    <section
+      id="events"
+      class="py-20 bg-gradient-to-br from-green-50 to-blue-50"
+    >
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold mb-4">Upcoming Events</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Join us in our next celebrations and gatherings
+          </p>
+        </div>
+
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
+        >
+          <!-- Event 1 - Holi Festival -->
+          <div class="event-card shadow-lg">
+            <div class="h-48 overflow-hidden">
+              <img
+                src="images/events/event1.jpg"
+                alt="Holi Festival"
+                class="w-full h-full object-cover"
+                onerror="
+                  this.parentElement.innerHTML =
+                    '<div class=\'h-48 bg-gradient-to-br from-orange-400 to-red-500 img-placeholder flex items-center justify-center\'><i class=\'fas fa-drum text-6xl text-white\'></i></div>'
+                "
+              />
             </div>
-
-            <div class="flex items-start space-x-4">
-              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-envelope text-blue-600 text-xl"></i>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-500 mb-3">
+                <i class="fas fa-calendar mr-2"></i>
+                <span>March 15, 2026</span>
               </div>
-              <div>
-                <h3 class="font-bold text-lg mb-1">Email</h3>
-                <p class="text-gray-600">info@nepal-oita.com</p>
-              </div>
-            </div>
-
-            <div class="flex items-start space-x-4">
-              <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-phone text-green-600 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="font-bold text-lg mb-1">Phone</h3>
-                <p class="text-gray-600">+81 (0) XXX-XXXX-XXXX</p>
-              </div>
-            </div>
-
-            <div class="flex items-start space-x-4">
-              <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-clock text-purple-600 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="font-bold text-lg mb-1">Office Hours</h3>
-                <p class="text-gray-600">Mon - Fri: 10:00 AM - 6:00 PM</p>
+              <h3 class="text-xl font-bold mb-2">Holi Festival Celebration</h3>
+              <p class="text-gray-600 mb-4">
+                Join us for a colorful celebration of Holi with traditional
+                music, food, and colors!
+              </p>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500"
+                  ><i class="fas fa-map-marker-alt mr-1"></i>Oita Park</span
+                >
+                <button
+                  onclick="showEventDetails(1)"
+                  class="text-red-600 font-semibold hover:text-red-700 transition"
+                >
+                  Learn More →
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- Contact Form -->
-          <div class="bg-white p-8 rounded-2xl shadow-lg">
-            <form id="contactForm" class="space-y-4">
-              <div>
-                <label class="block text-sm font-semibold mb-2">Name</label>
-                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Your name" required>
+          <!-- Event 2 - Student Orientation -->
+          <div class="event-card shadow-lg">
+            <div class="h-48 overflow-hidden">
+              <img
+                src="images/events/event2.jpg"
+                alt="Student Orientation"
+                class="w-full h-full object-cover"
+                onerror="
+                  this.parentElement.innerHTML =
+                    '<div class=\'h-48 bg-gradient-to-br from-blue-400 to-purple-500 img-placeholder flex items-center justify-center\'><i class=\'fas fa-graduation-cap text-6xl text-white\'></i></div>'
+                "
+              />
+            </div>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-500 mb-3">
+                <i class="fas fa-calendar mr-2"></i>
+                <span>March 22, 2026</span>
               </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Email</label>
-                <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="your@email.com" required>
+              <h3 class="text-xl font-bold mb-2">Student Orientation</h3>
+              <p class="text-gray-600 mb-4">
+                Welcome session for new Nepali students in Oita with guidance
+                and networking
+              </p>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500"
+                  ><i class="fas fa-map-marker-alt mr-1"></i>Community
+                  Center</span
+                >
+                <button
+                  onclick="showEventDetails(2)"
+                  class="text-red-600 font-semibold hover:text-red-700 transition"
+                >
+                  Learn More →
+                </button>
               </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Message</label>
-                <textarea rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Your message" required></textarea>
+            </div>
+          </div>
+
+          <!-- Event 3 - Food Festival -->
+          <div class="event-card shadow-lg">
+            <div class="h-48 overflow-hidden">
+              <img
+                src="images/events/event3.jpg"
+                alt="Nepali Food Festival"
+                class="w-full h-full object-cover"
+                onerror="
+                  this.parentElement.innerHTML =
+                    '<div class=\'h-48 bg-gradient-to-br from-green-400 to-teal-500 img-placeholder flex items-center justify-center\'><i class=\'fas fa-utensils text-6xl text-white\'></i></div>'
+                "
+              />
+            </div>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-500 mb-3">
+                <i class="fas fa-calendar mr-2"></i>
+                <span>April 5, 2026</span>
               </div>
-              <button type="submit" class="w-full btn-primary px-6 py-3 rounded-lg text-white font-semibold">
-                <i class="fas fa-paper-plane mr-2"></i>Send Message
+              <h3 class="text-xl font-bold mb-2">Nepali Food Festival</h3>
+              <p class="text-gray-600 mb-4">
+                Experience authentic Nepali cuisine with cooking demonstrations
+                and tasting
+              </p>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500"
+                  ><i class="fas fa-map-marker-alt mr-1"></i>Oita Cultural
+                  Hall</span
+                >
+                <button
+                  onclick="showEventDetails(3)"
+                  class="text-red-600 font-semibold hover:text-red-700 transition"
+                >
+                  Learn More →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Photo Gallery Section -->
+    <section
+      id="gallery"
+      class="py-20 bg-gradient-to-br from-purple-50 to-pink-50"
+    >
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold mb-4">Photo Gallery</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Memories from our community events and celebrations
+          </p>
+        </div>
+
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
+        >
+          <!-- Photo 1 -->
+          <div
+            class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer card-hover"
+            onclick="openGallery(0)"
+          >
+            <img
+              src="images/photos/photo1.jpg"
+              alt="Community Event"
+              class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%23dc143c\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'white\' font-family=\'Arial\' font-size=\'24\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EPhoto 1%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div
+              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center"
+            >
+              <i
+                class="fas fa-search-plus text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity"
+              ></i>
+            </div>
+          </div>
+
+          <!-- Photo 2 -->
+          <div
+            class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer card-hover"
+            onclick="openGallery(1)"
+          >
+            <img
+              src="images/photos/photo2.jpg"
+              alt="Community Event"
+              class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%23003893\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'white\' font-family=\'Arial\' font-size=\'24\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EPhoto 2%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div
+              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center"
+            >
+              <i
+                class="fas fa-search-plus text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity"
+              ></i>
+            </div>
+          </div>
+
+          <!-- Photo 3 -->
+          <div
+            class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer card-hover"
+            onclick="openGallery(2)"
+          >
+            <img
+              src="images/photos/photo3.jpg"
+              alt="Community Event"
+              class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%231e7e34\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'white\' font-family=\'Arial\' font-size=\'24\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EPhoto 3%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div
+              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center"
+            >
+              <i
+                class="fas fa-search-plus text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity"
+              ></i>
+            </div>
+          </div>
+
+          <!-- Photo 4 -->
+          <div
+            class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer card-hover"
+            onclick="openGallery(3)"
+          >
+            <img
+              src="images/photos/photo4.jpg"
+              alt="Community Event"
+              class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%23ffd700\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'white\' font-family=\'Arial\' font-size=\'24\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EPhoto 4%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div
+              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center"
+            >
+              <i
+                class="fas fa-search-plus text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity"
+              ></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-12">
+          <a
+            href="gallery.html"
+            class="btn-primary px-8 py-4 rounded-full text-lg font-semibold transition inline-block"
+          >
+            <i class="fas fa-images mr-2"></i>View All Photos
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Modal -->
+    <div
+      id="galleryModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+    >
+      <button
+        onclick="closeGallery()"
+        class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition z-10"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+      <button
+        onclick="previousPhoto()"
+        class="absolute left-4 text-white text-4xl hover:text-gray-300 transition z-10"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        onclick="nextPhoto()"
+        class="absolute right-4 text-white text-4xl hover:text-gray-300 transition z-10"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <img
+        id="galleryImage"
+        src=""
+        alt="Gallery Image"
+        class="max-w-full max-h-full object-contain"
+      />
+    </div>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-white">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold mb-4">Community Stories</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Hear from our members about their experiences
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <!-- Testimonial 1 -->
+          <div class="testimonial p-6 rounded-lg shadow-lg">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-2xl font-bold"
+              >
+                R
+              </div>
+              <div class="ml-4">
+                <h4 class="font-bold">Rajesh Shrestha</h4>
+                <p class="text-sm text-gray-500">Student, APU</p>
+              </div>
+            </div>
+            <p class="text-gray-700 italic">
+              "This community helped me settle in Oita when I first arrived.
+              From finding accommodation to making friends, they've been
+              incredibly supportive!"
+            </p>
+            <div class="mt-4 text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="testimonial p-6 rounded-lg shadow-lg">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-2xl font-bold"
+              >
+                S
+              </div>
+              <div class="ml-4">
+                <h4 class="font-bold">Sita Gurung</h4>
+                <p class="text-sm text-gray-500">Working Professional</p>
+              </div>
+            </div>
+            <p class="text-gray-700 italic">
+              "The Dashain celebration organized by the community felt like
+              being back home in Nepal. It's wonderful to maintain our cultural
+              connections here in Japan."
+            </p>
+            <div class="mt-4 text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="testimonial p-6 rounded-lg shadow-lg">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold"
+              >
+                A
+              </div>
+              <div class="ml-4">
+                <h4 class="font-bold">Anil Tamang</h4>
+                <p class="text-sm text-gray-500">Factory Worker</p>
+              </div>
+            </div>
+            <p class="text-gray-700 italic">
+              "They helped me find a better job and provided translation
+              support. The community is like a family away from home."
+            </p>
+            <div class="mt-4 text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+          <div class="testimonial p-6 rounded-lg shadow-lg">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold"
+              >
+                A
+              </div>
+              <div class="ml-4">
+                <h4 class="font-bold">Anil Tamang</h4>
+                <p class="text-sm text-gray-500">Factory Worker</p>
+              </div>
+            </div>
+            <p class="text-gray-700 italic">
+              "They helped me find a better job and provided translation
+              support. The community is like a family away from home."
+            </p>
+            <div class="mt-4 text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+          <div class="testimonial p-6 rounded-lg shadow-lg">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold"
+              >
+                A
+              </div>
+              <div class="ml-4">
+                <h4 class="font-bold">Anil Tamang</h4>
+                <p class="text-sm text-gray-500">Factory Worker</p>
+              </div>
+            </div>
+            <p class="text-gray-700 italic">
+              "They helped me find a better job and provided translation
+              support. The community is like a family away from home."
+            </p>
+            <div class="mt-4 text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+          <div class="testimonial p-6 rounded-lg shadow-lg">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold"
+              >
+                A
+              </div>
+              <div class="ml-4">
+                <h4 class="font-bold">Anil Tamang</h4>
+                <p class="text-sm text-gray-500">Factory Worker</p>
+              </div>
+            </div>
+            <p class="text-gray-700 italic">
+              "They helped me find a better job and provided translation
+              support. The community is like a family away from home."
+            </p>
+            <div class="mt-4 text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Community Members Section -->
+    <section
+      id="members"
+      class="py-20 bg-gradient-to-br from-blue-50 via-white to-red-50"
+    >
+      <div class="container mx-auto px-6">
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold mb-4">
+            Our Community Members
+          </h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Meet the amazing people who make our community thrive
+          </p>
+        </div>
+
+        <!-- Member Statistics -->
+        <div
+          class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mb-16"
+        >
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center card-hover">
+            <div class="text-5xl font-bold text-red-600 mb-2">500+</div>
+            <p class="text-gray-600 font-medium">Total Members</p>
+          </div>
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center card-hover">
+            <div class="text-5xl font-bold text-blue-600 mb-2">150+</div>
+            <p class="text-gray-600 font-medium">Students</p>
+          </div>
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center card-hover">
+            <div class="text-5xl font-bold text-green-600 mb-2">200+</div>
+            <p class="text-gray-600 font-medium">Workers</p>
+          </div>
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center card-hover">
+            <div class="text-5xl font-bold text-purple-600 mb-2">150+</div>
+            <p class="text-gray-600 font-medium">Families</p>
+          </div>
+        </div>
+
+        <!-- Leadership Team -->
+        <div class="mb-16">
+          <h3 class="text-3xl font-bold text-center mb-12">Leadership Team</h3>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto"
+          >
+            <!-- President -->
+            <div
+              class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            >
+              <div
+                class="h-48 bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center"
+              >
+                <div
+                  class="w-32 h-32 rounded-full bg-white flex items-center justify-center text-4xl font-bold text-red-600 border-4 border-white shadow-xl"
+                >
+                  👤
+                </div>
+              </div>
+              <div class="p-6 text-center">
+                <h4 class="font-bold text-xl mb-1">Ram Bahadur</h4>
+                <p class="text-red-600 font-semibold mb-2">President</p>
+                <p class="text-gray-600 text-sm mb-4">
+                  Leading our community since 2020
+                </p>
+                <div class="flex justify-center space-x-3">
+                  <a href="#" class="text-blue-600 hover:text-blue-700"
+                    ><i class="fab fa-facebook"></i
+                  ></a>
+                  <a href="#" class="text-gray-600 hover:text-gray-700"
+                    ><i class="fas fa-envelope"></i
+                  ></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vice President -->
+            <div
+              class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            >
+              <div
+                class="h-48 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center"
+              >
+                <div
+                  class="w-32 h-32 rounded-full bg-white flex items-center justify-center text-4xl font-bold text-blue-600 border-4 border-white shadow-xl"
+                >
+                  👤
+                </div>
+              </div>
+              <div class="p-6 text-center">
+                <h4 class="font-bold text-xl mb-1">Maya Sharma</h4>
+                <p class="text-blue-600 font-semibold mb-2">Vice President</p>
+                <p class="text-gray-600 text-sm mb-4">
+                  Community coordination & events
+                </p>
+                <div class="flex justify-center space-x-3">
+                  <a href="#" class="text-blue-600 hover:text-blue-700"
+                    ><i class="fab fa-facebook"></i
+                  ></a>
+                  <a href="#" class="text-gray-600 hover:text-gray-700"
+                    ><i class="fas fa-envelope"></i
+                  ></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Secretary -->
+            <div
+              class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            >
+              <div
+                class="h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center"
+              >
+                <div
+                  class="w-32 h-32 rounded-full bg-white flex items-center justify-center text-4xl font-bold text-green-600 border-4 border-white shadow-xl"
+                >
+                  👤
+                </div>
+              </div>
+              <div class="p-6 text-center">
+                <h4 class="font-bold text-xl mb-1">Bikram Thapa</h4>
+                <p class="text-green-600 font-semibold mb-2">Secretary</p>
+                <p class="text-gray-600 text-sm mb-4">
+                  Documentation & communications
+                </p>
+                <div class="flex justify-center space-x-3">
+                  <a href="#" class="text-blue-600 hover:text-blue-700"
+                    ><i class="fab fa-facebook"></i
+                  ></a>
+                  <a href="#" class="text-gray-600 hover:text-gray-700"
+                    ><i class="fas fa-envelope"></i
+                  ></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Treasurer -->
+            <div
+              class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            >
+              <div
+                class="h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center"
+              >
+                <div
+                  class="w-32 h-32 rounded-full bg-white flex items-center justify-center text-4xl font-bold text-purple-600 border-4 border-white shadow-xl"
+                >
+                  👤
+                </div>
+              </div>
+              <div class="p-6 text-center">
+                <h4 class="font-bold text-xl mb-1">Priya Rai</h4>
+                <p class="text-purple-600 font-semibold mb-2">Treasurer</p>
+                <p class="text-gray-600 text-sm mb-4">Financial management</p>
+                <div class="flex justify-center space-x-3">
+                  <a href="#" class="text-blue-600 hover:text-blue-700"
+                    ><i class="fab fa-facebook"></i
+                  ></a>
+                  <a href="#" class="text-gray-600 hover:text-gray-700"
+                    ><i class="fas fa-envelope"></i
+                  ></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Committee Members -->
+        <div class="mb-16">
+          <h3 class="text-3xl font-bold text-center mb-12">
+            Committee Members
+          </h3>
+          <div
+            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-6xl mx-auto"
+          >
+            <!-- Committee Member 1 -->
+            <div
+              class="bg-white rounded-xl shadow-md p-6 text-center card-hover"
+            >
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3"
+              >
+                SK
+              </div>
+              <h4 class="font-bold mb-1">Suresh KC</h4>
+              <p class="text-sm text-gray-600">Event Coordinator</p>
+            </div>
+
+            <!-- Committee Member 2 -->
+            <div
+              class="bg-white rounded-xl shadow-md p-6 text-center card-hover"
+            >
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3"
+              >
+                LP
+              </div>
+              <h4 class="font-bold mb-1">Laxmi Poudel</h4>
+              <p class="text-sm text-gray-600">Women's Wing</p>
+            </div>
+
+            <!-- Committee Member 3 -->
+            <div
+              class="bg-white rounded-xl shadow-md p-6 text-center card-hover"
+            >
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3"
+              >
+                AS
+              </div>
+              <h4 class="font-bold mb-1">Arun Subedi</h4>
+              <p class="text-sm text-gray-600">Youth Coordinator</p>
+            </div>
+
+            <!-- Committee Member 4 -->
+            <div
+              class="bg-white rounded-xl shadow-md p-6 text-center card-hover"
+            >
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3"
+              >
+                SL
+              </div>
+              <h4 class="font-bold mb-1">Suman Lama</h4>
+              <p class="text-sm text-gray-600">Sports Director</p>
+            </div>
+
+            <!-- Committee Member 5 -->
+            <div
+              class="bg-white rounded-xl shadow-md p-6 text-center card-hover"
+            >
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3"
+              >
+                RA
+              </div>
+              <h4 class="font-bold mb-1">Rita Adhikari</h4>
+              <p class="text-sm text-gray-600">Cultural Head</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Member Directory & Benefits -->
+        <div
+          class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-12"
+        >
+          <!-- Member Benefits -->
+          <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h3 class="text-2xl font-bold mb-6 flex items-center">
+              <i class="fas fa-star text-yellow-500 mr-3"></i>
+              Membership Benefits
+            </h3>
+            <ul class="space-y-4">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
+                <div>
+                  <h4 class="font-semibold">Free Event Access</h4>
+                  <p class="text-gray-600 text-sm">
+                    Attend all community events at no cost
+                  </p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
+                <div>
+                  <h4 class="font-semibold">Support Network</h4>
+                  <p class="text-gray-600 text-sm">
+                    24/7 emergency support and guidance
+                  </p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
+                <div>
+                  <h4 class="font-semibold">Job & Housing Help</h4>
+                  <p class="text-gray-600 text-sm">
+                    Exclusive access to job postings and housing info
+                  </p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
+                <div>
+                  <h4 class="font-semibold">Community Groups</h4>
+                  <p class="text-gray-600 text-sm">
+                    Join WhatsApp and Facebook groups
+                  </p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-600 mr-3 mt-1"></i>
+                <div>
+                  <h4 class="font-semibold">Cultural Programs</h4>
+                  <p class="text-gray-600 text-sm">
+                    Celebrate Nepali festivals together
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- How to Become a Member -->
+          <div
+            class="bg-gradient-to-br from-red-600 to-blue-600 rounded-2xl shadow-lg p-8 text-white"
+          >
+            <h3 class="text-2xl font-bold mb-6 flex items-center">
+              <i class="fas fa-user-plus mr-3"></i>
+              Become a Member
+            </h3>
+            <div class="space-y-6">
+              <div class="flex items-start">
+                <div
+                  class="w-10 h-10 rounded-full bg-white text-red-600 flex items-center justify-center font-bold mr-4 flex-shrink-0"
+                >
+                  1
+                </div>
+                <div>
+                  <h4 class="font-semibold mb-1">Fill Registration Form</h4>
+                  <p class="text-white text-sm opacity-90">
+                    Submit your details online or in person
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div
+                  class="w-10 h-10 rounded-full bg-white text-red-600 flex items-center justify-center font-bold mr-4 flex-shrink-0"
+                >
+                  2
+                </div>
+                <div>
+                  <h4 class="font-semibold mb-1">Membership Fee</h4>
+                  <p class="text-white text-sm opacity-90">
+                    ¥2,000/year (Students: ¥1,000/year)
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div
+                  class="w-10 h-10 rounded-full bg-white text-red-600 flex items-center justify-center font-bold mr-4 flex-shrink-0"
+                >
+                  3
+                </div>
+                <div>
+                  <h4 class="font-semibold mb-1">Get Your ID</h4>
+                  <p class="text-white text-sm opacity-90">
+                    Receive member ID and join community groups
+                  </p>
+                </div>
+              </div>
+              <div class="mt-8">
+                <button
+                  onclick="window.location.href = '#contact'"
+                  class="w-full bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+                >
+                  <i class="fas fa-arrow-right mr-2"></i>Register Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View All Members Button -->
+        <div class="text-center">
+          <button
+            onclick="showMemberDirectory()"
+            class="btn-primary px-8 py-4 rounded-full text-lg font-semibold transition inline-block"
+          >
+            <i class="fas fa-users mr-2"></i>View Complete Member Directory
+          </button>
+          <p class="text-gray-600 mt-4">
+            Access to full member list (members only)
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Join Section with QR Code -->
+    <section id="join" class="py-20 nepal-gradient text-white">
+      <div class="container mx-auto px-6 text-center">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">Join Us Today!</h2>
+        <p class="text-xl mb-12 max-w-2xl mx-auto">
+          Become part of our vibrant community and stay connected with fellow
+          Nepalis in Oita
+        </p>
+
+        <div
+          class="flex flex-col lg:flex-row items-center justify-center gap-12"
+        >
+          <!-- QR Code -->
+          <div
+            class="qr-container inline-block p-8 rounded-2xl shadow-2xl relative"
+          >
+            <div
+              class="w-64 h-64 bg-white flex items-center justify-center rounded-lg overflow-hidden"
+            >
+              <img
+                src="images/qr-code.jpg"
+                alt="Facebook QR Code"
+                class="w-full h-full object-contain"
+                onerror="
+                  this.parentElement.innerHTML =
+                    '<div class=\'text-center\'><i class=\'fas fa-qrcode text-8xl text-gray-400 mb-4\'></i><p class=\'text-gray-600 text-sm\'>Scan to follow us</p></div>'
+                "
+              />
+            </div>
+            <p class="font-bold text-xl mt-4 text-gray-800">
+              <i class="fab fa-facebook text-blue-600 mr-2"></i>Follow us on
+              Facebook
+            </p>
+          </div>
+
+          <!-- Social Links -->
+          <div class="space-y-4">
+            <h3 class="text-2xl font-bold mb-6">Connect With Us</h3>
+            <a
+              href="#"
+              class="block bg-white text-blue-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
+            >
+              <i class="fab fa-facebook-f mr-3"></i>Follow on Facebook
+            </a>
+            <a
+              href="#"
+              class="block bg-white text-pink-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
+            >
+              <i class="fab fa-instagram mr-3"></i>Follow on Instagram
+            </a>
+            <a
+              href="#"
+              class="block bg-white text-green-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
+            >
+              <i class="fab fa-whatsapp mr-3"></i>Join WhatsApp Group
+            </a>
+            <a
+              href="mailto:info@nepal-oita.com"
+              class="block bg-white text-red-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
+            >
+              <i class="fas fa-envelope mr-3"></i>Email Us
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-50">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold mb-4">Get In Touch</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Have questions? We're here to help!
+          </p>
+        </div>
+
+        <div class="max-w-4xl mx-auto">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <!-- Contact Info -->
+            <div class="space-y-6">
+              <div class="flex items-start space-x-4">
+                <div
+                  class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0"
+                >
+                  <i class="fas fa-map-marker-alt text-red-600 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg mb-1">Location</h3>
+                  <p class="text-gray-600">Oita City, Oita Prefecture, Japan</p>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-4">
+                <div
+                  class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
+                >
+                  <i class="fas fa-envelope text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg mb-1">Email</h3>
+                  <p class="text-gray-600">info@nepal-oita.com</p>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-4">
+                <div
+                  class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0"
+                >
+                  <i class="fas fa-phone text-green-600 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg mb-1">Phone</h3>
+                  <p class="text-gray-600">+81 (0) XXX-XXXX-XXXX</p>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-4">
+                <div
+                  class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0"
+                >
+                  <i class="fas fa-clock text-purple-600 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg mb-1">Office Hours</h3>
+                  <p class="text-gray-600">Mon - Fri: 10:00 AM - 6:00 PM</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="bg-white p-8 rounded-2xl shadow-lg">
+              <form id="contactForm" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-semibold mb-2">Name</label>
+                  <input
+                    type="text"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="Your name"
+                    required
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2">Email</label>
+                  <input
+                    type="email"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2"
+                    >Message</label
+                  >
+                  <textarea
+                    rows="4"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="Your message"
+                    required
+                  ></textarea>
+                </div>
+                <button
+                  type="submit"
+                  class="w-full btn-primary px-6 py-3 rounded-lg text-white font-semibold"
+                >
+                  <i class="fas fa-paper-plane mr-2"></i>Send Message
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-green-800 text-white py-12">
+      <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <!-- About -->
+          <div>
+            <h3 class="text-xl font-bold mb-4">Nepal-Oita Community</h3>
+            <p class="text-gray-300 text-sm mt-2">
+              Connecting hearts across cultures since 2018
+            </p>
+          </div>
+
+          <!-- Quick Links -->
+          <div>
+            <h4 class="font-bold mb-4">Quick Links</h4>
+            <ul class="space-y-2 text-gray-300">
+              <li>
+                <a href="#home" class="hover:text-yellow-300 transition"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a href="#about" class="hover:text-yellow-300 transition"
+                  >About Us</a
+                >
+              </li>
+              <li>
+                <a href="#events" class="hover:text-yellow-300 transition"
+                  >Events</a
+                >
+              </li>
+              <li>
+                <a href="#contact" class="hover:text-yellow-300 transition"
+                  >Contact</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- Resources -->
+          <div>
+            <h4 class="font-bold mb-4">Resources</h4>
+            <ul class="space-y-2 text-gray-300">
+              <li>
+                <a href="#" class="hover:text-yellow-300 transition"
+                  >Student Guide</a
+                >
+              </li>
+              <li>
+                <a href="#" class="hover:text-yellow-300 transition"
+                  >Job Board</a
+                >
+              </li>
+              <li>
+                <a href="#" class="hover:text-yellow-300 transition"
+                  >Housing Help</a
+                >
+              </li>
+              <li>
+                <a href="#" class="hover:text-yellow-300 transition"
+                  >Emergency Contacts</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- Newsletter -->
+          <div>
+            <h4 class="font-bold mb-4">Newsletter</h4>
+            <p class="text-gray-300 text-sm mb-4">
+              Stay updated with our latest events and news
+            </p>
+            <form class="flex">
+              <input
+                type="email"
+                placeholder="Your email"
+                class="px-4 py-2 rounded-l-lg w-full text-gray-800 focus:outline-none"
+              />
+              <button
+                class="bg-red-600 px-4 py-2 rounded-r-lg hover:bg-red-700 transition"
+              >
+                <i class="fas fa-arrow-right"></i>
               </button>
             </form>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Footer -->
-  <footer class="bg-green-800 text-white py-12">
-    <div class="container mx-auto px-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-        <!-- About -->
-        <div>
-          <h3 class="text-xl font-bold mb-4">Nepal-Oita Community</h3>
-          <p class="text-gray-300 text-sm mt-2">Connecting hearts across cultures since 2018</p>
-        </div>
-
-        <!-- Quick Links -->
-        <div>
-          <h4 class="font-bold mb-4">Quick Links</h4>
-          <ul class="space-y-2 text-gray-300">
-            <li><a href="#home" class="hover:text-yellow-300 transition">Home</a></li>
-            <li><a href="#about" class="hover:text-yellow-300 transition">About Us</a></li>
-            <li><a href="#events" class="hover:text-yellow-300 transition">Events</a></li>
-            <li><a href="#contact" class="hover:text-yellow-300 transition">Contact</a></li>
-          </ul>
-        </div>
-
-        <!-- Resources -->
-        <div>
-          <h4 class="font-bold mb-4">Resources</h4>
-          <ul class="space-y-2 text-gray-300">
-            <li><a href="#" class="hover:text-yellow-300 transition">Student Guide</a></li>
-            <li><a href="#" class="hover:text-yellow-300 transition">Job Board</a></li>
-            <li><a href="#" class="hover:text-yellow-300 transition">Housing Help</a></li>
-            <li><a href="#" class="hover:text-yellow-300 transition">Emergency Contacts</a></li>
-          </ul>
-        </div>
-
-        <!-- Newsletter -->
-        <div>
-          <h4 class="font-bold mb-4">Newsletter</h4>
-          <p class="text-gray-300 text-sm mb-4">Stay updated with our latest events and news</p>
-          <form class="flex">
-            <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full text-gray-800 focus:outline-none">
-            <button class="bg-red-600 px-4 py-2 rounded-r-lg hover:bg-red-700 transition">
-              <i class="fas fa-arrow-right"></i>
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <div class="border-t border-green-700 pt-8">
-        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p class="text-gray-300 text-sm">&copy; 2026 Nepal-Oita Community. All rights reserved.</p>
-          <div class="flex space-x-6">
-            <a href="#" class="text-gray-300 hover:text-yellow-300 transition text-2xl">
-              <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="#" class="text-gray-300 hover:text-yellow-300 transition text-2xl">
-              <i class="fab fa-instagram"></i>
-            </a>
-            <a href="#" class="text-gray-300 hover:text-yellow-300 transition text-2xl">
-              <i class="fab fa-whatsapp"></i>
-            </a>
-            <a href="mailto:info@nepal-oita.com" class="text-gray-300 hover:text-yellow-300 transition text-2xl">
-              <i class="fas fa-envelope"></i>
-            </a>
+        <div class="border-t border-green-700 pt-8">
+          <div
+            class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0"
+          >
+            <p class="text-gray-300 text-sm">
+              &copy; 2026 Nepal-Oita Community. All rights reserved.
+            </p>
+            <div class="flex space-x-6">
+              <a
+                href="#"
+                class="text-gray-300 hover:text-yellow-300 transition text-2xl"
+              >
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a
+                href="#"
+                class="text-gray-300 hover:text-yellow-300 transition text-2xl"
+              >
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a
+                href="#"
+                class="text-gray-300 hover:text-yellow-300 transition text-2xl"
+              >
+                <i class="fab fa-whatsapp"></i>
+              </a>
+              <a
+                href="mailto:info@nepal-oita.com"
+                class="text-gray-300 hover:text-yellow-300 transition text-2xl"
+              >
+                <i class="fas fa-envelope"></i>
+              </a>
+            </div>
           </div>
         </div>
       </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" id="scrollTop">
+      <i class="fas fa-arrow-up"></i>
     </div>
-  </footer>
 
-  <!-- Scroll to Top Button -->
-  <div class="scroll-top" id="scrollTop">
-    <i class="fas fa-arrow-up"></i>
-  </div>
-
-  <!-- JavaScript -->
-  <script>
-    // Navbar scroll effect
-    const navbar = document.querySelector('.navbar');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 100) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-    });
-
-    // Mobile menu toggle
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
-    const closeMobileMenu = document.getElementById('closeMobileMenu');
-    const mobileLinks = document.querySelectorAll('.mobile-link');
-
-    mobileMenuBtn.addEventListener('click', () => {
-      mobileMenu.classList.add('active');
-      mobileMenuBackdrop.classList.remove('hidden');
-    });
-
-    closeMobileMenu.addEventListener('click', () => {
-      mobileMenu.classList.remove('active');
-      mobileMenuBackdrop.classList.add('hidden');
-    });
-
-    // Close menu when clicking backdrop
-    mobileMenuBackdrop.addEventListener('click', () => {
-      mobileMenu.classList.remove('active');
-      mobileMenuBackdrop.classList.add('hidden');
-    });
-
-    mobileLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-        mobileMenuBackdrop.classList.add('hidden');
-      });
-    });
-
-    // Scroll to top button
-    const scrollTopBtn = document.getElementById('scrollTop');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) {
-        scrollTopBtn.classList.add('visible');
-      } else {
-        scrollTopBtn.classList.remove('visible');
-      }
-    });
-
-    scrollTopBtn.addEventListener('click', () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    });
-
-    // Stats counter animation
-    const animateCount = (element, target, duration = 2000) => {
-      let start = 0;
-      const increment = target / (duration / 16);
-      
-      const timer = setInterval(() => {
-        start += increment;
-        if (start >= target) {
-          element.textContent = target + '+';
-          clearInterval(timer);
+    <!-- JavaScript -->
+    <script>
+      // Navbar scroll effect
+      const navbar = document.querySelector(".navbar");
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 100) {
+          navbar.classList.add("scrolled");
         } else {
-          element.textContent = Math.floor(start);
-        }
-      }, 16);
-    };
-
-    // Intersection Observer for stats
-    const statsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const target = parseInt(entry.target.dataset.count);
-          animateCount(entry.target, target);
-          statsObserver.unobserve(entry.target);
+          navbar.classList.remove("scrolled");
         }
       });
-    }, { threshold: 0.5 });
 
-    document.querySelectorAll('.stat-number').forEach(stat => {
-      statsObserver.observe(stat);
-    });
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const mobileMenu = document.getElementById("mobileMenu");
+      const mobileMenuBackdrop = document.getElementById("mobileMenuBackdrop");
+      const closeMobileMenu = document.getElementById("closeMobileMenu");
+      const mobileLinks = document.querySelectorAll(".mobile-link");
 
-    // Contact form submission
-    const contactForm = document.getElementById('contactForm');
-    contactForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      showSuccessModal();
-      contactForm.reset();
-    });
+      mobileMenuBtn.addEventListener("click", () => {
+        mobileMenu.classList.add("active");
+        mobileMenuBackdrop.classList.remove("hidden");
+      });
 
-    // Success Modal Function
-    function showSuccessModal() {
-      const modal = document.createElement('div');
-      modal.id = 'successModal';
-      modal.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 animate-fade-in';
-      modal.innerHTML = `
+      closeMobileMenu.addEventListener("click", () => {
+        mobileMenu.classList.remove("active");
+        mobileMenuBackdrop.classList.add("hidden");
+      });
+
+      // Close menu when clicking backdrop
+      mobileMenuBackdrop.addEventListener("click", () => {
+        mobileMenu.classList.remove("active");
+        mobileMenuBackdrop.classList.add("hidden");
+      });
+
+      mobileLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+          mobileMenu.classList.remove("active");
+          mobileMenuBackdrop.classList.add("hidden");
+        });
+      });
+
+      // Scroll to top button
+      const scrollTopBtn = document.getElementById("scrollTop");
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          scrollTopBtn.classList.add("visible");
+        } else {
+          scrollTopBtn.classList.remove("visible");
+        }
+      });
+
+      scrollTopBtn.addEventListener("click", () => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      });
+
+      // Stats counter animation
+      const animateCount = (element, target, duration = 2000) => {
+        let start = 0;
+        const increment = target / (duration / 16);
+
+        const timer = setInterval(() => {
+          start += increment;
+          if (start >= target) {
+            element.textContent = target + "+";
+            clearInterval(timer);
+          } else {
+            element.textContent = Math.floor(start);
+          }
+        }, 16);
+      };
+
+      // Intersection Observer for stats
+      const statsObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const target = parseInt(entry.target.dataset.count);
+              animateCount(entry.target, target);
+              statsObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.5 },
+      );
+
+      document.querySelectorAll(".stat-number").forEach((stat) => {
+        statsObserver.observe(stat);
+      });
+
+      // Contact form submission
+      const contactForm = document.getElementById("contactForm");
+      contactForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        showSuccessModal();
+        contactForm.reset();
+      });
+
+      // Success Modal Function
+      function showSuccessModal() {
+        const modal = document.createElement("div");
+        modal.id = "successModal";
+        modal.className =
+          "fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 animate-fade-in";
+        modal.innerHTML = `
         <div class="bg-white rounded-2xl max-w-md w-full p-8 text-center transform animate-fade-in-up shadow-2xl">
           <!-- Success Icon -->
           <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
@@ -1324,109 +2013,113 @@
           </button>
         </div>
       `;
-      document.body.appendChild(modal);
-      document.body.style.overflow = 'hidden';
-      
-      // Auto close after 5 seconds
-      setTimeout(() => {
-        closeSuccessModal();
-      }, 20000);
-    }
+        document.body.appendChild(modal);
+        document.body.style.overflow = "hidden";
 
-    function closeSuccessModal() {
-      const modal = document.getElementById('successModal');
-      if (modal) {
-        modal.remove();
-        document.body.style.overflow = 'auto';
+        // Auto close after 5 seconds
+        setTimeout(() => {
+          closeSuccessModal();
+        }, 20000);
       }
-    }
 
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
+      function closeSuccessModal() {
+        const modal = document.getElementById("successModal");
+        if (modal) {
+          modal.remove();
+          document.body.style.overflow = "auto";
         }
-      });
-    });
-
-    // Add loading animation on page load
-    window.addEventListener('load', () => {
-      document.body.style.opacity = '0';
-      setTimeout(() => {
-        document.body.style.transition = 'opacity 0.5s';
-        document.body.style.opacity = '1';
-      }, 100);
-    });
-
-    // Event Details Modal
-    const eventDetails = {
-      1: {
-        title: "Holi Festival Celebration 🎨",
-        date: "March 15, 2026",
-        time: "10:00 AM - 4:00 PM",
-        location: "Oita Park",
-        description: "Join us for an unforgettable celebration of Holi, the festival of colors! This vibrant event brings together the Nepali community in Oita for a day filled with joy, colors, music, and traditional festivities.",
-        details: [
-          "🎨 Color throwing ceremony (Gulal play)",
-          "🎵 Live Nepali music and dance performances",
-          "🍛 Traditional Nepali food stalls",
-          "👨‍👩‍👧‍👦 Family-friendly activities for all ages",
-          "📸 Photography opportunities",
-          "🎁 Raffle prizes and giveaways"
-        ],
-        registration: "Free for members | ¥500 for non-members",
-        contact: "For registration: info@nepal-oita.com"
-      },
-      2: {
-        title: "Student Orientation Program 🎓",
-        date: "March 22, 2026",
-        time: "2:00 PM - 5:00 PM",
-        location: "Oita Community Center",
-        description: "A comprehensive orientation program designed specifically for new Nepali students in Oita. Get all the information you need to start your academic journey successfully!",
-        details: [
-          "📚 Academic guidance and course registration help",
-          "🏠 Housing and accommodation assistance",
-          "💼 Part-time job information and work permits",
-          "🏥 Healthcare and insurance guidance",
-          "🚌 Transportation and local area orientation",
-          "🤝 Networking with senior students and mentors",
-          "📱 Join our student support group"
-        ],
-        registration: "Free for all Nepali students",
-        contact: "RSVP required: student@nepal-oita.com"
-      },
-      3: {
-        title: "Nepali Food Festival 🍛",
-        date: "April 5, 2026",
-        time: "11:00 AM - 6:00 PM",
-        location: "Oita Cultural Hall",
-        description: "Experience the rich flavors of Nepal! Our food festival brings authentic Nepali cuisine to Oita, featuring live cooking demonstrations, traditional dishes, and cultural performances.",
-        details: [
-          "🍲 Authentic Nepali dishes: Dal Bhat, Momo, Sel Roti, and more",
-          "👨‍🍳 Live cooking demonstrations by expert chefs",
-          "🥘 Food tasting sessions",
-          "🎭 Traditional Nepali cultural performances",
-          "📖 Recipe sharing and cooking tips",
-          "🛍️ Nepali spices and ingredients stall",
-          "🎪 Kids' cooking activities"
-        ],
-        registration: "Entry: ¥1,000 (includes food samples)",
-        contact: "Book your spot: events@nepal-oita.com"
       }
-    };
 
-    function showEventDetails(eventId) {
-      const event = eventDetails[eventId];
-      const modal = document.createElement('div');
-      modal.id = 'eventModal';
-      modal.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 overflow-y-auto';
-      modal.innerHTML = `
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        });
+      });
+
+      // Add loading animation on page load
+      window.addEventListener("load", () => {
+        document.body.style.opacity = "0";
+        setTimeout(() => {
+          document.body.style.transition = "opacity 0.5s";
+          document.body.style.opacity = "1";
+        }, 100);
+      });
+
+      // Event Details Modal
+      const eventDetails = {
+        1: {
+          title: "Holi Festival Celebration 🎨",
+          date: "March 15, 2026",
+          time: "10:00 AM - 4:00 PM",
+          location: "Oita Park",
+          description:
+            "Join us for an unforgettable celebration of Holi, the festival of colors! This vibrant event brings together the Nepali community in Oita for a day filled with joy, colors, music, and traditional festivities.",
+          details: [
+            "🎨 Color throwing ceremony (Gulal play)",
+            "🎵 Live Nepali music and dance performances",
+            "🍛 Traditional Nepali food stalls",
+            "👨‍👩‍👧‍👦 Family-friendly activities for all ages",
+            "📸 Photography opportunities",
+            "🎁 Raffle prizes and giveaways",
+          ],
+          registration: "Free for members | ¥500 for non-members",
+          contact: "For registration: info@nepal-oita.com",
+        },
+        2: {
+          title: "Student Orientation Program 🎓",
+          date: "March 22, 2026",
+          time: "2:00 PM - 5:00 PM",
+          location: "Oita Community Center",
+          description:
+            "A comprehensive orientation program designed specifically for new Nepali students in Oita. Get all the information you need to start your academic journey successfully!",
+          details: [
+            "📚 Academic guidance and course registration help",
+            "🏠 Housing and accommodation assistance",
+            "💼 Part-time job information and work permits",
+            "🏥 Healthcare and insurance guidance",
+            "🚌 Transportation and local area orientation",
+            "🤝 Networking with senior students and mentors",
+            "📱 Join our student support group",
+          ],
+          registration: "Free for all Nepali students",
+          contact: "RSVP required: student@nepal-oita.com",
+        },
+        3: {
+          title: "Nepali Food Festival 🍛",
+          date: "April 5, 2026",
+          time: "11:00 AM - 6:00 PM",
+          location: "Oita Cultural Hall",
+          description:
+            "Experience the rich flavors of Nepal! Our food festival brings authentic Nepali cuisine to Oita, featuring live cooking demonstrations, traditional dishes, and cultural performances.",
+          details: [
+            "🍲 Authentic Nepali dishes: Dal Bhat, Momo, Sel Roti, and more",
+            "👨‍🍳 Live cooking demonstrations by expert chefs",
+            "🥘 Food tasting sessions",
+            "🎭 Traditional Nepali cultural performances",
+            "📖 Recipe sharing and cooking tips",
+            "🛍️ Nepali spices and ingredients stall",
+            "🎪 Kids' cooking activities",
+          ],
+          registration: "Entry: ¥1,000 (includes food samples)",
+          contact: "Book your spot: events@nepal-oita.com",
+        },
+      };
+
+      function showEventDetails(eventId) {
+        const event = eventDetails[eventId];
+        const modal = document.createElement("div");
+        modal.id = "eventModal";
+        modal.className =
+          "fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 overflow-y-auto";
+        modal.innerHTML = `
         <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative animate-fade-in-up">
           <button onclick="closeEventModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl z-10">
             <i class="fas fa-times"></i>
@@ -1441,7 +2134,7 @@
             <p class="text-gray-700 mb-6 leading-relaxed">${event.description}</p>
             <h3 class="text-xl font-bold mb-4">Event Highlights:</h3>
             <ul class="space-y-2 mb-6">
-              ${event.details.map(detail => `<li class="text-gray-700">${detail}</li>`).join('')}
+              ${event.details.map((detail) => `<li class="text-gray-700">${detail}</li>`).join("")}
             </ul>
             <div class="bg-gradient-to-r from-red-50 to-blue-50 p-4 rounded-lg mb-4">
               <p class="font-semibold text-gray-800 mb-2">💰 ${event.registration}</p>
@@ -1458,75 +2151,80 @@
           </div>
         </div>
       `;
-      document.body.appendChild(modal);
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeEventModal() {
-      const modal = document.getElementById('eventModal');
-      if (modal) {
-        modal.remove();
-        document.body.style.overflow = 'auto';
+        document.body.appendChild(modal);
+        document.body.style.overflow = "hidden";
       }
-    }
 
-    // Gallery Functions
-    const galleryImages = [
-      'images/photos/photo1.jpg',
-      'images/photos/photo2.jpg',
-      'images/photos/photo3.jpg',
-      'images/photos/photo4.jpg'
-    ];
-    let currentGalleryIndex = 0;
-
-    function openGallery(index) {
-      currentGalleryIndex = index;
-      const modal = document.getElementById('galleryModal');
-      const img = document.getElementById('galleryImage');
-      img.src = galleryImages[index];
-      modal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeGallery() {
-      const modal = document.getElementById('galleryModal');
-      modal.classList.add('hidden');
-      document.body.style.overflow = 'auto';
-    }
-
-    function nextPhoto() {
-      currentGalleryIndex = (currentGalleryIndex + 1) % galleryImages.length;
-      document.getElementById('galleryImage').src = galleryImages[currentGalleryIndex];
-    }
-
-    function previousPhoto() {
-      currentGalleryIndex = (currentGalleryIndex - 1 + galleryImages.length) % galleryImages.length;
-      document.getElementById('galleryImage').src = galleryImages[currentGalleryIndex];
-    }
-
-    // Close modals on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeEventModal();
-        closeGallery();
+      function closeEventModal() {
+        const modal = document.getElementById("eventModal");
+        if (modal) {
+          modal.remove();
+          document.body.style.overflow = "auto";
+        }
       }
-    });
 
-    // Gallery navigation with arrow keys
-    document.addEventListener('keydown', (e) => {
-      const galleryModal = document.getElementById('galleryModal');
-      if (!galleryModal.classList.contains('hidden')) {
-        if (e.key === 'ArrowRight') nextPhoto();
-        if (e.key === 'ArrowLeft') previousPhoto();
+      // Gallery Functions
+      const galleryImages = [
+        "images/photos/photo1.jpg",
+        "images/photos/photo2.jpg",
+        "images/photos/photo3.jpg",
+        "images/photos/photo4.jpg",
+      ];
+      let currentGalleryIndex = 0;
+
+      function openGallery(index) {
+        currentGalleryIndex = index;
+        const modal = document.getElementById("galleryModal");
+        const img = document.getElementById("galleryImage");
+        img.src = galleryImages[index];
+        modal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
       }
-    });
 
-    // Member Directory Modal
-    function showMemberDirectory() {
-      const modal = document.createElement('div');
-      modal.id = 'memberDirectoryModal';
-      modal.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 overflow-y-auto';
-      modal.innerHTML = `
+      function closeGallery() {
+        const modal = document.getElementById("galleryModal");
+        modal.classList.add("hidden");
+        document.body.style.overflow = "auto";
+      }
+
+      function nextPhoto() {
+        currentGalleryIndex = (currentGalleryIndex + 1) % galleryImages.length;
+        document.getElementById("galleryImage").src =
+          galleryImages[currentGalleryIndex];
+      }
+
+      function previousPhoto() {
+        currentGalleryIndex =
+          (currentGalleryIndex - 1 + galleryImages.length) %
+          galleryImages.length;
+        document.getElementById("galleryImage").src =
+          galleryImages[currentGalleryIndex];
+      }
+
+      // Close modals on Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeEventModal();
+          closeGallery();
+        }
+      });
+
+      // Gallery navigation with arrow keys
+      document.addEventListener("keydown", (e) => {
+        const galleryModal = document.getElementById("galleryModal");
+        if (!galleryModal.classList.contains("hidden")) {
+          if (e.key === "ArrowRight") nextPhoto();
+          if (e.key === "ArrowLeft") previousPhoto();
+        }
+      });
+
+      // Member Directory Modal
+      function showMemberDirectory() {
+        const modal = document.createElement("div");
+        modal.id = "memberDirectoryModal";
+        modal.className =
+          "fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 overflow-y-auto";
+        modal.innerHTML = `
         <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative animate-fade-in-up">
           <button onclick="closeMemberDirectory()" class="sticky top-4 right-4 float-right text-gray-500 hover:text-gray-700 text-2xl z-10 bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
             <i class="fas fa-times"></i>
@@ -1566,12 +2264,12 @@
           </div>
         </div>
       `;
-      document.body.appendChild(modal);
-      document.body.style.overflow = 'hidden';
+        document.body.appendChild(modal);
+        document.body.style.overflow = "hidden";
 
-      // Add filter button styles
-      const style = document.createElement('style');
-      style.textContent = `
+        // Add filter button styles
+        const style = document.createElement("style");
+        style.textContent = `
         .member-filter-btn {
           background: #f3f4f6;
           color: #4b5563;
@@ -1584,37 +2282,129 @@
           color: white;
         }
       `;
-      document.head.appendChild(style);
-    }
-
-    function closeMemberDirectory() {
-      const modal = document.getElementById('memberDirectoryModal');
-      if (modal) {
-        modal.remove();
-        document.body.style.overflow = 'auto';
+        document.head.appendChild(style);
       }
-    }
 
-    function generateSampleMembers() {
-      const members = [
-        { name: 'Ram Bahadur Shrestha', occupation: 'President', area: 'Oita City', category: 'leadership', phone: '080-XXXX-XXXX' },
-        { name: 'Maya Sharma', occupation: 'Vice President', area: 'Beppu', category: 'leadership', phone: '080-XXXX-XXXX' },
-        { name: 'Bikram Thapa', occupation: 'Secretary', area: 'Oita City', category: 'leadership', phone: '080-XXXX-XXXX' },
-        { name: 'Priya Rai', occupation: 'Treasurer', area: 'Oita City', category: 'leadership', phone: '080-XXXX-XXXX' },
-        { name: 'Rajesh Kumar', occupation: 'APU Student', area: 'Beppu', category: 'students', phone: '080-XXXX-XXXX' },
-        { name: 'Sita Gurung', occupation: 'Factory Worker', area: 'Nakatsu', category: 'workers', phone: '080-XXXX-XXXX' },
-        { name: 'Anil Tamang', occupation: 'Restaurant Staff', area: 'Oita City', category: 'workers', phone: '080-XXXX-XXXX' },
-        { name: 'Kamala Magar', occupation: 'Ritsumeikan APU Student', area: 'Beppu', category: 'students', phone: '080-XXXX-XXXX' },
-        { name: 'Dipak Karki', occupation: 'Construction Worker', area: 'Usuki', category: 'workers', phone: '080-XXXX-XXXX' },
-        { name: 'Sunita Poudel', occupation: 'Nurse', area: 'Oita City', category: 'workers', phone: '080-XXXX-XXXX' },
-        { name: 'Krishna Bahadur Family', occupation: 'Business Owner', area: 'Oita City', category: 'families', phone: '080-XXXX-XXXX' },
-        { name: 'Gita Adhikari', occupation: 'Teacher', area: 'Beppu', category: 'workers', phone: '080-XXXX-XXXX' },
-        { name: 'Prakash Limbu', occupation: 'IT Professional', area: 'Oita City', category: 'workers', phone: '080-XXXX-XXXX' },
-        { name: 'Sabina Rana', occupation: 'APU Student', area: 'Beppu', category: 'students', phone: '080-XXXX-XXXX' },
-        { name: 'Roshan Thapa Family', occupation: 'Restaurant Business', area: 'Oita City', category: 'families', phone: '080-XXXX-XXXX' },
-      ];
+      function closeMemberDirectory() {
+        const modal = document.getElementById("memberDirectoryModal");
+        if (modal) {
+          modal.remove();
+          document.body.style.overflow = "auto";
+        }
+      }
 
-      return members.map((member, index) => `
+      function generateSampleMembers() {
+        const members = [
+          {
+            name: "Ram Bahadur Shrestha",
+            occupation: "President",
+            area: "Oita City",
+            category: "leadership",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Maya Sharma",
+            occupation: "Vice President",
+            area: "Beppu",
+            category: "leadership",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Bikram Thapa",
+            occupation: "Secretary",
+            area: "Oita City",
+            category: "leadership",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Priya Rai",
+            occupation: "Treasurer",
+            area: "Oita City",
+            category: "leadership",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Rajesh Kumar",
+            occupation: "APU Student",
+            area: "Beppu",
+            category: "students",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Sita Gurung",
+            occupation: "Factory Worker",
+            area: "Nakatsu",
+            category: "workers",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Anil Tamang",
+            occupation: "Restaurant Staff",
+            area: "Oita City",
+            category: "workers",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Kamala Magar",
+            occupation: "Ritsumeikan APU Student",
+            area: "Beppu",
+            category: "students",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Dipak Karki",
+            occupation: "Construction Worker",
+            area: "Usuki",
+            category: "workers",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Sunita Poudel",
+            occupation: "Nurse",
+            area: "Oita City",
+            category: "workers",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Krishna Bahadur Family",
+            occupation: "Business Owner",
+            area: "Oita City",
+            category: "families",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Gita Adhikari",
+            occupation: "Teacher",
+            area: "Beppu",
+            category: "workers",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Prakash Limbu",
+            occupation: "IT Professional",
+            area: "Oita City",
+            category: "workers",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Sabina Rana",
+            occupation: "APU Student",
+            area: "Beppu",
+            category: "students",
+            phone: "080-XXXX-XXXX",
+          },
+          {
+            name: "Roshan Thapa Family",
+            occupation: "Restaurant Business",
+            area: "Oita City",
+            category: "families",
+            phone: "080-XXXX-XXXX",
+          },
+        ];
+
+        return members
+          .map(
+            (member, index) => `
         <div class="member-item ${member.category} flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
           <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold mr-4 flex-shrink-0">
             ${member.name.charAt(0)}
@@ -1629,41 +2419,43 @@
             </a>
           </div>
         </div>
-      `).join('');
-    }
+      `,
+          )
+          .join("");
+      }
 
-    function filterMembers() {
-      const searchInput = document.getElementById('memberSearch');
-      const filter = searchInput.value.toLowerCase();
-      const memberItems = document.querySelectorAll('.member-item');
+      function filterMembers() {
+        const searchInput = document.getElementById("memberSearch");
+        const filter = searchInput.value.toLowerCase();
+        const memberItems = document.querySelectorAll(".member-item");
 
-      memberItems.forEach(item => {
-        const text = item.textContent.toLowerCase();
-        if (text.includes(filter)) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
-        }
-      });
-    }
+        memberItems.forEach((item) => {
+          const text = item.textContent.toLowerCase();
+          if (text.includes(filter)) {
+            item.style.display = "";
+          } else {
+            item.style.display = "none";
+          }
+        });
+      }
 
-    function filterByCategory(category) {
-      const memberItems = document.querySelectorAll('.member-item');
-      const filterButtons = document.querySelectorAll('.member-filter-btn');
+      function filterByCategory(category) {
+        const memberItems = document.querySelectorAll(".member-item");
+        const filterButtons = document.querySelectorAll(".member-filter-btn");
 
-      // Update active button
-      filterButtons.forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+        // Update active button
+        filterButtons.forEach((btn) => btn.classList.remove("active"));
+        event.target.classList.add("active");
 
-      // Filter members
-      memberItems.forEach(item => {
-        if (category === 'all' || item.classList.contains(category)) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
-        }
-      });
-    }
-  </script>
-</body>
+        // Filter members
+        memberItems.forEach((item) => {
+          if (category === "all" || item.classList.contains(category)) {
+            item.style.display = "";
+          } else {
+            item.style.display = "none";
+          }
+        });
+      }
+    </script>
+  </body>
 </html>

@@ -1,598 +1,888 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Photo Gallery - Nepal-Oita Community</title>
-  <meta name="description" content="Browse our community photo gallery featuring events, celebrations, and memorable moments.">
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <style>
-    :root {
-      --primary-green: #1e7e34;
-      --primary-red: #dc143c;
-      --primary-blue: #003893;
-      --nepal-red: #dc143c;
-      --nepal-blue: #003893;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photo Gallery - Nepal-Oita Community</title>
+    <meta
+      name="description"
+      content="Browse our community photo gallery featuring events, celebrations, and memorable moments."
+    />
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    html {
-      scroll-behavior: smooth;
-    }
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      overflow-x: hidden;
-    }
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
-    /* Navbar Styles */
-    .navbar {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+    <style>
+      :root {
+        --primary-green: #1e7e34;
+        --primary-red: #dc143c;
+        --primary-blue: #003893;
+        --nepal-red: #dc143c;
+        --nepal-blue: #003893;
+      }
 
-    .navbar.scrolled {
-      background: rgba(30, 126, 52, 0.98);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    /* Gallery Grid */
-    .gallery-item {
-      position: relative;
-      overflow: hidden;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+      html {
+        scroll-behavior: smooth;
+      }
 
-    .gallery-item:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-    }
+      body {
+        font-family: "Poppins", sans-serif;
+        overflow-x: hidden;
+      }
 
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
+      /* Navbar Styles */
+      .navbar {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
 
-    .gallery-item:hover img {
-      transform: scale(1.1);
-    }
+      .navbar.scrolled {
+        background: rgba(30, 126, 52, 0.98);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      }
 
-    .gallery-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      display: flex;
-      align-items: flex-end;
-      padding: 20px;
-    }
+      /* Gallery Grid */
+      .gallery-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 16px;
+        cursor: pointer;
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
 
-    .gallery-item:hover .gallery-overlay {
-      opacity: 1;
-    }
+      .gallery-item:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+      }
 
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      animation: fadeIn 0.3s ease;
-    }
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+      }
 
-    .modal.active {
-      display: flex;
-    }
+      .gallery-item:hover img {
+        transform: scale(1.1);
+      }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+      .gallery-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex;
+        align-items: flex-end;
+        padding: 20px;
+      }
 
-    .modal-content {
-      max-width: 90%;
-      max-height: 90vh;
-      position: relative;
-      animation: zoomIn 0.3s ease;
-    }
+      .gallery-item:hover .gallery-overlay {
+        opacity: 1;
+      }
 
-    @keyframes zoomIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+      }
 
-    .modal-content img {
-      max-width: 100%;
-      max-height: 90vh;
-      object-fit: contain;
-      border-radius: 8px;
-    }
+      .modal.active {
+        display: flex;
+      }
 
-    /* Filter Buttons */
-    .filter-btn {
-      padding: 10px 20px;
-      border-radius: 25px;
-      background: #f3f4f6;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: 600;
-    }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
 
-    .filter-btn:hover {
-      background: #e5e7eb;
-    }
+      .modal-content {
+        max-width: 90%;
+        max-height: 90vh;
+        position: relative;
+        animation: zoomIn 0.3s ease;
+      }
 
-    .filter-btn.active {
-      background: linear-gradient(135deg, var(--nepal-red), #ff1744);
-      color: white;
-      border-color: var(--nepal-red);
-    }
+      @keyframes zoomIn {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
 
-    /* Back Button */
-    .back-btn {
-      background: linear-gradient(135deg, var(--nepal-red), #ff1744);
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
-    }
+      .modal-content img {
+        max-width: 100%;
+        max-height: 90vh;
+        object-fit: contain;
+        border-radius: 8px;
+      }
 
-    .back-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
-    }
+      /* Filter Buttons */
+      .filter-btn {
+        padding: 10px 20px;
+        border-radius: 25px;
+        background: #f3f4f6;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+      }
 
-    /* Scroll margin for fixed header */
-    section {
-      scroll-margin-top: 80px;
-    }
+      .filter-btn:hover {
+        background: #e5e7eb;
+      }
 
-    /* Mobile Menu Styles */
-    .mobile-menu {
-      transform: translateX(100%);
-      transition: transform 0.3s ease-in-out;
-    }
+      .filter-btn.active {
+        background: linear-gradient(135deg, var(--nepal-red), #ff1744);
+        color: white;
+        border-color: var(--nepal-red);
+      }
 
-    .mobile-menu.active {
-      transform: translateX(0);
-    }
-  </style>
-</head>
-<body class="bg-gray-50">
+      /* Back Button */
+      .back-btn {
+        background: linear-gradient(135deg, var(--nepal-red), #ff1744);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+      }
 
-  <!-- Navbar -->
-  <header class="navbar fixed w-full top-0 z-50 bg-green-700 text-white shadow-md">
-    <div class="container mx-auto flex justify-between items-center py-4 px-6">
-      <a href="index.html" class="flex items-center space-x-4 hover:opacity-90 transition cursor-pointer group">
-        <div class="relative w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all group-hover:scale-105 overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-br from-red-100 via-white to-blue-100 opacity-50"></div>
-          <div class="relative flex items-center justify-center space-x-0.5">
-            <span class="text-lg">🇳🇵</span>
-            <span class="text-base animate-pulse">🤝</span>
-            <span class="text-lg">🇯🇵</span>
+      .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
+      }
+
+      /* Scroll margin for fixed header */
+      section {
+        scroll-margin-top: 80px;
+      }
+
+      /* Mobile Menu Styles */
+      .mobile-menu {
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .mobile-menu.active {
+        transform: translateX(0);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <!-- Navbar -->
+    <header
+      class="navbar fixed w-full top-0 z-50 bg-green-700 text-white shadow-md"
+    >
+      <div
+        class="container mx-auto flex justify-between items-center py-4 px-6"
+      >
+        <a
+          href="index.html"
+          class="flex items-center space-x-4 hover:opacity-90 transition cursor-pointer group"
+        >
+          <div
+            class="relative w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all group-hover:scale-105 overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-red-100 via-white to-blue-100 opacity-50"
+            ></div>
+            <div class="relative flex items-center justify-center space-x-0.5">
+              <span class="text-lg">🇳🇵</span>
+              <span class="text-base animate-pulse">🤝</span>
+              <span class="text-lg">🇯🇵</span>
+            </div>
+          </div>
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold">Nepal-Oita Community</h1>
+          </div>
+        </a>
+
+        <nav class="hidden md:flex">
+          <ul class="flex space-x-6 items-center">
+            <li>
+              <a
+                href="index.html"
+                class="hover:text-yellow-300 font-medium transition"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a
+                href="index.html#about"
+                class="hover:text-yellow-300 font-medium transition"
+                >About</a
+              >
+            </li>
+            <li>
+              <a
+                href="index.html#events"
+                class="hover:text-yellow-300 font-medium transition"
+                >Events</a
+              >
+            </li>
+            <li>
+              <a href="gallery.html" class="text-yellow-300 font-medium"
+                >Gallery</a
+              >
+            </li>
+            <li>
+              <a
+                href="index.html#members"
+                class="hover:text-yellow-300 font-medium transition"
+                >Members</a
+              >
+            </li>
+            <li>
+              <a
+                href="index.html#contact"
+                class="hover:text-yellow-300 font-medium transition"
+                >Contact</a
+              >
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobileMenuBtn"
+          class="md:hidden text-white focus:outline-none"
+        >
+          <i class="fas fa-bars text-2xl"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile Menu Backdrop -->
+    <div
+      id="mobileMenuBackdrop"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+    ></div>
+
+    <!-- Mobile Menu -->
+    <div
+      id="mobileMenu"
+      class="mobile-menu md:hidden fixed top-0 right-0 w-72 h-full bg-green-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300"
+    >
+      <div class="p-6">
+        <button
+          id="closeMobileMenu"
+          class="text-white text-2xl mb-8 float-right hover:text-yellow-300 transition"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+        <ul class="space-y-4 clear-both pt-8">
+          <li>
+            <a
+              href="index.html"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a
+              href="index.html#about"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >About</a
+            >
+          </li>
+          <li>
+            <a
+              href="index.html#events"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >Events</a
+            >
+          </li>
+          <li>
+            <a
+              href="gallery.html"
+              class="block text-yellow-300 font-semibold text-lg mobile-link py-2 border-b border-green-700"
+              >Gallery</a
+            >
+          </li>
+          <li>
+            <a
+              href="index.html#members"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >Members</a
+            >
+          </li>
+          <li>
+            <a
+              href="index.html#contact"
+              class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700"
+              >Contact</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section
+      class="pt-32 pb-12 relative min-h-[60vh] flex items-center justify-center"
+    >
+      <!-- Split Background - Nepal (left) and Oita (right) -->
+      <div class="absolute inset-0">
+        <div
+          class="absolute inset-y-0 left-0 w-1/2"
+          style="
+            background-image: url(&quot;images/nepal-oita-bg.jpg&quot;);
+            background-size: cover;
+            background-position: center right;
+          "
+        ></div>
+        <div
+          class="absolute inset-y-0 right-0 w-1/2"
+          style="
+            background-image: url(&quot;images/oita-city-gallery.jpg&quot;);
+            background-size: cover;
+            background-position: center left;
+          "
+        ></div>
+        <div
+          class="absolute inset-y-0 left-1/2 w-1 transform -translate-x-1/2 bg-gradient-to-b from-transparent via-white/50 to-transparent"
+          style="
+            box-shadow:
+              0 0 30px rgba(255, 255, 255, 0.8),
+              0 0 60px rgba(255, 255, 255, 0.4);
+          "
+        ></div>
+        <div
+          class="absolute inset-y-0 left-1/2 w-32 transform -translate-x-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        ></div>
+      </div>
+
+      <!-- Vignette overlay -->
+      <div
+        class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50"
+      ></div>
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"
+      ></div>
+
+      <div class="container mx-auto px-6 text-center text-white relative z-10">
+        <h1
+          class="text-4xl md:text-6xl font-bold mb-4"
+          style="
+            text-shadow:
+              3px 3px 12px rgba(0, 0, 0, 0.9),
+              0 0 30px rgba(0, 0, 0, 0.5);
+          "
+        >
+          📸 Photo Gallery
+        </h1>
+        <p
+          class="text-xl md:text-2xl mb-6 max-w-3xl mx-auto font-medium"
+          style="
+            text-shadow:
+              2px 2px 8px rgba(0, 0, 0, 0.9),
+              0 0 20px rgba(0, 0, 0, 0.5);
+          "
+        >
+          Memories from our community events, celebrations, and special moments
+        </p>
+        <a
+          href="index.html"
+          class="back-btn inline-block px-8 py-3 rounded-full font-semibold text-white hover:scale-105 transform transition"
+        >
+          <i class="fas fa-arrow-left mr-2"></i>Back to Home
+        </a>
+      </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="py-8 bg-white sticky top-20 z-40 shadow-md">
+      <div class="container mx-auto px-6">
+        <div class="flex flex-wrap gap-3 justify-center items-center">
+          <button class="filter-btn active" data-filter="all">
+            <i class="fas fa-images mr-2"></i>All Photos
+          </button>
+          <button class="filter-btn" data-filter="festivals">
+            <i class="fas fa-calendar-day mr-2"></i>Festivals
+          </button>
+          <button class="filter-btn" data-filter="events">
+            <i class="fas fa-users mr-2"></i>Community Events
+          </button>
+          <button class="filter-btn" data-filter="cultural">
+            <i class="fas fa-drum mr-2"></i>Cultural Programs
+          </button>
+          <button class="filter-btn" data-filter="sports">
+            <i class="fas fa-futbol mr-2"></i>Sports & Recreation
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Grid -->
+    <section class="py-16 bg-gray-50">
+      <div class="container mx-auto px-6">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          id="galleryGrid"
+        >
+          <!-- Photo 1 -->
+          <div class="gallery-item h-64" data-category="festivals">
+            <img
+              src="images/photos/photo1.jpg"
+              alt="Festival Celebration"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23dc143c%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EDashain Celebration%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div class="gallery-overlay">
+              <div class="text-white">
+                <h3 class="font-bold text-lg">Dashain Celebration</h3>
+                <p class="text-sm opacity-90">Traditional festival gathering</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Photo 2 -->
+          <div class="gallery-item h-64" data-category="events">
+            <img
+              src="images/photos/photo2.jpg"
+              alt="Community Event"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23003893%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ECommunity Gathering%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div class="gallery-overlay">
+              <div class="text-white">
+                <h3 class="font-bold text-lg">Community Gathering</h3>
+                <p class="text-sm opacity-90">Monthly meetup event</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Photo 3 -->
+          <div class="gallery-item h-64" data-category="cultural">
+            <img
+              src="images/photos/photo3.jpg"
+              alt="Cultural Program"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%231e7e34%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ECultural Performance%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div class="gallery-overlay">
+              <div class="text-white">
+                <h3 class="font-bold text-lg">Cultural Performance</h3>
+                <p class="text-sm opacity-90">Traditional dance showcase</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Photo 4 -->
+          <div class="gallery-item h-64" data-category="festivals">
+            <img
+              src="images/photos/photo4.jpg"
+              alt="Festival"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23ffd700%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ETihar Festival%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div class="gallery-overlay">
+              <div class="text-white">
+                <h3 class="font-bold text-lg">Tihar Festival</h3>
+                <p class="text-sm opacity-90">Festival of lights celebration</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event Photos -->
+          <div class="gallery-item h-64" data-category="events">
+            <img
+              src="images/events/event1.jpg"
+              alt="Holi Festival"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23ff6b6b%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EHoli Celebration%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div class="gallery-overlay">
+              <div class="text-white">
+                <h3 class="font-bold text-lg">Holi Celebration</h3>
+                <p class="text-sm opacity-90">Festival of colors</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="gallery-item h-64" data-category="events">
+            <img
+              src="images/events/event2.jpg"
+              alt="Student Event"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%234a90e2%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EStudent Orientation%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div class="gallery-overlay">
+              <div class="text-white">
+                <h3 class="font-bold text-lg">Student Orientation</h3>
+                <p class="text-sm opacity-90">Welcome new students</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="gallery-item h-64" data-category="cultural">
+            <img
+              src="images/events/event3.jpg"
+              alt="Food Festival"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%2326a69a%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EFood Festival%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div class="gallery-overlay">
+              <div class="text-white">
+                <h3 class="font-bold text-lg">Nepali Food Festival</h3>
+                <p class="text-sm opacity-90">Traditional cuisine showcase</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sports -->
+          <div class="gallery-item h-64" data-category="sports">
+            <img
+              src="images/photos/photo1.jpg"
+              alt="Sports Event"
+              onerror="
+                this.src =
+                  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23e74c3c%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EFootball Tournament%3C/text%3E%3C/svg%3E'
+              "
+            />
+            <div class="gallery-overlay">
+              <div class="text-white">
+                <h3 class="font-bold text-lg">Football Tournament</h3>
+                <p class="text-sm opacity-90">Annual sports day</p>
+              </div>
+            </div>
           </div>
         </div>
-        <div>
-          <h1 class="text-xl md:text-2xl font-bold">Nepal-Oita Community</h1>
+
+        <!-- Load More Button -->
+        <div class="text-center mt-12">
+          <button
+            class="back-btn px-8 py-4 rounded-full font-semibold text-white"
+          >
+            <i class="fas fa-sync-alt mr-2"></i>Load More Photos
+          </button>
         </div>
-      </a>
-      
-      <nav class="hidden md:flex">
-        <ul class="flex space-x-6 items-center">
-          <li><a href="index.html" class="hover:text-yellow-300 font-medium transition">Home</a></li>
-          <li><a href="index.html#about" class="hover:text-yellow-300 font-medium transition">About</a></li>
-          <li><a href="index.html#events" class="hover:text-yellow-300 font-medium transition">Events</a></li>
-          <li><a href="gallery.html" class="text-yellow-300 font-medium">Gallery</a></li>
-          <li><a href="index.html#members" class="hover:text-yellow-300 font-medium transition">Members</a></li>
-          <li><a href="index.html#contact" class="hover:text-yellow-300 font-medium transition">Contact</a></li>
-        </ul>
-      </nav>
+      </div>
+    </section>
 
-      <!-- Mobile Menu Button -->
-      <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
-        <i class="fas fa-bars text-2xl"></i>
-      </button>
-    </div>
-  </header>
-
-  <!-- Mobile Menu Backdrop -->
-  <div id="mobileMenuBackdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
-
-  <!-- Mobile Menu -->
-  <div id="mobileMenu" class="mobile-menu md:hidden fixed top-0 right-0 w-72 h-full bg-green-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300">
-    <div class="p-6">
-      <button id="closeMobileMenu" class="text-white text-2xl mb-8 float-right hover:text-yellow-300 transition">
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal">
+      <button
+        onclick="closeModal()"
+        class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition z-10"
+      >
         <i class="fas fa-times"></i>
       </button>
-      <ul class="space-y-4 clear-both pt-8">
-        <li><a href="index.html" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">Home</a></li>
-        <li><a href="index.html#about" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">About</a></li>
-        <li><a href="index.html#events" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">Events</a></li>
-        <li><a href="gallery.html" class="block text-yellow-300 font-semibold text-lg mobile-link py-2 border-b border-green-700">Gallery</a></li>
-        <li><a href="index.html#members" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">Members</a></li>
-        <li><a href="index.html#contact" class="block text-white hover:text-yellow-300 text-lg mobile-link py-2 border-b border-green-700">Contact</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Hero Section -->
-  <section class="pt-32 pb-12 relative min-h-[60vh] flex items-center justify-center">
-    <!-- Split Background - Nepal (left) and Oita (right) -->
-    <div class="absolute inset-0">
-      <div class="absolute inset-y-0 left-0 w-1/2" style="background-image: url('images/nepal-oita-bg.jpg'); background-size: cover; background-position: center right;"></div>
-      <div class="absolute inset-y-0 right-0 w-1/2" style="background-image: url('images/oita-city-gallery.jpg'); background-size: cover; background-position: center left;"></div>
-      <div class="absolute inset-y-0 left-1/2 w-1 transform -translate-x-1/2 bg-gradient-to-b from-transparent via-white/50 to-transparent" style="box-shadow: 0 0 30px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.4);"></div>
-      <div class="absolute inset-y-0 left-1/2 w-32 transform -translate-x-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-    </div>
-    
-    <!-- Vignette overlay -->
-    <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50"></div>
-    <div class="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
-    
-    <div class="container mx-auto px-6 text-center text-white relative z-10">
-      <h1 class="text-4xl md:text-6xl font-bold mb-4" style="text-shadow: 3px 3px 12px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.5);">
-        📸 Photo Gallery
-      </h1>
-      <p class="text-xl md:text-2xl mb-6 max-w-3xl mx-auto font-medium" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5);">
-        Memories from our community events, celebrations, and special moments
-      </p>
-      <a href="index.html" class="back-btn inline-block px-8 py-3 rounded-full font-semibold text-white hover:scale-105 transform transition">
-        <i class="fas fa-arrow-left mr-2"></i>Back to Home
-      </a>
-    </div>
-  </section>
-
-  <!-- Filter Section -->
-  <section class="py-8 bg-white sticky top-20 z-40 shadow-md">
-    <div class="container mx-auto px-6">
-      <div class="flex flex-wrap gap-3 justify-center items-center">
-        <button class="filter-btn active" data-filter="all">
-          <i class="fas fa-images mr-2"></i>All Photos
-        </button>
-        <button class="filter-btn" data-filter="festivals">
-          <i class="fas fa-calendar-day mr-2"></i>Festivals
-        </button>
-        <button class="filter-btn" data-filter="events">
-          <i class="fas fa-users mr-2"></i>Community Events
-        </button>
-        <button class="filter-btn" data-filter="cultural">
-          <i class="fas fa-drum mr-2"></i>Cultural Programs
-        </button>
-        <button class="filter-btn" data-filter="sports">
-          <i class="fas fa-futbol mr-2"></i>Sports & Recreation
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Gallery Grid -->
-  <section class="py-16 bg-gray-50">
-    <div class="container mx-auto px-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="galleryGrid">
-        
-        <!-- Photo 1 -->
-        <div class="gallery-item h-64" data-category="festivals">
-          <img src="images/photos/photo1.jpg" alt="Festival Celebration" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23dc143c%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EDashain Celebration%3C/text%3E%3C/svg%3E'">
-          <div class="gallery-overlay">
-            <div class="text-white">
-              <h3 class="font-bold text-lg">Dashain Celebration</h3>
-              <p class="text-sm opacity-90">Traditional festival gathering</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Photo 2 -->
-        <div class="gallery-item h-64" data-category="events">
-          <img src="images/photos/photo2.jpg" alt="Community Event" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23003893%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ECommunity Gathering%3C/text%3E%3C/svg%3E'">
-          <div class="gallery-overlay">
-            <div class="text-white">
-              <h3 class="font-bold text-lg">Community Gathering</h3>
-              <p class="text-sm opacity-90">Monthly meetup event</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Photo 3 -->
-        <div class="gallery-item h-64" data-category="cultural">
-          <img src="images/photos/photo3.jpg" alt="Cultural Program" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%231e7e34%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ECultural Performance%3C/text%3E%3C/svg%3E'">
-          <div class="gallery-overlay">
-            <div class="text-white">
-              <h3 class="font-bold text-lg">Cultural Performance</h3>
-              <p class="text-sm opacity-90">Traditional dance showcase</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Photo 4 -->
-        <div class="gallery-item h-64" data-category="festivals">
-          <img src="images/photos/photo4.jpg" alt="Festival" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23ffd700%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ETihar Festival%3C/text%3E%3C/svg%3E'">
-          <div class="gallery-overlay">
-            <div class="text-white">
-              <h3 class="font-bold text-lg">Tihar Festival</h3>
-              <p class="text-sm opacity-90">Festival of lights celebration</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Event Photos -->
-        <div class="gallery-item h-64" data-category="events">
-          <img src="images/events/event1.jpg" alt="Holi Festival" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23ff6b6b%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EHoli Celebration%3C/text%3E%3C/svg%3E'">
-          <div class="gallery-overlay">
-            <div class="text-white">
-              <h3 class="font-bold text-lg">Holi Celebration</h3>
-              <p class="text-sm opacity-90">Festival of colors</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="gallery-item h-64" data-category="events">
-          <img src="images/events/event2.jpg" alt="Student Event" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%234a90e2%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EStudent Orientation%3C/text%3E%3C/svg%3E'">
-          <div class="gallery-overlay">
-            <div class="text-white">
-              <h3 class="font-bold text-lg">Student Orientation</h3>
-              <p class="text-sm opacity-90">Welcome new students</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="gallery-item h-64" data-category="cultural">
-          <img src="images/events/event3.jpg" alt="Food Festival" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%2326a69a%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EFood Festival%3C/text%3E%3C/svg%3E'">
-          <div class="gallery-overlay">
-            <div class="text-white">
-              <h3 class="font-bold text-lg">Nepali Food Festival</h3>
-              <p class="text-sm opacity-90">Traditional cuisine showcase</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Sports -->
-        <div class="gallery-item h-64" data-category="sports">
-          <img src="images/photos/photo1.jpg" alt="Sports Event" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23e74c3c%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22white%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EFootball Tournament%3C/text%3E%3C/svg%3E'">
-          <div class="gallery-overlay">
-            <div class="text-white">
-              <h3 class="font-bold text-lg">Football Tournament</h3>
-              <p class="text-sm opacity-90">Annual sports day</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Load More Button -->
-      <div class="text-center mt-12">
-        <button class="back-btn px-8 py-4 rounded-full font-semibold text-white">
-          <i class="fas fa-sync-alt mr-2"></i>Load More Photos
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Image Modal -->
-  <div id="imageModal" class="modal">
-    <button onclick="closeModal()" class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition z-10">
-      <i class="fas fa-times"></i>
-    </button>
-    <button onclick="previousImage()" class="absolute left-4 text-white text-4xl hover:text-gray-300 transition z-10">
-      <i class="fas fa-chevron-left"></i>
-    </button>
-    <button onclick="nextImage()" class="absolute right-4 text-white text-4xl hover:text-gray-300 transition z-10">
-      <i class="fas fa-chevron-right"></i>
-    </button>
-    <div class="modal-content">
-      <img id="modalImage" src="" alt="Gallery Image">
-      <div class="text-center mt-4">
-        <h3 id="modalTitle" class="text-white text-2xl font-bold mb-2"></h3>
-        <p id="modalDescription" class="text-gray-300"></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="bg-green-800 text-white py-12">
-    <div class="container mx-auto px-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-        <div>
-          <h3 class="text-xl font-bold mb-4">Nepal-Oita Community</h3>
-          <p class="text-gray-300 text-sm mt-2">Connecting hearts across cultures since 2018</p>
-        </div>
-        <div>
-          <h4 class="font-bold mb-4">Quick Links</h4>
-          <ul class="space-y-2 text-gray-300">
-            <li><a href="index.html" class="hover:text-yellow-300 transition">Home</a></li>
-            <li><a href="index.html#about" class="hover:text-yellow-300 transition">About Us</a></li>
-            <li><a href="index.html#events" class="hover:text-yellow-300 transition">Events</a></li>
-            <li><a href="index.html#contact" class="hover:text-yellow-300 transition">Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-bold mb-4">Resources</h4>
-          <ul class="space-y-2 text-gray-300">
-            <li><a href="#" class="hover:text-yellow-300 transition">Student Guide</a></li>
-            <li><a href="#" class="hover:text-yellow-300 transition">Job Board</a></li>
-            <li><a href="#" class="hover:text-yellow-300 transition">Housing Help</a></li>
-            <li><a href="#" class="hover:text-yellow-300 transition">Emergency Contacts</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-bold mb-4">Connect With Us</h4>
-          <div class="flex space-x-4">
-            <a href="#" class="text-gray-300 hover:text-yellow-300 transition text-2xl">
-              <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="#" class="text-gray-300 hover:text-yellow-300 transition text-2xl">
-              <i class="fab fa-instagram"></i>
-            </a>
-            <a href="#" class="text-gray-300 hover:text-yellow-300 transition text-2xl">
-              <i class="fab fa-whatsapp"></i>
-            </a>
-            <a href="mailto:info@nepal-oita.com" class="text-gray-300 hover:text-yellow-300 transition text-2xl">
-              <i class="fas fa-envelope"></i>
-            </a>
-          </div>
+      <button
+        onclick="previousImage()"
+        class="absolute left-4 text-white text-4xl hover:text-gray-300 transition z-10"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        onclick="nextImage()"
+        class="absolute right-4 text-white text-4xl hover:text-gray-300 transition z-10"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <div class="modal-content">
+        <img id="modalImage" src="" alt="Gallery Image" />
+        <div class="text-center mt-4">
+          <h3 id="modalTitle" class="text-white text-2xl font-bold mb-2"></h3>
+          <p id="modalDescription" class="text-gray-300"></p>
         </div>
       </div>
-      <div class="border-t border-green-700 pt-8 text-center">
-        <p class="text-gray-300 text-sm">&copy; 2026 Nepal-Oita Community. All rights reserved.</p>
-      </div>
     </div>
-  </footer>
 
-  <script>
-    // Mobile menu toggle
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
-    const closeMobileMenu = document.getElementById('closeMobileMenu');
-    const mobileLinks = document.querySelectorAll('.mobile-link');
+    <!-- Footer -->
+    <footer class="bg-green-800 text-white py-12">
+      <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">Nepal-Oita Community</h3>
+            <p class="text-gray-300 text-sm mt-2">
+              Connecting hearts across cultures since 2018
+            </p>
+          </div>
+          <div>
+            <h4 class="font-bold mb-4">Quick Links</h4>
+            <ul class="space-y-2 text-gray-300">
+              <li>
+                <a href="index.html" class="hover:text-yellow-300 transition"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="index.html#about"
+                  class="hover:text-yellow-300 transition"
+                  >About Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="index.html#events"
+                  class="hover:text-yellow-300 transition"
+                  >Events</a
+                >
+              </li>
+              <li>
+                <a
+                  href="index.html#contact"
+                  class="hover:text-yellow-300 transition"
+                  >Contact</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold mb-4">Resources</h4>
+            <ul class="space-y-2 text-gray-300">
+              <li>
+                <a href="#" class="hover:text-yellow-300 transition"
+                  >Student Guide</a
+                >
+              </li>
+              <li>
+                <a href="#" class="hover:text-yellow-300 transition"
+                  >Job Board</a
+                >
+              </li>
+              <li>
+                <a href="#" class="hover:text-yellow-300 transition"
+                  >Housing Help</a
+                >
+              </li>
+              <li>
+                <a href="#" class="hover:text-yellow-300 transition"
+                  >Emergency Contacts</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold mb-4">Connect With Us</h4>
+            <div class="flex space-x-4">
+              <a
+                href="#"
+                class="text-gray-300 hover:text-yellow-300 transition text-2xl"
+              >
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a
+                href="#"
+                class="text-gray-300 hover:text-yellow-300 transition text-2xl"
+              >
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a
+                href="#"
+                class="text-gray-300 hover:text-yellow-300 transition text-2xl"
+              >
+                <i class="fab fa-whatsapp"></i>
+              </a>
+              <a
+                href="mailto:info@nepal-oita.com"
+                class="text-gray-300 hover:text-yellow-300 transition text-2xl"
+              >
+                <i class="fas fa-envelope"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-green-700 pt-8 text-center">
+          <p class="text-gray-300 text-sm">
+            &copy; 2026 Nepal-Oita Community. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
 
-    if (mobileMenuBtn) {
-      mobileMenuBtn.addEventListener('click', () => {
-        mobileMenu.classList.add('active');
-        mobileMenuBackdrop.classList.remove('hidden');
-      });
-    }
+    <script>
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const mobileMenu = document.getElementById("mobileMenu");
+      const mobileMenuBackdrop = document.getElementById("mobileMenuBackdrop");
+      const closeMobileMenu = document.getElementById("closeMobileMenu");
+      const mobileLinks = document.querySelectorAll(".mobile-link");
 
-    if (closeMobileMenu) {
-      closeMobileMenu.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-        mobileMenuBackdrop.classList.add('hidden');
-      });
-    }
-
-    // Close menu when clicking backdrop
-    if (mobileMenuBackdrop) {
-      mobileMenuBackdrop.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-        mobileMenuBackdrop.classList.add('hidden');
-      });
-    }
-
-    mobileLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-        mobileMenuBackdrop.classList.add('hidden');
-      });
-    });
-
-    // Navbar scroll effect
-    const navbar = document.querySelector('.navbar');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 100) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener("click", () => {
+          mobileMenu.classList.add("active");
+          mobileMenuBackdrop.classList.remove("hidden");
+        });
       }
-    });
 
-    // Filter functionality
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const galleryItems = document.querySelectorAll('.gallery-item');
+      if (closeMobileMenu) {
+        closeMobileMenu.addEventListener("click", () => {
+          mobileMenu.classList.remove("active");
+          mobileMenuBackdrop.classList.add("hidden");
+        });
+      }
 
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        // Update active button
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+      // Close menu when clicking backdrop
+      if (mobileMenuBackdrop) {
+        mobileMenuBackdrop.addEventListener("click", () => {
+          mobileMenu.classList.remove("active");
+          mobileMenuBackdrop.classList.add("hidden");
+        });
+      }
 
-        const filter = btn.getAttribute('data-filter');
-
-        // Filter items
-        galleryItems.forEach(item => {
-          if (filter === 'all' || item.getAttribute('data-category') === filter) {
-            item.style.display = 'block';
-          } else {
-            item.style.display = 'none';
-          }
+      mobileLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+          mobileMenu.classList.remove("active");
+          mobileMenuBackdrop.classList.add("hidden");
         });
       });
-    });
 
-    // Modal functionality
-    const modal = document.getElementById('imageModal');
-    const modalImage = document.getElementById('modalImage');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDescription = document.getElementById('modalDescription');
-    let currentImageIndex = 0;
-    let visibleImages = [];
-
-    function updateVisibleImages() {
-      visibleImages = Array.from(document.querySelectorAll('.gallery-item')).filter(item => item.style.display !== 'none');
-    }
-
-    galleryItems.forEach((item, index) => {
-      item.addEventListener('click', () => {
-        updateVisibleImages();
-        currentImageIndex = visibleImages.indexOf(item);
-        showImage(item);
+      // Navbar scroll effect
+      const navbar = document.querySelector(".navbar");
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 100) {
+          navbar.classList.add("scrolled");
+        } else {
+          navbar.classList.remove("scrolled");
+        }
       });
-    });
 
-    function showImage(item) {
-      const img = item.querySelector('img');
-      const title = item.querySelector('.gallery-overlay h3')?.textContent || 'Gallery Image';
-      const desc = item.querySelector('.gallery-overlay p')?.textContent || '';
-      
-      modalImage.src = img.src;
-      modalTitle.textContent = title;
-      modalDescription.textContent = desc;
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
+      // Filter functionality
+      const filterBtns = document.querySelectorAll(".filter-btn");
+      const galleryItems = document.querySelectorAll(".gallery-item");
 
-    function closeModal() {
-      modal.classList.remove('active');
-      document.body.style.overflow = 'auto';
-    }
+      filterBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          // Update active button
+          filterBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
 
-    function nextImage() {
-      currentImageIndex = (currentImageIndex + 1) % visibleImages.length;
-      showImage(visibleImages[currentImageIndex]);
-    }
+          const filter = btn.getAttribute("data-filter");
 
-    function previousImage() {
-      currentImageIndex = (currentImageIndex - 1 + visibleImages.length) % visibleImages.length;
-      showImage(visibleImages[currentImageIndex]);
-    }
+          // Filter items
+          galleryItems.forEach((item) => {
+            if (
+              filter === "all" ||
+              item.getAttribute("data-category") === filter
+            ) {
+              item.style.display = "block";
+            } else {
+              item.style.display = "none";
+            }
+          });
+        });
+      });
 
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-      if (modal.classList.contains('active')) {
-        if (e.key === 'Escape') closeModal();
-        if (e.key === 'ArrowRight') nextImage();
-        if (e.key === 'ArrowLeft') previousImage();
+      // Modal functionality
+      const modal = document.getElementById("imageModal");
+      const modalImage = document.getElementById("modalImage");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalDescription = document.getElementById("modalDescription");
+      let currentImageIndex = 0;
+      let visibleImages = [];
+
+      function updateVisibleImages() {
+        visibleImages = Array.from(
+          document.querySelectorAll(".gallery-item"),
+        ).filter((item) => item.style.display !== "none");
       }
-    });
 
-    // Click outside to close
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
+      galleryItems.forEach((item, index) => {
+        item.addEventListener("click", () => {
+          updateVisibleImages();
+          currentImageIndex = visibleImages.indexOf(item);
+          showImage(item);
+        });
+      });
 
-    // Initialize visible images
-    updateVisibleImages();
-  </script>
-</body>
+      function showImage(item) {
+        const img = item.querySelector("img");
+        const title =
+          item.querySelector(".gallery-overlay h3")?.textContent ||
+          "Gallery Image";
+        const desc =
+          item.querySelector(".gallery-overlay p")?.textContent || "";
+
+        modalImage.src = img.src;
+        modalTitle.textContent = title;
+        modalDescription.textContent = desc;
+        modal.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        modal.classList.remove("active");
+        document.body.style.overflow = "auto";
+      }
+
+      function nextImage() {
+        currentImageIndex = (currentImageIndex + 1) % visibleImages.length;
+        showImage(visibleImages[currentImageIndex]);
+      }
+
+      function previousImage() {
+        currentImageIndex =
+          (currentImageIndex - 1 + visibleImages.length) % visibleImages.length;
+        showImage(visibleImages[currentImageIndex]);
+      }
+
+      // Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        if (modal.classList.contains("active")) {
+          if (e.key === "Escape") closeModal();
+          if (e.key === "ArrowRight") nextImage();
+          if (e.key === "ArrowLeft") previousImage();
+        }
+      });
+
+      // Click outside to close
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      // Initialize visible images
+      updateVisibleImages();
+    </script>
+  </body>
 </html>

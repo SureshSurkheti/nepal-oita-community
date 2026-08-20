@@ -27,8 +27,8 @@ declare
   -- ##########################################################################
   -- ##  EDIT THESE THREE, THEN RUN.
   -- ##########################################################################
-  v_email text    := 'surkhetisuresh123@gmail.com';    -- <<<< the address from step 1
-  v_slug  text    := 'suresh-surkheti';            -- <<<< which card (see below)
+  v_email text    := 'someone@example.com';    -- <<<< the address from step 1
+  v_slug  text    := 'member-slug';            -- <<<< which card (see below)
   v_admin boolean := false;                    -- <<<< true = committee access
   -- ##########################################################################
   --

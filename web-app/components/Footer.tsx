@@ -12,7 +12,7 @@ export function Footer() {
             <div>
               <Link className="brand u-mb-1" href="/">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="brand__mark" src="/images/logo-mark.png" alt=""
+                <img className="brand__mark" src="/images/logo-mark.jpg" alt=""
                      width={320} height={320} decoding="async" />
                 <span className="brand__text">
                   <span className="brand__name">Nepal–Oita</span>

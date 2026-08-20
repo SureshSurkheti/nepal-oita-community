@@ -51,8 +51,8 @@ const PLACES = [
     photos: [
       { file: 'place-umijigoku.jpg', wide: true, name: 'Umi Jigoku', where: 'The steaming pools of Beppu',
         alt: 'Steam rising from the turquoise pool of Umi Jigoku in Beppu, with a red torii behind' },
-      { file: 'place-usajingu.jpg', wide: false, name: 'Usa Jingu', where: 'Usa',
-        alt: 'The vermilion halls of Usa Jingu shrine in northern Oita' },
+      { file: 'city-view.webp', wide: false, name: 'Beppu and Oita City View', where: 'Usa',
+        alt: 'City view in northern Oita city and Beppu city' },
       { file: 'place-sakura.jpg', wide: false, name: 'Ono River', where: 'Cherry blossom, April',
         alt: 'A row of cherry blossom trees along the bank of the Ono River in Oita' },
     ],

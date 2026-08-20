@@ -29,7 +29,7 @@ export async function Nav() {
       <div className="nav__inner">
         <Link className="brand" href="/" aria-label="Nepal–Oita Community, home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="brand__mark" src="/images/logo-mark.png" alt="" width={320} height={320} />
+          <img className="brand__mark" src="/images/logo-mark.jpg" alt="" width={320} height={320} />
           <span className="brand__text">
             <span className="brand__name">Nepal–Oita</span>
             <span className="brand__sub">Community</span>

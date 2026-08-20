@@ -373,8 +373,8 @@ section[id], main[id] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  padding: 0.45rem;
+  gap: 0.25rem;
+  padding: 0.45rem 1.55rem;
   border-radius: var(--r-pill);
   background: var(--btn-bg);
   color: var(--btn-fg);
@@ -505,8 +505,8 @@ section[id], main[id] {
   padding: 4px;
   border-radius: 50%;
   background: #FFFDFA;
-  border: 1px solid rgba(27, 23, 20, 0.10);
-  box-shadow: 0 1px 3px rgba(58, 42, 28, 0.10);
+  border: 2px solid rgba(26, 24, 23, 0.1);
+  box-shadow: 0 1px 3px rgba(154, 105, 63, 0.1);
 }
 /* Slightly larger again in the footer, where there is room for it to breathe */
 .footer .brand__mark { width: 56px; height: 56px; padding: 5px; }

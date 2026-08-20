@@ -75,11 +75,11 @@ const BENEFITS = [
 ]
 
 const SOCIALS: { modifier: string; icon: IconName; href: string; label: string; meta: string }[] = [
-  { modifier: 'facebook', icon: 'facebook', href: 'https://facebook.com/',
+  { modifier: 'facebook', icon: 'facebook', href: 'https://www.facebook.com/nepaloitacommunity98',
     label: 'Facebook', meta: 'Announcements and event photos' },
-  { modifier: 'youtube', icon: 'youtube', href: 'https://youtube.com/',
+  { modifier: 'youtube', icon: 'youtube', href: 'https://www.youtube.com/@namastejapan-o2u',
     label: 'YouTube — Namaste Japan', meta: 'Festivals and performances in full' },
-  { modifier: 'tiktok', icon: 'tiktok', href: 'https://tiktok.com/',
+  { modifier: 'tiktok', icon: 'tiktok', href: 'https://www.tiktok.com/@prayas03?_r=1&_t=ZS-992i3ERvHan',
     label: 'TikTok — Namaste Japan', meta: 'Short clips from events' },
   { modifier: 'email', icon: 'mail', href: 'mailto:nepaloitacommunity11@gmail.com',
     label: 'nepaloitacommunity11@gmail.com', meta: 'We reply within a day or two' },

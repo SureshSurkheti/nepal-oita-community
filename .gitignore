@@ -21,3 +21,22 @@ next-env.d.ts
 
 .env.example
 .env*.example
+
+# ---------------------------------------------------------------------------
+# The old static site's member register — NEVER commit this.
+#
+# static-site/data/members.json holds every member's phone number as a
+# PBKDF2-SHA256 hash. "Hashed" is not the same as safe here, and the reason is
+# the size of the input: a Japanese mobile is 0[789]0 plus eight digits, about
+# 3x10^8 possibilities. That is small enough to try all of them.
+#
+# Worse, the file uses ONE SHARED SALT for all 28 members, so a single pass over
+# those 300 million candidates recovers every number at once rather than one at
+# a time. On a single GPU that is hours, not years — and this repository is
+# public.
+#
+# The file is kept outside the repository, next to the original static site. The
+# Next.js app does not use it: numbers live in Supabase, in a table `anon` has no
+# grant on at all.
+# ---------------------------------------------------------------------------
+static-site/data/

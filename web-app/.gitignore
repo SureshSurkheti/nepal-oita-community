@@ -1,0 +1,9 @@
+# Covered by the repository root .gitignore as well; kept here so the app is
+# self-contained if it is ever split into its own repository.
+node_modules/
+.next/
+.env.local
+.env*.local
+next-env.d.ts
+*.tsbuildinfo
+.tmp-test/

@@ -1,0 +1,29 @@
+{
+  "name": "nepal-oita-community",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test:phone": "tsc lib/phone.ts --outDir .tmp-test --module esnext --target es2022 --moduleResolution bundler && node scripts/phone.test.mjs",
+    "test:db": "cd supabase/tests && ./run.sh",
+    "build:sql": "node scripts/build-setup-sql.mjs",
+    "check:sql": "node scripts/build-setup-sql.mjs --check"
+  },
+  "dependencies": {
+    "next": "16.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "@supabase/supabase-js": "2.112.3",
+    "@supabase/ssr": "0.12.4"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.8",
+    "@types/react-dom": "19.2.4"
+  }
+}

@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# ---------------------------------------------------------------------------
+# The Next.js app in web/
+#
+# node_modules alone is over 11,000 files. Without this, tools that show a file
+# count — Git Graph, the VS Code SCM panel — report the whole dependency tree as
+# pending changes, which is where "10k files changed" comes from. Listed here at
+# the root rather than only in web/.gitignore so there is one obvious place to
+# look.
+# ---------------------------------------------------------------------------
+node_modules/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+
+# Secrets: the Supabase URL and anon key for a real project.
+.env.local
+.env*.local
+
+.env.example
+.env*.example

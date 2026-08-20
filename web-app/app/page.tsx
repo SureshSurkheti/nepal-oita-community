@@ -511,7 +511,7 @@ export default async function Home() {
             <div className="social-list reveal">
               {SOCIALS.map((s) => (
                 <a className={`social social--${s.modifier}`} key={s.modifier}
-                   href={s.href} rel="noopener">
+                   href={s.href} target="_blank" rel="noopener">
                   <span className="social__icon"><Icon name={s.icon} /></span>
                   <span>
                     <span className="social__label">{s.label}</span><br />

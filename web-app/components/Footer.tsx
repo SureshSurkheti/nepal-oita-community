@@ -60,9 +60,9 @@ export function Footer() {
           <div className="footer__bottom">
             <p>&copy; {new Date().getFullYear()} Nepal–Oita Community. All rights reserved.</p>
             <div className="footer__social">
-              <a className="brand-facebook" href="https://www.facebook.com/nepaloitacommunity98" aria-label="Facebook"><Icon name="facebook" /></a>
-              <a className="brand-youtube" href="https://www.youtube.com/@namastejapan-o2u" aria-label="YouTube"><Icon name="youtube" /></a>
-              <a className="brand-tiktok" href="https://www.tiktok.com/@prayas03?_r=1&_t=ZS-992i3ERvHan" aria-label="TikTok"><Icon name="tiktok" /></a>
+              <a className="brand-facebook" href="https://www.facebook.com/nepaloitacommunity98" aria-label="Facebook" target='_blank'><Icon name="facebook" /></a>
+              <a className="brand-youtube" href="https://www.youtube.com/@namastejapan-o2u" aria-label="YouTube" target='_blank'><Icon name="youtube" /></a>
+              <a className="brand-tiktok" href="https://www.tiktok.com/@prayas03?_r=1&_t=ZS-992i3ERvHan" aria-label="TikTok" target='_blank'><Icon name="tiktok" /></a>
               <a className="brand-email" href="mailto:nepaloitacommunity11@gmail.com" aria-label="Email"><Icon name="mail" /></a>
             </div>
           </div>

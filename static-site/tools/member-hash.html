@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set a member's number — Nepal–Oita Community</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root { color-scheme: light; }
+  body { font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+         max-width: 44rem; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; color: #221C17;
+         background: #FCF8F2; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.05rem; margin: 2.25rem 0 0.5rem; }
+  p, li { max-width: 60ch; }
+  .warn { background: #FDF0EE; border: 1px solid #E4C3BD; border-left: 4px solid #A4161A;
+          padding: 0.9rem 1.1rem; border-radius: 8px; margin: 1.25rem 0; }
+  label { display: block; font-weight: 600; font-size: 0.85rem; margin: 1.1rem 0 0.35rem; }
+  input, select, textarea { width: 100%; font: inherit; padding: 0.6rem 0.75rem;
+          border: 1px solid #D8CFC4; border-radius: 8px; background: #fff; }
+  textarea { font-family: ui-monospace, Menlo, monospace; font-size: 0.85rem; min-height: 6rem; }
+  button { font: inherit; font-weight: 600; padding: 0.65rem 1.1rem; border-radius: 999px;
+           border: 1px solid #A4161A; background: #A4161A; color: #fff; cursor: pointer;
+           margin-top: 1.25rem; }
+  button[disabled] { opacity: 0.5; cursor: default; }
+  code { background: #EFE8DD; padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
+  .out { margin-top: 1.5rem; }
+  .muted { color: #6B6157; font-size: 0.9rem; }
+  .err { color: #A4161A; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>Set a member's number</h1>
+<p class="muted">Local tool. Nothing is uploaded and nothing leaves this machine.</p>
+
+<div class="warn">
+  <strong>Never type a phone number into <code>data/members.json</code> itself.</strong>
+  That file is downloaded by every visitor to the site. Paste only the hash this tool
+  prints. The hash cannot be read back into a number.
+</div>
+
+<label for="member">Member</label>
+<select id="member"><option value="">Loading data/members.json…</option></select>
+
+<label for="phone">Their registered mobile number</label>
+<input id="phone" type="tel" inputmode="tel" placeholder="080 4316 4111" autocomplete="off">
+<p class="muted">Spaces, dashes, a leading 0 and a +81 country code are all fine — they are
+stripped before hashing, so the member can type it however they like.</p>
+
+<button id="go" type="button">Make the hash</button>
+
+<div class="out" id="out"></div>
+
+<h2>Then</h2>
+<ol>
+  <li>Open <code>data/members.json</code>.</li>
+  <li>Find that member and set their <code>"hash"</code> to the value above.</li>
+  <li>Repeat for each member, and publish the site.</li>
+</ol>
+<p class="muted">Keep the number itself in whatever the committee already uses as its
+register — a spreadsheet, the paper forms. This tool does not store it.</p>
+
+<script>
+var conf = null, members = [];
+
+function canonical(raw) {
+  var d = String(raw || '').replace(/\D/g, '');
+  if (d.slice(0, 4) === '0081') d = d.slice(4);
+  else if (d.slice(0, 2) === '81' && d.length >= 11) d = d.slice(2);
+  return d.replace(/^0+/, '');
+}
+function b64ToBytes(b64) {
+  var bin = atob(b64), out = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function bytesToB64(bytes) {
+  var s = '';
+  for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s);
+}
+async function derive(phone, kdf) {
+  var key = await crypto.subtle.importKey('raw', new TextEncoder().encode(canonical(phone)),
+    'PBKDF2', false, ['deriveBits']);
+  var bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: kdf.hash,
+    salt: b64ToBytes(kdf.salt), iterations: kdf.iterations }, key, kdf.bits);
+  return bytesToB64(new Uint8Array(bits));
+}
+
+var out = document.getElementById('out');
+var sel = document.getElementById('member');
+var go = document.getElementById('go');
+
+if (!window.crypto || !crypto.subtle) {
+  out.innerHTML = '<p class="err">This browser will not give the page its crypto library. '
+    + 'Serve the folder over http instead of opening the file directly — '
+    + '<code>python3 -m http.server</code>, then open '
+    + '<code>http://localhost:8000/tools/member-hash.html</code>.</p>';
+  go.disabled = true;
+}
+
+fetch('../data/members.json').then(function (r) { return r.json(); }).then(function (d) {
+  conf = d.kdf; members = d.members;
+  sel.innerHTML = '';
+  members.forEach(function (m) {
+    var o = document.createElement('option');
+    o.value = m.id;
+    o.textContent = m.name + (m.role ? ' — ' + m.role : '')
+      + (m.hash ? '   (a number is already set)' : '');
+    sel.appendChild(o);
+  });
+}).catch(function () {
+  sel.innerHTML = '<option value="">could not read ../data/members.json</option>';
+  out.innerHTML = '<p class="err">Open this tool from inside the site folder so it can '
+    + 'read <code>data/members.json</code>.</p>';
+});
+
+go.addEventListener('click', async function () {
+  var phone = document.getElementById('phone').value;
+  var id = sel.value;
+  if (!conf) { out.innerHTML = '<p class="err">members.json has not loaded.</p>'; return; }
+  if (canonical(phone).length < 9) {
+    out.innerHTML = '<p class="err">That does not look like a full mobile number.</p>'; return;
+  }
+  go.disabled = true;
+  out.innerHTML = '<p class="muted">Hashing — ' + conf.iterations.toLocaleString()
+    + ' rounds, deliberately slow…</p>';
+  var hash = await derive(phone, conf);
+  go.disabled = false;
+  out.innerHTML = '<label>Hash for <strong>' + id + '</strong> '
+    + '<span class="muted">(canonical form used: ' + canonical(phone) + ')</span></label>'
+    + '<textarea readonly>"hash": "' + hash + '"</textarea>'
+    + '<p class="muted">Paste that line into the <strong>' + id
+    + '</strong> entry in data/members.json.</p>';
+  out.querySelector('textarea').select();
+});
+</script>
+</body>
+</html>

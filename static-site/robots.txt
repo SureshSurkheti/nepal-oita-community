@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# The register and the committee's own tools. The site fetches members.json
+# itself, so this cannot and does not hide it — it keeps it out of search
+# results, which is a different and more modest claim.
+Disallow: /data/
+Disallow: /tools/
+
+# Members' names, kept out of search results. The page itself is public.
+Disallow: /members.html
+
+# Notes for whoever maintains the site, not for readers.
+Disallow: /PHOTO-SETUP-GUIDE.md
+
+Sitemap: https://nepal-oita.com/sitemap.xml

@@ -42,7 +42,7 @@ declare
   -- ##  EDIT THE NEXT LINE BEFORE RUNNING THIS FILE.
   -- ##  It must be the same address you gave to Authentication -> Users.
   -- ##########################################################################
-  v_email text := 'x_surkheti@oec.co.jp';   -- <<<< CHANGE THIS
+  v_email text := 'committee@nepal-oita.example';   -- <<<< CHANGE THIS
   v_name  text := 'Nepal-Oita Committee';
   v_slug  text := 'committee';
   -- ##########################################################################

@@ -36,9 +36,9 @@
 do $$
 declare
   v_name  text := 'Suresh Surkheti';                 -- e.g. 'Suresh Surkheti'
-  v_slug  text := 'suresh-surkheti';                 -- e.g. 'suresh-surkheti'
+  v_slug  text := 'CHANGE-ME';                       -- e.g. 'suresh-surkheti'
   v_role  text := 'Technical Supporter';
-  v_phone text := '+819042205405';             -- E.164, with the +
+  v_phone text := '+810000000000';             -- E.164, with the +
   v_id    uuid;
 begin
   /* Checks what the values ARE, not whether they still equal the placeholder.

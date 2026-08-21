@@ -648,7 +648,7 @@ export default async function Home() {
           {leadership.length > 0 && (
             <>
               <h3 className="display-3 center mt-lg u-mb-2">Leadership team</h3>
-              <ShowMore className="people-flow" id="leadership-preview" href="/members" cap={4}>
+              <ShowMore className="people-flow reveal" id="leadership-preview" href="/members" cap={4}>
                 {leadership.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
                 ))}
@@ -668,7 +668,7 @@ export default async function Home() {
                   directly above another short row jammed left reads as a
                   mistake, because it is — nobody chose it, the two lists were
                   just built at different times. Flex for both. */}
-              <ShowMore className="people-flow" id="members-preview"
+              <ShowMore className="people-flow reveal" id="members-preview"
                         href="/members" cap={4}>
                 {general.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />

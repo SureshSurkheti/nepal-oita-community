@@ -71,7 +71,7 @@ export default async function MembersPage() {
                 </p>
                 <h2 className="display-2" id="leadership">Leadership team</h2>
               </div>
-              <div className="people-flow">
+              <div className="people-flow reveal">
                 {leadership.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
                 ))}
@@ -91,7 +91,7 @@ export default async function MembersPage() {
               {/* people-flow, matching the leadership block above — see the
                   note on the home page. A short final row centres instead of
                   hanging off the left edge. */}
-              <div className="people-flow">
+              <div className="people-flow reveal">
                 {general.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
                 ))}

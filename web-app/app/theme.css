@@ -1516,6 +1516,19 @@ section[id], main[id] {
   justify-content: center;
 }
 .people-flow > * { flex: 0 0 calc((100% - 4 * var(--pf-gap)) / 5); }
+/* A capped preview fills the row.
+   
+   `.people-flow > *` sizes every child to one fifth, which is right for the full
+   list. Showing four of them at that width leaves a fifth of the container empty,
+   split as a gap either side — which made the leadership and member blocks look
+   inset compared with every other section on the page, whose content runs the
+   full width of the container. Four children, four quarters, flush edges.
+   
+   The 4 is the cap the people lists pass to ShowMore. If that changes, change it
+   here too — one number in each place, and the alternative was computing the
+   basis in JavaScript and duplicating all four breakpoints to do it. */
+.people-flow.is-preview > * { flex-basis: calc((100% - 3 * var(--pf-gap)) / 4); }
+
 .people-flow .person { padding: 1.15rem 0.7rem; }
 .people-flow .avatar { width: 52px; height: 52px; font-size: 1rem; }
 .people-flow .person__name { font-size: 0.9rem; }
@@ -2114,7 +2127,10 @@ section[id], main[id] {
   /* Two across, and the grids that asked for five stop asking. */
   .grid--five { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
   .people-flow { --pf-gap: 0.7rem; }
-  .people-flow > * { flex-basis: calc((100% - var(--pf-gap)) / 2); }
+  .people-flow > *,
+  /* Two across on a phone whether it is a preview or the whole list — four in a
+     row here would be 80px wide. */
+  .people-flow.is-preview > * { flex-basis: calc((100% - var(--pf-gap)) / 2); }
 }
 
 .person--roster { padding: 1.1rem 0.75rem; }
@@ -3270,7 +3286,8 @@ main > :first-child > .section:first-child {
      well, and at a third of a 390px screen that column is 105px wide — the
      names wrap to three lines and the pills wrap to two. Full names like
      "Yangi Sherpa Gole" never fitted three-up in the first place. */
-  .people-flow > * { flex-basis: calc((100% - var(--pf-gap)) / 2); }
+  .people-flow > *,
+  .people-flow.is-preview > * { flex-basis: calc((100% - var(--pf-gap)) / 2); }
   .people-flow .avatar { width: 56px; height: 56px; }
   .grid--five.grid--people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
   .person--roster { padding: 0.9rem 0.5rem; }

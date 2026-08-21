@@ -105,7 +105,11 @@ export function ShowMore({
 
   return (
     <>
-      <div className={className} ref={grid} id={id}>{children}</div>
+      {/* `is-preview` while a subset is showing, so the layout can size that
+          subset to fill the row instead of keeping the width it would have had
+          as part of a longer one. See .people-flow.is-preview in theme.css. */}
+      <div className={`${className}${preview !== null && !expanded ? ' is-preview' : ''}`}
+           ref={grid} id={id}>{children}</div>
 
       {preview !== null && (
         <div className="more-row">

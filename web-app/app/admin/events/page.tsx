@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { requireAdmin } from '@/lib/admin'
+import { Icon } from '@/components/Sprite'
 import { createClient } from '@/lib/supabase/server'
 import { EventAdmin } from '@/components/EventAdmin'
 import { todayInJapan } from '@/lib/content'
@@ -31,7 +32,10 @@ export default async function AdminEventsPage() {
     <section className="section">
       <div className="container">
         <div className="section-head reveal">
-          <p className="eyebrow">Committee only</p>
+          <p className="eyebrow">
+            <span className="eyebrow__badge"><Icon name="shield" /></span>
+            Committee only
+          </p>
           <h1 className="display-2">Events</h1>
           <p className="lede">
             Adding an event here is all it takes — its page, its place in the timeline

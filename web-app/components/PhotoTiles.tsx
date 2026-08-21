@@ -23,17 +23,24 @@ export type TilePhoto = {
 /* The tile grid and its lightbox, shared by the homepage preview and the full
  * gallery page.
  *
- * The tile's internals are not interchangeable with anything simpler: the theme
- * positions `.tile__caption` absolutely and styles `.tile__caption-title` and
- * `.tile__caption-text` as two separate lines inside it. An earlier version of
- * this markup used a `.tile__cap` wrapper that has no rule anywhere in
- * theme.css, so the captions rendered as unstyled inline text sitting under the
- * photograph. If you rename any of these, add the CSS in the same commit.
+ * A tile is a card, not a photograph with words written on it. The caption used
+ * to be absolutely positioned over the foot of the frame, held legible by a
+ * scrim — which works on a 280px desktop tile and does not on a 165px phone
+ * one, where two lines of text cover most of the picture. So the tile is now
+ * two rows: `.tile__media` holds the photograph, `.tile__caption` sits beneath
+ * it on the card's own surface, and nothing is ever printed over the image at
+ * any width. The scrim is gone with the need for it.
+ *
+ * The two-element structure is what the theme expects — `.tile` is a grid,
+ * `.tile__media` supplies the aspect ratio every photograph is cropped into,
+ * and the caption is the second row. If you rename any of these, add the CSS in
+ * the same commit.
  *
  * The wash colour and the drawn pattern cycle by position, the way they were
  * hand-assigned on the static site: crimson/rays, indigo/wave, moss/lattice,
- * gold/dots. They show through where a photograph is missing, and tint the one
- * that is there, so a grid of any length stays varied. */
+ * gold/dots. They show through where a photograph is missing, and now also tint
+ * the hairline and the category label on the card foot, so a grid of any length
+ * stays varied. */
 const WASH = ['crimson', 'indigo', 'moss', 'gold']
 const ART = ['art-rays', 'art-wave', 'art-lattice', 'art-dots']
 
@@ -76,17 +83,22 @@ export function PhotoTiles({ photos }: { photos: TilePhoto[] }) {
                     className={`tile tile--${WASH[i % 4]} reveal reveal--zoom`}
                     onClick={() => setOpen(i)}
                     aria-label={`View ${p.caption ?? 'photograph'}`}>
-              <span className={`tile__art ${ART[i % 4]}`} aria-hidden="true" />
-              {p.src && (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img className="tile__img" src={p.src} alt={p.alt ?? ''}
-                     loading="lazy" decoding="async" />
-              )}
-              <span className="tile__scrim" aria-hidden="true" />
-              <span className="tile__zoom" aria-hidden="true"><Icon name="expand" /></span>
+              <span className="tile__media">
+                <span className={`tile__art ${ART[i % 4]}`} aria-hidden="true" />
+                {p.src && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img className="tile__img" src={p.src} alt={p.alt ?? ''}
+                       loading="lazy" decoding="async" />
+                )}
+                <span className="tile__zoom" aria-hidden="true"><Icon name="expand" /></span>
+              </span>
               <span className="tile__caption">
+                {/* The CATEGORY, not the alt text. alt is a full sentence written
+                    for somebody who cannot see the photograph, and a screen
+                    reader would read it twice: once from the img, once from
+                    here. It belongs on the img alone. */}
+                {p.category && <span className="tile__caption-text">{p.category}</span>}
                 <span className="tile__caption-title">{p.caption}</span>
-                {p.alt && <span className="tile__caption-text">{p.alt}</span>}
               </span>
             </button>
           )

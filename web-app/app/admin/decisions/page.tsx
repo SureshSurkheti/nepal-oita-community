@@ -21,9 +21,10 @@ async function setStatus(formData: FormData) {
     p_status: String(formData.get('status') ?? 'pending'),
   })
   revalidatePath('/admin/decisions'); revalidatePath('/decisions'); revalidatePath('/')
+  const status = String(formData.get('status') ?? '')
   return error
     ? { ok: false, message: friendlyError(error.message) }
-    : { ok: true, message: `Write-up marked ${formData.get('status')}.` }
+    : { ok: true, message: status === 'approved' ? 'Back up on the site.' : 'Taken down.' }
 }
 
 async function remove(formData: FormData) {
@@ -52,26 +53,37 @@ export default async function AdminDecisionsPage() {
   for (const p of ((points ?? []) as { meeting_id: string; text: string }[])) {
     byMeeting.set(p.meeting_id, [...(byMeeting.get(p.meeting_id) ?? []), p.text])
   }
-  const pending = rows.filter((r) => r.status === 'pending')
+  // Anything not approved is off the site. 'pending' is now only reachable by a
+  // committee member putting something back into review by hand, so the two
+  // non-live states are counted together rather than treated as a queue.
+  const down = rows.filter((r) => r.status !== 'approved')
 
   return (
     <section className="section">
       <div className="container">
         <div className="section-head reveal">
-          <p className="eyebrow">Committee only</p>
+          <p className="eyebrow">
+            <span className="eyebrow__badge"><Icon name="shield" /></span>
+            Committee only
+          </p>
           <h1 className="display-2">Meeting decisions</h1>
           <p className="lede">
-            Members write these up. Read them against what was actually agreed
-            before approving — once approved, this is the record.
+            The leadership team writes these up and they go straight on to the
+            site — since <code>0015</code> nothing queues here for approval. What
+            is left is the lever: take a write-up down if it is wrong, and put it
+            back when it is fixed. Nobody but the committee can do either.
           </p>
         </div>
 
-        {pending.length > 0 && (
+        {down.length > 0 && (
           <div className="panel panel--ink reveal u-mb-2">
             <h2 className="panel__title">
-              <Icon name="clock" /> {pending.length} waiting for you
+              <Icon name="shield" /> {down.length} off the site
             </h2>
-            <p>Nothing below appears on the site until it is approved.</p>
+            <p>
+              These are not public. The leadership team can still see and correct
+              them on <code>/decisions</code>, but only you can put one back up.
+            </p>
           </div>
         )}
 
@@ -80,15 +92,19 @@ export default async function AdminDecisionsPage() {
             id: r.id,
             initial: String(new Date(`${r.held_on}T12:00:00Z`).getUTCDate()),
             title: r.title,
-            badge: r.status === 'approved' ? null : r.status,
+            badge: r.status === 'approved' ? null : 'off the site',
             meta: [longDate(r.held_on), r.place, r.summary].filter(Boolean).join(' · '),
             // The decisions themselves, which are the thing being checked.
             body: (byMeeting.get(r.id) ?? []).map((t) => `• ${t}`).join('  '),
             actions: [
+              /* "Put back up" and "Take down", not "Approve" and "Reject":
+                 approval is not a step any of these went through, and calling it
+                 that invites somebody to believe the ones with no badge are
+                 waiting for them. */
               ...(r.status !== 'approved'
-                ? [{ label: 'Approve', fields: { id: r.id, status: 'approved' }, action: 'status' as const }] : []),
-              ...(r.status !== 'rejected'
-                ? [{ label: 'Reject', fields: { id: r.id, status: 'rejected' }, action: 'status' as const }] : []),
+                ? [{ label: 'Put back up', fields: { id: r.id, status: 'approved' }, action: 'status' as const }] : []),
+              ...(r.status === 'approved'
+                ? [{ label: 'Take down', fields: { id: r.id, status: 'rejected' }, action: 'status' as const }] : []),
               { label: 'Delete', fields: { id: r.id }, action: 'remove' as const },
             ],
           }))}

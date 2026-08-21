@@ -66,14 +66,28 @@ export function tilePhotos(photos: Photo[]) {
   }))
 }
 
-/* Meeting decisions, newest first, with their points.
+/** Meeting minutes, newest first, with their points — for a member only.
  *
- *  Only approved write-ups come back for a visitor — that is the read policy,
- *  not this function. A member also gets their own pending draft, because the
- *  policy grants them that; the caller separates the two by looking at status.
- *  Two queries rather than a join because the points table is small and PostgREST
- *  embedding would need a foreign-key hint that adds nothing here. */
-export async function getMeetings(): Promise<Meeting[]> {
+ *  Which write-ups come back is the read policy's business, not this function's:
+ *  a member sees the live ones, and the leadership team additionally sees any the
+ *  committee has taken down. The caller separates those by looking at status.
+ *
+ *  Two queries rather than a join, because the points table is small and
+ *  PostgREST embedding would need a foreign-key hint that adds nothing here.
+ *
+ *  `viewerIsMember` is a required argument rather than something worked out in
+ *  here, and it is not a convenience: since 0016 `anon` holds no SELECT grant on
+ *  these tables at all, so a visitor's query comes back as "permission denied
+ *  for table meetings" — an error, not an empty list. unwrap() would throw it and
+ *  take the whole page down with it.
+ *
+ *  The alternative was to catch that error and call it empty. Deliberately not
+ *  done: swallowing a permission error is how a real misconfiguration renders as
+ *  "no content", which is a bug this project has already had once. So the caller
+ *  says whether there is a member, and if there is not, no query is sent. */
+export async function getMeetings(viewerIsMember: boolean): Promise<Meeting[]> {
+  if (!viewerIsMember) return []
+
   const supabase = await createClient()
 
   const [meetingRes, pointRes] = await Promise.all([

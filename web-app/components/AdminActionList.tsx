@@ -12,6 +12,10 @@ export type ActionItem = {
   meta?: string
   body?: string
   actions: { label: string; fields: Record<string, string>; action: 'status' | 'remove' }[]
+  /* tone is derived from the action rather than passed in: 'remove' always
+     destroys something, and Approve is always the affirmative one. Deriving it
+     keeps every screen that uses this list consistent without each of them
+     remembering to say so. */
 }
 
 /* A plain list of things with a few buttons each — used by the stories and
@@ -56,6 +60,9 @@ export function AdminActionList({
               <span className="roster__links">
                 {it.actions.map((a) => (
                   <button key={a.label} type="button" disabled={pending}
+                          data-tone={a.action === 'remove' ? 'danger'
+                            : a.label === 'Approve' ? 'go'
+                            : a.label === 'Reject' ? 'danger' : undefined}
                           onClick={run(a.action, a.fields)}>
                     {a.label}
                   </button>

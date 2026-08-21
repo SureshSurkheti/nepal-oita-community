@@ -3,7 +3,7 @@
    is a <use> pointing at it. */
 
 export const ICONS = [
-  'menu', 'close', 'arrow-right', 'arrow-down', 'arrow-up', 'chevron-left', 'chevron-right', 'chevron-down', 'check', 'users', 'calendar', 'clock', 'pin', 'mail', 'phone', 'images', 'graduate', 'briefcase', 'home', 'globe', 'star', 'heart', 'shield', 'network', 'expand', 'user-plus', 'qr', 'send', 'search', 'facebook', 'instagram', 'tiktok', 'youtube'
+  'menu', 'close', 'arrow-right', 'arrow-down', 'arrow-up', 'chevron-left', 'chevron-right', 'chevron-down', 'check', 'users', 'calendar', 'clock', 'pin', 'mail', 'phone', 'images', 'graduate', 'briefcase', 'home', 'globe', 'star', 'heart', 'shield', 'network', 'expand', 'user-plus', 'qr', 'send', 'search', 'facebook', 'instagram', 'tiktok', 'youtube', 'log-out', 'user'
 ] as const
 
 export type IconName = (typeof ICONS)[number]
@@ -54,6 +54,12 @@ export function Sprite() {
         {/* Instagram: drawn as strokes, not a filled glyph, because it sits in
             the same row as the phone and Facebook marks and a solid square of
             colour there outweighs both. Rounded square, lens, and the flash dot. */}
+        {/* A door with an arrow leaving it. Drawn open on the exit side so the
+            direction reads at 19px, which a closed rectangle does not. */}
+        {/* One person. `user-plus` was standing in for this and it means "add a
+            person", which is not what "My profile" is. */}
+        <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20.2a7.4 7.4 0 0114.4 0"/></symbol>
+        <symbol id="i-log-out" viewBox="0 0 24 24"><path d="M14.5 4.5h-6a2 2 0 00-2 2v11a2 2 0 002 2h6"/><path d="M12.5 12h8.5"/><path d="M18 8.8l3.2 3.2-3.2 3.2"/></symbol>
         <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.1" cy="6.9" r="1.15" fill="currentColor" stroke="none"/></symbol>
         <symbol id="i-tiktok" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M16.65 5.82A4.28 4.28 0 0115.54 3h-2.9v11.42a2.6 2.6 0 11-1.86-2.5V9.03a5.5 5.5 0 104.42 5.39V8.2a7.07 7.07 0 004.1 1.31V6.62a4.29 4.29 0 01-2.65-.8z"/></symbol>
         <symbol id="i-youtube" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M21.6 7.2a2.5 2.5 0 00-1.76-1.77C18.25 5 12 5 12 5s-6.25 0-7.84.43A2.5 2.5 0 002.4 7.2C2 8.8 2 12 2 12s0 3.2.4 4.8a2.5 2.5 0 001.76 1.77C5.75 19 12 19 12 19s6.25 0 7.84-.43a2.5 2.5 0 001.76-1.77C22 15.2 22 12 22 12s0-3.2-.4-4.8zM10 15.2V8.8l5.2 3.2z"/></symbol>

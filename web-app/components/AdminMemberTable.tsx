@@ -86,7 +86,7 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
                   {!member.user_id && (
                     <form action={run(issueClaimCode)} style={{ display: 'inline' }}>
                       <input type="hidden" name="member_id" value={member.id} />
-                      <button type="submit" disabled={pending}>
+                      <button type="submit" disabled={pending} data-tone="go">
                         {code && !code.used_at ? 'Issue a new code' : 'Issue a code'}
                       </button>
                     </form>
@@ -100,7 +100,8 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
                       <input type="hidden" name="member_id" value={member.id} />
                       <input type="hidden" name="can_contribute"
                              value={String(!member.can_contribute)} />
-                      <button type="submit" disabled={pending}>
+                      <button type="submit" disabled={pending}
+                              data-tone={member.can_contribute ? 'danger' : undefined}>
                         {member.can_contribute
                           ? 'Stop them adding events'
                           : 'Let them add events'}
@@ -126,7 +127,8 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
                         }}>
                     <input type="hidden" name="member_id" value={member.id} />
                     <input type="hidden" name="is_admin" value={String(!member.is_admin)} />
-                    <button type="submit" disabled={pending}>
+                    <button type="submit" disabled={pending}
+                            data-tone={member.is_admin ? 'danger' : undefined}>
                       {member.is_admin
                         ? (member.id === currentId
                             ? 'Remove my own committee access'
@@ -138,7 +140,7 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
                   {member.id !== currentId && (
                     <form action={run(removeMember)} style={{ display: 'inline' }}>
                       <input type="hidden" name="member_id" value={member.id} />
-                      <button type="submit" disabled={pending}>Remove</button>
+                      <button type="submit" disabled={pending} data-tone="danger">Remove</button>
                     </form>
                   )}
                 </span>

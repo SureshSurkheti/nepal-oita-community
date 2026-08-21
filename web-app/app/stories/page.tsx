@@ -36,7 +36,7 @@ export default async function StoriesPage() {
 
   return (
     <>
-      <PageHead eyebrow="In their words" title="Community stories"
+      <PageHead icon="heart" eyebrow="In their words" title="Community stories"
                 back={{ href: '/#stories', label: 'Back to the stories' }}
                 lede={'What members say when we ask them how the first few months went. '
                       + 'Printed as given, with their permission.'} />

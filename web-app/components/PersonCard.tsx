@@ -11,7 +11,19 @@ import type { MemberWithContact } from '@/lib/types'
 const WASH = ['crimson', 'indigo', 'moss', 'gold'] as const
 const ART = ['art-rays', 'art-wave', 'art-lattice', 'art-dots'] as const
 
-/** One member card, as a photograph with the name written across the foot of it.
+/** One member card: the photograph on top, the person's details underneath.
+ *
+ *  It used to be a portrait with the name written across the foot of it, held
+ *  legible by a scrim. That reads at 260px wide and fails at 160px, where the
+ *  name, the office and the profession stack into the bottom third of a small
+ *  square and land on whatever the photograph happens to be doing there — which
+ *  is why phones already had this layout and desktops did not. It is now the
+ *  layout at every width: one design, and nothing written over anybody's face.
+ *
+ *  `.ptile__media` is the picture half. It carries a fixed aspect ratio, so
+ *  every portrait — a passport crop, a wide group shot somebody has cut
+ *  themselves out of — is covered into the same window and a row of cards never
+ *  goes ragged.
  *
  *  `showContact` is a rendering hint only — if the visitor is not a member the
  *  contact object is null anyway, because the database did not return it.
@@ -36,21 +48,25 @@ export function PersonCard({
   ] as const).filter((s): s is typeof s & { href: string } => Boolean(s.href))
 
   return (
-    <article className={`ptile reveal${member.category === 'general' ? ' ptile--roster' : ''}`}>
-      <span className={`ptile__art ${ART[index % 4]} ptile__art--${WASH[index % 4]}`}
-            aria-hidden="true" />
+    /* The wash modifier is on the card, not only on the art layer: `--wash` now
+       also colours the hairline above the caption and the office pill inside
+       it, and a custom property set on a child cannot be read by its sibling. */
+    <article className={`ptile ptile--${WASH[index % 4]} reveal`
+                        + (member.category === 'general' ? ' ptile--roster' : '')}>
+      <span className="ptile__media">
+        <span className={`ptile__art ${ART[index % 4]} ptile__art--${WASH[index % 4]}`}
+              aria-hidden="true" />
 
-      {/* Shown only without a photograph. Two initials on the wash carry the
-          card on their own, and are not a placeholder waiting to be replaced —
-          most of the register will never send a portrait. */}
-      {!url && <span className="ptile__initials" aria-hidden="true">{initials}</span>}
+        {/* Shown only without a photograph. Two initials on the wash carry the
+            card on their own, and are not a placeholder waiting to be replaced —
+            most of the register will never send a portrait. */}
+        {!url && <span className="ptile__initials" aria-hidden="true">{initials}</span>}
 
-      {url && (
-        <Image className="ptile__img" src={url} alt={member.name}
-               width={480} height={600} unoptimized />
-      )}
-
-      <span className="ptile__scrim" aria-hidden="true" />
+        {url && (
+          <Image className="ptile__img" src={url} alt={member.name}
+                 width={480} height={480} unoptimized />
+        )}
+      </span>
 
       <span className="ptile__cap">
         <strong className="ptile__name">{member.name}</strong>

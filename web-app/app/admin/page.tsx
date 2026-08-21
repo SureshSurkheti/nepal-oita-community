@@ -59,7 +59,10 @@ export default async function AdminHome() {
     <section className="section">
       <div className="container">
         <div className="section-head reveal">
-          <p className="eyebrow">Committee only</p>
+          <p className="eyebrow">
+            <span className="eyebrow__badge"><Icon name="shield" /></span>
+            Committee only
+          </p>
           <h1 className="display-2">Run the site</h1>
           <p className="lede">
             Signed in as {me.name}. Everything the site shows is edited from here —

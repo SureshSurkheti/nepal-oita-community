@@ -43,7 +43,13 @@ export function SiteMotion() {
        the image invisible with no error anywhere — which is how the hero
        photograph was lost once already. .ptile__img is the member cards. */
     const IMG_SELECTOR = '.hero__cell img, .hero__photo, .tile__img, .ptile__img,'
-      + ' .qr-frame__img, .avatar__img, .quote__photo'
+      + ' .qr-frame__img, .avatar__img, .quote__photo, .lightbox__frame img'
+    /* The lightbox image is the one exception: it has no `opacity: 0` rule, and
+       is listed only for the `error` half of watch(). A gallery row can exist
+       before its file has been uploaded — the tile falls back to its drawn
+       artwork, but the viewer opened on a broken-image icon, because the <img>
+       inside it was not being watched by anything. Removing it leaves the frame
+       and the caption, which is the same fallback the tile gets. */
 
     const watch = (img: HTMLImageElement) => {
       // Listen as well as check: a lazy image far down the page has not been

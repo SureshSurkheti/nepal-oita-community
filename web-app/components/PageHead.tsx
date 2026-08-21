@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Icon } from './Sprite'
+import { Icon, type IconName } from './Sprite'
 
 /* The photographic page header used by every public sub-page.
  *
@@ -14,7 +14,11 @@ import { Icon } from './Sprite'
  * removes the element outright on error, which is what leaves the generated
  * gradient showing instead of a broken-image icon. Hardcoding the class here
  * would defeat both halves of that. */
-export function PageHead({ eyebrow, title, lede, back }: {
+export function PageHead({ icon, eyebrow, title, lede, back }: {
+  /* The eyebrow's glyph. Optional so nothing breaks without one, but every
+     public page passes it — a page announces its subject with the same icon
+     vocabulary the cards inside it use. */
+  icon?: IconName
   eyebrow: string
   title: string
   lede?: string
@@ -38,7 +42,10 @@ export function PageHead({ eyebrow, title, lede, back }: {
             {back.label}
           </Link>
         )}
-        <p className="eyebrow u-mb-1">{eyebrow}</p>
+        <p className="eyebrow u-mb-1">
+          {icon && <span className="eyebrow__badge"><Icon name={icon} /></span>}
+          {eyebrow}
+        </p>
         <h1 className="display-1 u-measure-title">{title}</h1>
         {lede && <p className="lede u-measure u-mt-1">{lede}</p>}
       </div>

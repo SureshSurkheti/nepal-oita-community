@@ -68,7 +68,7 @@ const ORG_JSONLD = {
       name: SITE_NAME,
       alternateName: SITE_ALT_NAMES,
       url: SITE_URL,
-      logo: abs('/icon.png'),
+      logo: abs('/favicon.svg'),
       image: abs('/opengraph-image.jpg'),
       email: SITE_EMAIL,
       foundingDate: '2019',

@@ -1,0 +1,9 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+<rect width="32" height="32" rx="7" fill="#ffffff"></rect>
+<g transform="translate(16 11)">
+<g transform="translate(-2 0) rotate(-32)"><line x1="0" y1="-7.5" x2="0" y2="7.5" stroke="#8a7440" stroke-width="1.1"></line><rect x="-7.6" y="-7.5" width="7" height="5.2" fill="#ffffff" stroke="#d0d0d0" stroke-width="0.4" rx="0.5"></rect><circle cx="-4.9" cy="-4.9" r="1.7" fill="#BC002D"></circle></g>
+<g transform="translate(2 0) rotate(32)"><line x1="0" y1="-7.5" x2="0" y2="7.5" stroke="#8a7440" stroke-width="1.1"></line><path d="M0.5 -7.5 L7 -5.8 L2.2 -4.5 L7 -3.2 L0.5 -1.5 Z" fill="#DC143C" stroke="#DC143C" stroke-width="0.5" stroke-linejoin="round"></path></g>
+</g>
+<text x="16" y="24" font-family="Avenir Next, Arial, sans-serif" font-size="8" font-weight="800" fill="#003893" text-anchor="middle" letter-spacing="0.5">NOC</text>
+<text x="16" y="29.5" font-family="Avenir Next, Arial, sans-serif" font-size="4.8" font-weight="700" fill="#DC143C" text-anchor="middle" letter-spacing="1">2019</text>
+</svg>

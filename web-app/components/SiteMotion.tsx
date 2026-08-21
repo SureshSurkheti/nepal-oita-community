@@ -42,7 +42,13 @@ export function SiteMotion() {
        .is-loaded. Adding a new one of those without adding it to this list makes
        the image invisible with no error anywhere — which is how the hero
        photograph was lost once already. .ptile__img is the member cards. */
-    const IMG_SELECTOR = '.hero__cell img, .hero__photo, .tile__img, .ptile__img,'
+    /* `:not(.hero__slide)` keeps the rotating hero out of this. Those slides are
+       managed by HeroSlideshow, which needs to know which of them decoded in
+       order to decide what to fade to — and this watcher REMOVES an image that
+       fails, which on a React-rendered element leaves the component holding a
+       reference to a node no longer in the document. The page-head hero is a
+       plain <img> with no slide class, so it is still watched here. */
+    const IMG_SELECTOR = '.hero__cell img:not(.hero__slide), .hero__photo, .tile__img, .ptile__img,'
       + ' .qr-frame__img, .avatar__img, .quote__photo, .lightbox__frame img'
     /* The lightbox image is the one exception: it has no `opacity: 0` rule, and
        is listed only for the `error` half of watch(). A gallery row can exist

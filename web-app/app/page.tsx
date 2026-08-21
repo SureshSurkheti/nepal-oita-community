@@ -10,9 +10,26 @@ import { ShowMore } from '@/components/ShowMore'
 import { PersonCard } from '@/components/PersonCard'
 import { ContactForm } from '@/components/ContactForm'
 import { HeroBody } from '@/components/HeroBody'
+import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { PhotoTiles } from '@/components/PhotoTiles'
 import { getCurrentMember, getMembers } from '@/lib/members'
 import { assetUrl, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos } from '@/lib/content'
+
+/* The hero rotation. First one first: it is the only one in the server's HTML.
+ *
+ * Three of these five (everest, umijigoku, sakura) are the Creative Commons files
+ * listed in PHOTO-CREDITS.md, and attribution is a condition of those licences.
+ * Putting them in the hero does not create that problem — they were already on
+ * the page under "Two homes" — but it does make them the first thing anybody
+ * sees, which is a reason to deal with it. Photographs the community took itself
+ * would be better here on both counts. Swapping any line is all it takes. */
+const HERO_PHOTOS = [
+  '/images/best.png',
+  '/images/city-view.webp',
+  '/images/place-umijigoku.jpg',
+  '/images/place-everest.jpg',
+  '/images/place-sakura.jpg',
+]
 
 const STATS = [
   { to: 100, suffix: '+', label: 'Members' },
@@ -161,13 +178,14 @@ export default async function Home() {
 
       {/* ---------------------------------------------------------------- hero */}
       <section className="hero" id="home">
+        {/* aria-hidden, so none of these photographs is announced and none needs
+            alt text — the hero's meaning is entirely in the words on top of it.
+            HERO_PHOTOS is ordered: the first is what the server sends and the only
+            one that counts toward Largest Contentful Paint, so it stays the
+            composed shot. The other four are fetched after the page has loaded.
+            See components/HeroSlideshow.tsx. */}
         <div className="hero__art" aria-hidden="true">
-          <div className="hero__grid">
-            <div className="hero__cell">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/best.png" alt="" fetchPriority="high" decoding="async" />
-            </div>
-          </div>
+          <HeroSlideshow images={HERO_PHOTOS} />
         </div>
 
         <div className="container hero__content">

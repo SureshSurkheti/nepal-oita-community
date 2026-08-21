@@ -902,6 +902,43 @@ section[id], main[id] {
 .js .hero__cell img { opacity: 0; }
 .js .hero__cell img.is-loaded { opacity: 1; }
 
+/* The rotating hero: five photographs stacked in the one cell, only the current
+   one opaque.
+   
+   The selectors carry the extra `.hero__slide` class purely to out-specify the
+   rule directly above — `.js .hero__cell img.is-loaded` is (0,3,1), so a slide
+   that has decoded would otherwise be opaque whether it is the current one or
+   not, and all five would pile up with the last in the markup winning. `!important`
+   would also have worked and would have left the next person nothing to override.
+   
+   The fade is long on purpose. A hero that changes in 300ms is a flicker you
+   notice and resent; at nearly two seconds it reads as the light changing. */
+/* Absolutely positioned, and this is not a nicety — `.hero__cell img` above sets
+   width and height to 100% but leaves the images in normal flow. That is fine
+   while there is exactly one of them, which is all there ever was. Five of them
+   stack VERTICALLY instead of on top of one another, each as tall as the cell, so
+   slide two starts one full hero below the fold and slides three to five are
+   further down still. Measured before the fix: the active slide's box was at
+   y=818 in a cell 881px tall — the cross-fade was running correctly the whole
+   time, onto photographs nobody could see. */
+.hero__cell img.hero__slide {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1.8s var(--ease);
+}
+.js .hero__cell img.hero__slide.is-loaded { opacity: 0; }
+.js .hero__cell img.hero__slide.is-loaded.is-active { opacity: 1; }
+
+/* The 36s drift runs on the current slide only. Five simultaneous transform
+   animations is four more compositor layers than the hero needs, and restarting
+   it per slide means each photograph drifts from its own starting point rather
+   than all of them arriving mid-move. */
+.hero__cell img.hero__slide { animation: none; }
+.hero__cell img.hero__slide.is-active {
+  animation: ken-burns 36s var(--ease) 0.6s infinite alternate both;
+}
+.hero.is-paused .hero__cell img.hero__slide.is-active { animation-play-state: paused; }
+
 .js .hero__photo { opacity: 0; }
 .js .hero__photo.is-loaded { opacity: 1; }
 
@@ -4031,6 +4068,10 @@ main > :first-child > .section:first-child {
    spotlight would still appear, just instantly. */
 @media (prefers-reduced-motion: reduce) {
   .hero__cell img { animation: none; scale: 1; }
+  /* Belt and braces with HeroSlideshow, which does not fetch the later slides at
+     all under this setting. If one is somehow on screen it does not fade. */
+  .hero__cell img.hero__slide { transition: none; }
+  .hero__cell img.hero__slide.is-active { animation: none; scale: 1; }
   .btn--primary::after,
   .btn--indigo::after,
   .btn--gold::after,

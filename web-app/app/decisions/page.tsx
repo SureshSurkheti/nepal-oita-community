@@ -12,6 +12,7 @@ import { getCurrentMember } from '@/lib/members'
    turns out to be a locked door is worse than no result at all. The description
    goes with it for the same reason. */
 export const metadata: Metadata = {
+  alternates: { canonical: '/decisions' },
   title: 'Meeting decisions',
   robots: { index: false },
 }

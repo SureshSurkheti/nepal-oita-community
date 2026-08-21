@@ -8,6 +8,7 @@ import { Icon } from '@/components/Sprite'
 import { PageHead } from '@/components/PageHead'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/events' },
   title: 'Events',
   description:
     'Festivals, meetups, sport and volunteering with the Nepali community of Oita '
@@ -29,7 +30,7 @@ export default async function EventsPage() {
 
   return (
     <>
-      <PageHead icon="calendar" eyebrow="Events" title="Come to the next one"
+      <PageHead path="/events" icon="calendar" eyebrow="Events" title="Come to the next one"
                 back={{ href: '/#events', label: 'Back to home' }}
                 lede={'You do not need to know anyone. Turn up, and you will by the '
                       + 'end of the day.'} />

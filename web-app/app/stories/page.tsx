@@ -8,6 +8,7 @@ import { getCurrentMember } from '@/lib/members'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/stories' },
   title: 'Community stories',
   description:
     'Members of the Nepali community in Oita and Beppu on arriving, settling in and '
@@ -36,7 +37,7 @@ export default async function StoriesPage() {
 
   return (
     <>
-      <PageHead icon="heart" eyebrow="In their words" title="Community stories"
+      <PageHead path="/stories" crumb="Community stories" icon="heart" eyebrow="In their words" title="Community stories"
                 back={{ href: '/#stories', label: 'Back to the stories' }}
                 lede={'What members say when we ask them how the first few months went. '
                       + 'Printed as given, with their permission.'} />

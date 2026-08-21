@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { Icon, type IconName } from '@/components/Sprite'
 import { CountUp } from '@/components/CountUp'
 import { EventCard } from '@/components/EventCard'
@@ -104,6 +105,15 @@ const SOCIALS: { modifier: string; icon: IconName; href: string; label: string; 
  * alone: PageHead, which is a page title in a photographic hero with a back
  * link, and the committee tools, which are working screens rather than a front
  * page. */
+/* The home page's own title, not the layout default, and deliberately not run
+   through the `%s | Nepal–Oita Community` template — it would repeat the name.
+   Written for what people type: "nepali community oita" and "nepali in beppu"
+   are the searches this page has to answer. */
+export const metadata: Metadata = {
+  title: { absolute: 'Nepal–Oita Community — Nepali community in Oita and Beppu, Japan' },
+  alternates: { canonical: '/' },
+}
+
 export default async function Home() {
   /* Two waves, not one, and only because of the minutes. Since 0016 they are
      readable by members only — `anon` has no SELECT grant on the tables at all —

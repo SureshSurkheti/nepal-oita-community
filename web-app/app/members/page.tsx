@@ -6,6 +6,7 @@ import { getCurrentMember, getMembers } from '@/lib/members'
 import { PageHead } from '@/components/PageHead'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/members' },
   title: 'Members',
   description:
     'The leadership team and general members of the Nepal–Oita Community. '

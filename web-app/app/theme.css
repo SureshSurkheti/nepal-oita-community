@@ -1625,7 +1625,19 @@ section[id], main[id] {
 
    No scroll container, so nothing here needs snapping, edge fades, or a focusable
    wrapper. See components/DecisionsPager.tsx. */
-.decisions { display: block; max-width: 46rem; }
+
+/* The measure lives on the panel, not on the card. It was on `.decisions`, which
+   holds only the card — so the arrows above it and the "every meeting" button
+   below it were still laid out across the full 1180px container. On a desktop
+   that put three related controls against three different right-hand edges, with
+   the arrows floating 400px away from the card they drive.
+   
+   42rem, matching `.section-head`, so the heading, the lede, the arrows, the card
+   and the button all share one left and one right edge. Wider would read better
+   as a box and worse as text: the decisions are set at 0.9rem, and past about
+   700px a line of them is too long to scan back to the start of. */
+.decisions-panel { max-width: 42rem; margin-inline: auto; }
+.decisions { display: block; }
 
 .decision {
   position: relative;
@@ -1741,6 +1753,32 @@ section[id], main[id] {
 .decision__points .checklist { margin-top: 0; gap: 0.55rem; }
 .decision__points .checklist li { font-size: 0.9rem; }
 .decision__points .checklist .icon { width: 16px; height: 16px; }
+
+/* Edit and Delete at the foot of the card, for the leadership team. They sit
+   after the scrolling list, so they stay put while the decisions scroll behind
+   them — which is what you want from a control that acts on the whole card. */
+.decision .minute-tools {
+  margin-top: 0;
+  padding-top: 0.55rem;
+  padding-bottom: 0.75rem;
+  border-block-start: 1px solid var(--line);
+}
+
+/* The card has `max-height` and `overflow: hidden`, which is right for a long
+   list of decisions and wrong for a form: the edit form is roughly twice the
+   ceiling, so opening it inside the card clipped everything below the second
+   field. `:has()` lifts the cap for exactly as long as the form is open, and
+   nothing has to be wired between the editor and the card to do it.
+   
+   The decisions themselves are hidden while editing, because the textarea in the
+   form already holds every one of them — showing both is the same list twice,
+   with only one of them editable. */
+.decision:has(.minute-edit) {
+  max-height: none;
+  overflow: visible;
+}
+.decision:has(.minute-edit) .decision__points { display: none; }
+.decision .minute-edit { max-width: none; margin-bottom: 0.6rem; }
 
 /* --------------------------------------------------------------------------
    Member cards, as photographs

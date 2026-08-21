@@ -4,6 +4,7 @@ import { CountUp } from '@/components/CountUp'
 import { EventCard } from '@/components/EventCard'
 import { EventsRail } from '@/components/EventsRail'
 import { DecisionsPager } from '@/components/DecisionsPager'
+import { MeetingEditor } from '@/components/MeetingEditor'
 import { ShowMore } from '@/components/ShowMore'
 import { PersonCard } from '@/components/PersonCard'
 import { ContactForm } from '@/components/ContactForm'
@@ -86,6 +87,23 @@ const SOCIALS: { modifier: string; icon: IconName; href: string; label: string; 
     label: 'nepaloitacommunity11@gmail.com', meta: 'We reply within a day or two' },
 ]
 
+/* ONE RULE FOR EVERY SECTION HEAD ON THIS PAGE: centred.
+ *
+ * It used to be six centred and four left, inherited from the static site, and
+ * the split followed nothing a reader could pick up — About centred, Programmes
+ * left, Places centred, Events and Gallery left. Alignment that carries no
+ * meaning is just a page that zig-zags.
+ *
+ * Centred is the right single answer here rather than left, because everything
+ * BELOW these headings is symmetric and full-width: card grids, the events rail,
+ * the photo tiles, the people grids. A left-aligned heading over a balanced grid
+ * puts the heading's weight off to one side of content that is not — which is
+ * the exact imbalance that showed up on the minutes card and started this.
+ *
+ * Left alignment is still right in two places and they are deliberately left
+ * alone: PageHead, which is a page title in a photographic hero with a back
+ * link, and the committee tools, which are working screens rather than a front
+ * page. */
 export default async function Home() {
   /* Two waves, not one, and only because of the minutes. Since 0016 they are
      readable by members only — `anon` has no SELECT grant on the tables at all —
@@ -118,6 +136,10 @@ export default async function Home() {
      puts the newest first without the arrows working the wrong way round. */
   const decisions = meetings.filter((m) => m.status === 'approved').reverse()
   const latest = decisions.length - 1
+
+  /* Whether to put Edit and Delete on the card. The database refuses the write
+     either way, so this only decides whether to offer controls that would fail. */
+  const canEditMinutes = member?.can_contribute === true || member?.is_admin === true
 
   const leadership = members.filter((m) => m.category === 'leadership')
   const general = members.filter((m) => m.category === 'general')
@@ -208,8 +230,8 @@ export default async function Home() {
       {/* ---------------------------------------------------------- programmes */}
       <section className="section" id="programmes">
         <div className="container">
-          <div className="section-head reveal">
-            <p className="eyebrow">
+          <div className="section-head section-head--center reveal">
+            <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="star" /></span>
               What we do
             </p>
@@ -279,8 +301,8 @@ export default async function Home() {
       {/* -------------------------------------------------------------- events */}
       <section className="section" id="events">
         <div className="container">
-          <div className="section-head reveal">
-            <p className="eyebrow">
+          <div className="section-head section-head--center reveal">
+            <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="calendar" /></span>
               Events
             </p>
@@ -307,11 +329,11 @@ export default async function Home() {
       {photos.length > 0 && (
         <section className="section section--tinted" id="gallery">
           <div className="container">
-            <div className="section-head reveal">
-              <p className="eyebrow">
-              <span className="eyebrow__badge"><Icon name="images" /></span>
-              Gallery
-            </p>
+            <div className="section-head section-head--center reveal">
+              <p className="eyebrow eyebrow--center">
+                <span className="eyebrow__badge"><Icon name="images" /></span>
+                Gallery
+              </p>
               <h2 className="display-2">Seven years of Sundays</h2>
               <p className="lede">
                 Every one of these was somebody far from home, having a very good day.
@@ -335,9 +357,9 @@ export default async function Home() {
           <div className="container">
             <div className="section-head section-head--center reveal">
               <p className="eyebrow eyebrow--center">
-              <span className="eyebrow__badge"><Icon name="heart" /></span>
-              In their words
-            </p>
+                <span className="eyebrow__badge"><Icon name="heart" /></span>
+                In their words
+              </p>
               <h2 className="display-2">Community stories</h2>
             </div>
             <ShowMore className="grid grid--3" id="stories-grid" href="/stories">
@@ -373,11 +395,18 @@ export default async function Home() {
       {decisions.length > 0 && (
         <section className="section" id="decisions">
           <div className="container">
-            <div className="section-head reveal">
-              <p className="eyebrow">
-              <span className="eyebrow__badge"><Icon name="check" /></span>
-              Minutes
-            </p>
+            {/* Centred, unlike Events or Gallery next door. Those have a
+                left-aligned head because a full-width grid follows it, so the
+                heading never sits beside empty space. This section is one card
+                narrower than the container — nothing fills the rest of the row,
+                so a left-aligned block left half the width looking unused. The
+                whole thing is one centred column instead, which is what the
+                site already does for "In their words" and "Our people". */}
+            <div className="section-head section-head--center reveal">
+              <p className="eyebrow eyebrow--center">
+                <span className="eyebrow__badge"><Icon name="check" /></span>
+                Minutes
+              </p>
               <h2 className="display-2">What we decided</h2>
               <p className="lede">
                 The committee and the members meet most months. Nobody has to
@@ -390,7 +419,13 @@ export default async function Home() {
                 is pressed, long after the IntersectionObserver has finished its
                 pass — so a card carrying `.reveal` itself would arrive at
                 opacity 0 and stay there. */}
-            <div className="reveal">
+            {/* One column for all three parts. The card was capped at a readable
+                measure while the arrows above it and the button below it were
+                laid out on the full container, so on a wide screen they lined up
+                with three different right-hand edges and left a hole beside the
+                card. The panel now carries the measure and everything inside it
+                inherits it — heading, arrows, card and button share one edge. */}
+            <div className="decisions-panel reveal">
               <DecisionsPager label="Meeting decisions">
                 {decisions.map((m, i) => (
                   <article key={m.id}
@@ -419,15 +454,33 @@ export default async function Home() {
                         </ul>
                       </div>
                     )}
+                    {/* Inside the card, not down in the button row with "Every
+                        meeting". Two reasons. It is unambiguous about which
+                        write-up it acts on — and the pager renders only the card
+                        on screen, so the controls that come with it are always
+                        the right ones, with no index to keep in step.
+                        
+                        Edit only. Delete is deliberately not offered here: the
+                        front page is where people come to read what was decided,
+                        and a control with no undo does not belong one mis-tap
+                        away from it. It is on /decisions, behind "Every meeting,
+                        and add one" — a page you have chosen to open. */}
+                    {canEditMinutes && (
+                      <MeetingEditor allowDelete={false} draft={{
+                        id: m.id, held_on: m.held_on, title: m.title,
+                        place: m.place, summary: m.summary,
+                        points: m.points.map((p) => ({ text: p.text })),
+                      }} />
+                    )}
                   </article>
                 ))}
               </DecisionsPager>
-            </div>
 
-            <div className="cluster cluster--center mt-lg">
-              <Link className="btn btn--ghost" href="/decisions">
-                <Icon name="check" /> Every meeting, and add one
-              </Link>
+              <div className="cluster cluster--center mt-lg">
+                <Link className="btn btn--ghost" href="/decisions">
+                  <Icon name="check" /> Every meeting, and add one
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -467,7 +520,7 @@ export default async function Home() {
               them. Ungated, so it renders as a real link that navigates. */}
           {leadership.length > 0 && (
             <>
-              <h3 className="display-3 mt-lg u-mb-2">Leadership team</h3>
+              <h3 className="display-3 center mt-lg u-mb-2">Leadership team</h3>
               <ShowMore className="people-flow" id="leadership-preview" href="/members">
                 {leadership.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
@@ -478,7 +531,7 @@ export default async function Home() {
 
           {general.length > 0 && (
             <>
-              <h3 className="display-3 mt-lg u-mb-2">General members</h3>
+              <h3 className="display-3 center mt-lg u-mb-2">General members</h3>
               <ShowMore className="grid grid--five grid--people" id="members-preview"
                         href="/members">
                 {general.map((m, i) => (
@@ -595,8 +648,8 @@ export default async function Home() {
       {/* ------------------------------------------------------------- contact */}
       <section className="section" id="contact">
         <div className="container">
-          <div className="section-head reveal">
-            <p className="eyebrow">
+          <div className="section-head section-head--center reveal">
+            <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="mail" /></span>
               Contact
             </p>

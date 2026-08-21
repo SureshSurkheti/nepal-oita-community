@@ -17,8 +17,20 @@ import { MeetingForm, type MeetingDraft } from './MeetingForm'
  * unstyled, easy to dismiss by reflex, and gives no room to say what is actually
  * about to happen — and what is about to happen here is a meeting and all of its
  * decisions, with no undo.
+ *
+ * WHY DELETE IS OPTIONAL
+ * On the home page the card carries Edit and nothing else. The front page is a
+ * reading surface — people arrive at it to see what was decided, not to manage
+ * the archive — and a control with no undo does not belong one mis-tap away from
+ * the thing everybody looks at first. Correcting a typo is the common job and
+ * stays where it is useful; removing a whole meeting is a deliberate act, so it
+ * lives on /decisions, which is a page you have chosen to open.
  */
-export function MeetingEditor({ draft }: { draft: MeetingDraft }) {
+export function MeetingEditor({ draft, allowDelete = true }: {
+  draft: MeetingDraft
+  /** False on the home page. See the note above. */
+  allowDelete?: boolean
+}) {
   const router = useRouter()
   const [mode, setMode] = useState<'idle' | 'edit' | 'confirm'>('idle')
   const [busy, setBusy] = useState(false)
@@ -67,10 +79,12 @@ export function MeetingEditor({ draft }: { draft: MeetingDraft }) {
                   onClick={() => setMode('edit')}>
             <Icon name="send" /> Edit
           </button>
-          <button className="btn btn--sm btn--ghost" type="button"
-                  onClick={() => setMode('confirm')}>
-            <Icon name="close" /> Delete
-          </button>
+          {allowDelete && (
+            <button className="btn btn--sm btn--ghost" type="button"
+                    onClick={() => setMode('confirm')}>
+              <Icon name="close" /> Delete
+            </button>
+          )}
         </div>
       )}
       {error && <p className="form-note form-note--error">{error}</p>}

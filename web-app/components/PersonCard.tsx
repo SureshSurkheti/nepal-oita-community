@@ -51,7 +51,13 @@ export function PersonCard({
     /* The wash modifier is on the card, not only on the art layer: `--wash` now
        also colours the hairline above the caption and the office pill inside
        it, and a custom property set on a child cannot be read by its sibling. */
-    <article className={`ptile ptile--${WASH[index % 4]} reveal`
+    /* No `reveal` on the card. Each one was its own reveal target, and
+       IntersectionObserver adds `is-in` per element as it crosses the fold — so
+       for the 0.75s the animation runs, cards in the same row sit at different
+       points of a 22px translate and visibly fail to line up. The row is revealed
+       as one block instead: the wrapper carries `.reveal`, every card arrives
+       together, and they are never out of line. */
+    <article className={`ptile ptile--${WASH[index % 4]}`
                         + (member.category === 'general' ? ' ptile--roster' : '')}>
       <span className="ptile__media">
         <span className={`ptile__art ${ART[index % 4]} ptile__art--${WASH[index % 4]}`}

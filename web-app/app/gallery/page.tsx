@@ -7,6 +7,7 @@ import { PhotoProposeForm } from '@/components/PhotoProposeForm'
 import { Icon } from '@/components/Sprite'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/gallery' },
   title: 'Photo gallery',
   description:
     'Photographs from years of Nepali community life in Oita Prefecture — Dashain '
@@ -20,7 +21,7 @@ export default async function GalleryPage() {
 
   return (
     <>
-      <PageHead icon="images" eyebrow="Gallery" title="Seven years of Sundays"
+      <PageHead path="/gallery" icon="images" eyebrow="Gallery" title="Seven years of Sundays"
                 back={{ href: '/', label: 'Back to home' }}
                 lede={'Festivals, welcome sessions, cooking, football and the ordinary '
                       + 'afternoons in between — the record of a community building '

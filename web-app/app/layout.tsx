@@ -9,17 +9,90 @@ import { DecisionsNotice } from '@/components/DecisionsNotice'
 import { BackButton } from '@/components/BackButton'
 import { getCurrentMember } from '@/lib/members'
 import { getMeetings, longDate } from '@/lib/content'
+import { SITE_URL, SITE_NAME, SITE_ALT_NAMES, SITE_EMAIL, SITE_SOCIALS, abs } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Nepal–Oita Community',
-    template: '%s | Nepal–Oita Community',
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
   description:
     'The Nepali community of Oita Prefecture, Japan — festivals, newcomer support, '
     + 'Nepali language classes, sport and volunteering across Oita City and Beppu.',
-  metadataBase: new URL('https://nepal-oita.com'),
-  openGraph: { siteName: 'Nepal–Oita Community', locale: 'en_GB', type: 'website' },
+  /* Every relative URL in this app's metadata — canonicals, Open Graph images —
+     is resolved against this. It has to be the domain the site is actually
+     served from or the canonicals point somewhere that does not exist. */
+  metadataBase: new URL(SITE_URL),
+  applicationName: SITE_NAME,
+  keywords: [
+    'Nepali community Oita', 'Nepal Oita Community', 'ネパール大分コミュニティ',
+    'Nepali in Japan', 'Nepali community Beppu', 'Oita Nepali association',
+    'Dashain Oita', 'Tihar Japan', 'Nepali students APU Beppu',
+    'Nepali language classes Oita', 'नेपाली समुदाय जापान',
+  ],
+  /* No `alternates` here on purpose. Metadata is inherited, so a canonical set
+     in the layout would be inherited by every page that does not set its own —
+     which means half the site declaring itself a duplicate of the home page.
+     Each public page sets its own, and only its own. */
+  openGraph: {
+    siteName: SITE_NAME,
+    locale: 'en_GB',
+    type: 'website',
+    url: SITE_URL,
+  },
+  twitter: { card: 'summary_large_image' },
+  /* Explicit rather than left to Google's defaults: `max-image-preview: large`
+     is what allows a photograph beside the result instead of a thumbnail, and
+     this site is mostly photographs of events. */
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large',
+                 'max-snippet': -1, 'max-video-preview': -1 },
+  },
+}
+
+/* Who this organisation is, in the form a search engine can read.
+ *
+ * On every page rather than only the home page, which is what Google expects for
+ * an Organization node — it is a statement about the site, not about the page.
+ * `sameAs` is the part that earns its place: it is how the site, the Facebook
+ * page, the YouTube channel and the TikTok account are understood as one body
+ * rather than four unrelated results. */
+const ORG_JSONLD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': ['NGO', 'Organization'],
+      '@id': `${SITE_URL}/#organisation`,
+      name: SITE_NAME,
+      alternateName: SITE_ALT_NAMES,
+      url: SITE_URL,
+      logo: abs('/icon.png'),
+      image: abs('/opengraph-image.jpg'),
+      email: SITE_EMAIL,
+      foundingDate: '2019',
+      description:
+        'A community association for Nepali people living in Oita Prefecture, '
+        + 'Japan — festivals, support for new arrivals, Nepali language classes '
+        + 'for children, sport and volunteering across Oita City and Beppu.',
+      areaServed: {
+        '@type': 'AdministrativeArea',
+        name: 'Oita Prefecture',
+        address: { '@type': 'PostalAddress', addressRegion: 'Oita', addressCountry: 'JP' },
+      },
+      address: { '@type': 'PostalAddress', addressRegion: 'Oita', addressCountry: 'JP' },
+      sameAs: SITE_SOCIALS,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: SITE_NAME,
+      inLanguage: 'en',
+      publisher: { '@id': `${SITE_URL}/#organisation` },
+    },
+  ],
 }
 
 /* Nothing in this app can be static: the header renders the signed-in member's
@@ -48,6 +121,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
        `.js` rules apply on the very first paint, with no flash. */
     <html lang="en" className="js" data-scroll-behavior="smooth">
       <body>
+        <script type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }} />
         <a className="skip-link" href="#main">Skip to content</a>
         <Sprite />
         <SetupBanner />

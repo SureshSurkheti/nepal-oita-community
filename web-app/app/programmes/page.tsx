@@ -5,6 +5,7 @@ import { getProgrammes } from '@/lib/content'
 import { PageHead } from '@/components/PageHead'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/programmes' },
   title: 'What we do',
   description:
     'Everything the Nepal–Oita Community runs: festivals, newcomer support, Nepali '
@@ -16,7 +17,7 @@ export default async function ProgrammesPage() {
 
   return (
     <>
-      <PageHead icon="star" eyebrow="What we do" title="Everything we run"
+      <PageHead path="/programmes" icon="star" eyebrow="What we do" title="Everything we run"
                 back={{ href: '/#programmes', label: 'Back to what we do' }}
                 lede={'The short list on the homepage is the first row of this one. '
                       + 'Nothing here is aspirational — every item below has happened, '

@@ -12,15 +12,20 @@ import { Icon } from './Sprite'
  * row — and whole rows are added until at least `min` are visible. Whole rows
  * always, never a gap in the middle of one.
  *
- * So the preview is one full row: five on a five-column desktop, four on a
- * two-column phone, and the control appears whenever there is anything left
- * over. */
+ * `cap` overrides that with a fixed number, shown at every width. The people
+ * lists use it: four cards, then the control, whether the viewport fits two
+ * across or five. It does NOT change the card size — `.people-flow` sizes every
+ * child to one fifth of the row regardless of how many are in it, and centres a
+ * short row — so four cards are four fifths wide with the leftover space split
+ * equally left and right. Same picture size as a full row of five, just one
+ * fewer of them. */
 export function ShowMore({
   children,
   className,
   href,
   gated = false,
   min = 3,
+  cap,
   id,
 }: {
   children: React.ReactNode
@@ -30,6 +35,9 @@ export function ShowMore({
   /** href pages that ask for a member's number first. */
   gated?: boolean
   min?: number
+  /** Show exactly this many at every width, and the control whenever there are
+   *  more. Skips the row measuring entirely. */
+  cap?: number
   id?: string
 }) {
   const grid = useRef<HTMLDivElement>(null)
@@ -45,6 +53,8 @@ export function ShowMore({
       const items = Array.from(el.children) as HTMLElement[]
       setTotal(items.length)
       if (items.length < 2) { setPreview(null); return }
+
+      if (cap !== undefined) { setPreview(items.length > cap ? cap : null); return }
 
       // Measure with everything shown, or the hidden ones have no offsetTop.
       const wasHidden = items.map((n) => n.hidden)
@@ -74,7 +84,7 @@ export function ShowMore({
     const onResize = () => { window.clearTimeout(t); t = window.setTimeout(measure, 150) }
     window.addEventListener('resize', onResize)
     return () => { window.clearTimeout(t); window.removeEventListener('resize', onResize) }
-  }, [min, children])
+  }, [min, cap, children])
 
   // `hidden` rather than a class: it takes the extra cards out of the tab order
   // and the accessibility tree too, so a keyboard lands on the control rather

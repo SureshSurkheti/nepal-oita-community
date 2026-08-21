@@ -897,7 +897,34 @@ section[id], main[id] {
 /* One photograph, one layer. It is left ungraded — no saturate/contrast filter —
    because the frame is already composed and lit; the earlier grading existed only
    to make two separate photographs agree with each other. */
-.hero__cell img { object-position: 50% 50%; }
+/* --------------------------------------------------------------------------
+   Where a cropped picture loses its edges
+   --------------------------------------------------------------------------
+   Every photograph on this site sits in a box with a fixed shape and is filled
+   with `object-fit: cover`, which means something always gets cut off. What gets
+   cut is `object-position`, and left to its default of `50% 50%` it takes an
+   even slice off the TOP and the bottom — which is the one thing you cannot
+   afford, because the top of a photograph is where the subject is. Heads, peaks,
+   temple spires, the torii. A member's portrait cropped to a square lost the top
+   of their head; a mountain lost its summit.
+
+   Anchored to the top instead: `50% 0`. Nothing is ever taken off the top edge.
+   The crop comes off the bottom, and off the left and right equally, which is
+   where photographs carry their least important information — foreground ground,
+   and whatever happens to be at the sides of the frame.
+
+   Set once here for every cover box on the site, so a new one inherits the same
+   rule instead of quietly getting the browser's default. */
+.hero__cell img,
+.hero__photo,
+.tile__img,
+.ptile__img,
+.avatar__img,
+.place img,
+.section-photo img,
+.profile-preview {
+  object-position: 50% 0;
+}
 
 .js .hero__cell img { opacity: 0; }
 .js .hero__cell img.is-loaded { opacity: 1; }
@@ -987,6 +1014,22 @@ section[id], main[id] {
   padding: clamp(1.1rem, 2.2vw, 1.6rem) clamp(1rem, 2vw, 1.5rem);
   text-align: center;
 }
+/* Three of the four figures link to the section they count. They have to keep
+   looking like the cells beside them — a stat that suddenly read as a button
+   would make the fourth look broken — so the cue is a lift in the ground colour
+   and the number taking the accent, not a border or an underline. */
+.stat--link {
+  display: block;
+  cursor: pointer;
+  transition: background-color 0.22s var(--ease), color 0.22s var(--ease);
+}
+.stat--link:hover { background: var(--surface); }
+.stat--link:hover .stat__num { color: var(--crimson); }
+.stat--link:focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: -2px;
+}
+
 .stat__num {
   font-family: var(--font-display);
   font-size: clamp(1.9rem, 3.4vw, 2.7rem);
@@ -1454,6 +1497,10 @@ section[id], main[id] {
 /* Fifteen general members make three rows of five: a fixed track count, not
    auto-fit, because the number is known and a row that does not fill reads as a
    mistake. */
+/* .grid--five and .grid--people were the general-members grid, which is now
+   people-flow like every other list of people. Kept, because they are generic
+   utilities and something else may want a five-column grid — but nothing uses
+   them today, so if you are reading this while deleting dead CSS, they can go. */
 .grid--five { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.85rem; }
 
 /* The leadership team is thirteen, which divides into no column count cleanly.
@@ -1642,6 +1689,20 @@ section[id], main[id] {
   text-transform: uppercase;
 }
 .minute__flag .icon { width: 12px; height: 12px; }
+
+/* The inline story editor, inside the member's own list of submissions. Spans
+   because it lives inside a <span> that the roster markup uses for the whole
+   right-hand column — a <div> there would be invalid inside phrasing content. */
+.story-edit {
+  display: block;
+  margin-top: 0.6rem;
+  max-width: 34rem;
+}
+.story-edit .field { display: block; margin-bottom: 0.6rem; }
+.story-edit .field label { display: block; }
+.story-edit .cluster { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.story-edit .form-note { display: block; }
+.story-edit .minute-tools__warn { display: block; }
 
 
 /* --------------------------------------------------------------------------
@@ -1935,9 +1996,10 @@ section[id], main[id] {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Weighted above centre. A head is in the top half of a portrait, so a square
-     crop taken from the middle of one lands on a chest. */
-  object-position: 50% 30%;
+  /* The anchor is set with every other cover box, further up — see "Where a
+     cropped picture loses its edges". This used to carry its own `50% 30%`,
+     which was the same idea applied to one element; the shared rule takes it to
+     the top edge and covers the rest of the site with it. */
   transition: transform 0.7s var(--ease), opacity 0.45s var(--ease);
 }
 .js .ptile__img { opacity: 0; }
@@ -2985,7 +3047,9 @@ main > :first-child > .section:first-child {
 
 /* The header is a wide, shallow box, so cover crops the photograph hard top and
    bottom; bias it upward to keep the peak and the sunset in frame. */
-.page-head--photo .hero__cell img { object-position: 50% 34%; }
+/* The sub-page header used to pull its photograph down to 34% to lower the
+   horizon behind the title. Top-anchored with everything else now — see the
+   shared rule — so the summit stays in frame here too. */
 
 /* Short viewports: scale the hero down so the whole image and the stat strip
    still fit on the first screen instead of spilling past the fold. */
@@ -3010,7 +3074,23 @@ main > :first-child > .section:first-child {
   .hero__lede { font-size: 0.94rem; margin-bottom: 0.9rem; }
   .hero__stats { padding-block: 0.55rem; }
   .hero__stats .stat { padding-block: 0.7rem; }
-  .hero__stats .stat__num { font-size: 1.6rem; }
+  .hero__stats /* Three of the four figures link to the section they count. They have to keep
+   looking like the cells beside them — a stat that suddenly read as a button
+   would make the fourth look broken — so the cue is a lift in the ground colour
+   and the number taking the accent, not a border or an underline. */
+.stat--link {
+  display: block;
+  cursor: pointer;
+  transition: background-color 0.22s var(--ease), color 0.22s var(--ease);
+}
+.stat--link:hover { background: var(--surface); }
+.stat--link:hover .stat__num { color: var(--crimson); }
+.stat--link:focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: -2px;
+}
+
+.stat__num { font-size: 1.6rem; }
   .hero__stats .stat__label { font-size: 0.68rem; }
 }
 

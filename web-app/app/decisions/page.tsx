@@ -78,10 +78,8 @@ export default async function DecisionsPage() {
             </div>
           ) : published.length === 0 ? (
             <p className="muted">
-              Nothing written up yet. The leadership team can add a meeting below
-              and it appears here straight away. (If nothing appears after adding
-              one, the decisions tables arrive with <code>0012_meetings.sql</code>
-              and the direct-publishing rules with <code>0015_meeting_authoring.sql</code>.)
+              Nothing written up yet. The leadership team can add a meeting using
+              the form below, and it appears here straight away.
             </p>
           ) : (
             /* Grouped by month, because the committee meets monthly and the

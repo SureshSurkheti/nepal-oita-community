@@ -13,30 +13,87 @@ import { HeroBody } from '@/components/HeroBody'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { PhotoTiles } from '@/components/PhotoTiles'
 import { getCurrentMember, getMembers } from '@/lib/members'
-import { assetUrl, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos } from '@/lib/content'
+import { assetUrl, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos, todayInJapan } from '@/lib/content'
 
 /* The hero rotation. First one first: it is the only one in the server's HTML.
  *
- * Three of these five (everest, umijigoku, sakura) are the Creative Commons files
- * listed in PHOTO-CREDITS.md, and attribution is a condition of those licences.
- * Putting them in the hero does not create that problem — they were already on
- * the page under "Two homes" — but it does make them the first thing anybody
- * sees, which is a reason to deal with it. Photographs the community took itself
- * would be better here on both counts. Swapping any line is all it takes. */
+ * WHAT IS NOT IN HERE, AND WHY
+ * Every scenic photograph in public/images is now in this list. Four files are
+ * left out, each for a reason worth writing down so nobody adds them back:
+ *
+ *   oita_city.png       Carries a DREAMSTIME WATERMARK across the middle. It is
+ *                       unlicensed stock and cannot go on the site at all — not
+ *                       here, not anywhere. It should be deleted.
+ *   logo-mark-1.png     The flags emblem: 320x320, on white, and a logo rather
+ *                       than a photograph. Cropped square-to-widescreen it loses
+ *                       both flags, and dark hero type on white is unreadable.
+ *   og-cover.jpg        The same Everest/Nuptse view as place-everest.jpg, so it
+ *                       would show the same mountain twice in one rotation — and
+ *                       at 1200px wide it softens on a desktop.
+ *   place-usajingu.jpg  Measured 1.96 contrast for the title against the dark
+ *                       tree canopy that sits directly behind it. The floor for
+ *                       type that size is 3.0. Two thirds of the frame is also
+ *                       empty gravel, so it reads as a snapshot rather than a
+ *                       header.
+ *
+ * Five of the seven below (everest, umijigoku, sakura, amadablam, boudhanath) are
+ * the Creative Commons files in PHOTO-CREDITS.md, and attribution is a condition
+ * of those licences. The hero makes them the first thing anybody sees, which is a
+ * reason to settle it. Photographs the community took itself would be better here
+ * on both counts. Swapping any line is all it takes. */
 const HERO_PHOTOS = [
-  '/images/best.png',
+  '/images/best.webp',
   '/images/city-view.webp',
   '/images/place-umijigoku.jpg',
   '/images/place-everest.jpg',
   '/images/place-sakura.jpg',
+  '/images/place-amadablam.jpg',
+  '/images/place-boudhanath.jpg',
 ]
 
-const STATS = [
-  { to: 100, suffix: '+', label: 'Members' },
-  { to: 100, suffix: '+', label: 'Events held' },
-  { to: 7, suffix: '', label: 'Years active' },
-  { to: 400, suffix: '+', label: 'Lives touched' },
-]
+/* The hero numbers.
+ *
+ * Three are the committee's own figures, given directly, and they describe the
+ * community rather than the website: 50+ on the register, 100+ events run since
+ * 2019, 20+ things we do. The site itself only lists a subset of any of them —
+ * the register here is however many people have been added at /admin/members,
+ * which is smaller — so these are a claim about the organisation, which is the
+ * committee's to make and not the database's.
+ *
+ * They had briefly been `.length` of the tables. That was more defensible and
+ * less true: "19 on the register" describes how much of the register has been
+ * typed in, not how many members there are.
+ *
+ * THE ONE THAT IS NOT A CLAIM is the years, which is arithmetic on the founding
+ * year and needs no maintenance. The other three do: if the register passes 100,
+ * somebody has to change the number here. */
+const FOUNDED = 2019
+
+/* THE RULE FOR EVERY NUMBER ON THIS PAGE: either a visitor can count it on the
+   site, or its label says what period it covers. Nothing else.
+   
+   That rule exists because the page used to break it in both directions at once.
+   It said 100+ members over a strip claiming 500 students — two figures that
+   cannot both be true, on one screen. Then it said 13 on the register above
+   nineteen member cards, which is the same fault the other way: claiming less
+   than you can see just reads as a mistake.
+   
+   So all four figures now move on their own. Three are counted straight from
+   what is rendered. The fourth adds the events in the database to a baseline of
+   the ones run before the site existed — a history the site cannot show, which
+   is why its label carries the period. Nothing here needs editing as the
+   community grows. */
+const FOUNDED_LABEL = 'Events since 2019'
+
+/* Events run before the site started keeping the list. The figure on the page is
+   this PLUS however many events are in the database, so adding one at
+   /admin/events raises it and deleting one lowers it — no file to edit.
+   
+   ONE ASSUMPTION WORTH CHECKING: that these 100 do NOT already include the events
+   the site lists. If 100 was meant as "everything we have ever run, the ones on
+   the site included", then those are being counted twice and this should come
+   down by however many that is. One number, one place, either way. */
+const EVENTS_BEFORE_THE_SITE = 100
 
 const AUDIENCES: { icon: IconName; accent: string; title: string; body: string }[] = [
   { icon: 'graduate', accent: 'indigo', title: 'Students',
@@ -79,13 +136,6 @@ const PLACES = [
   },
 ]
 
-const MEMBER_STATS = [
-  { to: 600, label: 'Facebook followers' },
-  { to: 500, label: 'Students' },
-  { to: 200, label: 'Workers' },
-  { to: 50, label: 'Families' },
-]
-
 const BENEFITS = [
   ['Free entry to most events', 'Which events are free is decided by a vote of the working members'],
   ['The emergency chain', 'Someone reachable at any hour, in Nepali'],
@@ -94,13 +144,28 @@ const BENEFITS = [
   ['A say in what we do', 'Vote at the general meeting, held every two years'],
 ]
 
+/* The follower counts sit on the links, not in a strip of abstract figures
+   further up the page.
+   
+   That is the whole reason they are safe to publish. "500 students" was a number
+   nobody could check and nobody could source; "5,000+ followers" is one click
+   from being verified by whoever doubts it, because the link is right there. A
+   number you can check is worth more than a bigger one you cannot.
+   
+   All three are shown, including YouTube's 65. I had left that one off on the
+   grounds that it reads small beside 5,000 — but a page that publishes the two
+   flattering numbers and quietly hides the third is doing something a reader can
+   smell, and 65 people who subscribed to watch a community's festivals in full
+   is not a number to be embarrassed by. Labelled subscribers, which is what
+   YouTube calls them. */
 const SOCIALS: { modifier: string; icon: IconName; href: string; label: string; meta: string }[] = [
   { modifier: 'facebook', icon: 'facebook', href: 'https://www.facebook.com/nepaloitacommunity98',
-    label: 'Facebook', meta: 'Announcements and event photos' },
+    label: 'Facebook', meta: '600+ followers · announcements and event photos' },
   { modifier: 'youtube', icon: 'youtube', href: 'https://www.youtube.com/@namastejapan-o2u',
-    label: 'YouTube — Namaste Japan', meta: 'Festivals and performances in full' },
+    label: 'YouTube — Namaste Japan',
+    meta: '65 subscribers · festivals and performances in full' },
   { modifier: 'tiktok', icon: 'tiktok', href: 'https://www.tiktok.com/@prayas03?_r=1&_t=ZS-992i3ERvHan',
-    label: 'TikTok — Namaste Japan', meta: 'Short clips from events' },
+    label: 'TikTok — Namaste Japan', meta: '5,000+ followers · short clips from events' },
   { modifier: 'email', icon: 'mail', href: 'mailto:nepaloitacommunity11@gmail.com',
     label: 'nepaloitacommunity11@gmail.com', meta: 'We reply within a day or two' },
 ]
@@ -168,6 +233,34 @@ export default async function Home() {
      either way, so this only decides whether to offer controls that would fail. */
   const canEditMinutes = member?.can_contribute === true || member?.is_admin === true
 
+  /* Counted here, where the data already is. `todayInJapan()` rather than the
+     server's own clock: the site's year is Oita's year, and a box in another
+     timezone would tick the count over on the wrong day. */
+  /* The individual things listed under the programmes, not the number of
+     programme cards. Six cards is a thin-sounding number for a community that
+     runs eighteen distinct activities, and eighteen is the figure somebody can
+     actually count on /programmes. Add two more points there and this reads 20
+     on its own. */
+  const thingsWeDo = programmes.reduce((n, p) => n + p.points.length, 0)
+
+  /* Each figure links to the section it is counting. The page already scrolls
+     smoothly (`data-scroll-behavior` on <html>) and every section carries
+     `scroll-margin-top`, so an ordinary anchor lands the heading clear of the
+     fixed navbar — no scroll handler needed.
+     
+     "Years active" has no href because there is no section that answers it; a
+     link that went somewhere approximate would be worse than a number that
+     simply sits there. */
+  const stats = [
+    { to: members.length, suffix: '', label: 'On the register', href: '#members' },
+    { to: EVENTS_BEFORE_THE_SITE + events.length, suffix: '', label: FOUNDED_LABEL, href: '#events' },
+    { to: thingsWeDo, suffix: '', label: 'Things we do', href: '#programmes' },
+    /* `todayInJapan()` rather than the server's own clock: the site's year is
+       Oita's year, and a box in another timezone would tick this over a day
+       early or late. */
+    { to: Number(todayInJapan().slice(0, 4)) - FOUNDED, suffix: '', label: 'Years active', href: null },
+  ]
+
   const leadership = members.filter((m) => m.category === 'leadership')
   const general = members.filter((m) => m.category === 'general')
   const signedIn = member !== null
@@ -215,12 +308,19 @@ export default async function Home() {
             <Icon name="chevron-down" className="icon hero__scroll-chev" />
           </a>
           <div className="statbar">
-            {STATS.map((s) => (
-              <div className="stat" key={s.label}>
-                <CountUp to={s.to} suffix={s.suffix} />
-                <div className="stat__label">{s.label}</div>
-              </div>
-            ))}
+            {stats.map((s) => {
+              const inner = (
+                <>
+                  <CountUp to={s.to} suffix={s.suffix} />
+                  <div className="stat__label">{s.label}</div>
+                </>
+              )
+              return s.href ? (
+                <a className="stat stat--link" href={s.href} key={s.label}>{inner}</a>
+              ) : (
+                <div className="stat" key={s.label}>{inner}</div>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -522,17 +622,16 @@ export default async function Home() {
               <span className="eyebrow__badge"><Icon name="network" /></span>
               Our people
             </p>
-            <h2 className="display-2">Six hundred neighbours</h2>
-            <p className="lede">Spread across Oita City and Beppu City.</p>
-          </div>
-
-          <div className="statbar mt-md">
-            {MEMBER_STATS.map((s) => (
-              <div className="stat" key={s.label}>
-                <CountUp to={s.to} suffix="+" />
-                <div className="stat__label">{s.label}</div>
-              </div>
-            ))}
+            {/* Was "Six hundred neighbours", over a strip of four invented
+                figures. Six hundred is not a number anybody here could stand
+                behind, and it sat directly above the register that shows how many
+                there actually are. This heading says what the section is and
+                carries the words people search for, which the old one did not. */}
+            <h2 className="display-2">The committee, and the register</h2>
+            <p className="lede">
+              Every office holder, and the members who have joined the register —
+              across Oita City, Beppu and the rest of the prefecture.
+            </p>
           </div>
 
           {/* A first row of each, and a "See all" to /members for the rest.
@@ -560,7 +659,16 @@ export default async function Home() {
           {general.length > 0 && (
             <>
               <h3 className="display-3 center mt-lg u-mb-2">General members</h3>
-              <ShowMore className="grid grid--five grid--people" id="members-preview"
+              {/* The same `people-flow` as the leadership row above, not a CSS
+                  grid. Both lists sat in this one section using different
+                  layouts, and it showed: leadership is flex with
+                  `justify-content: center`, so its short last row centres;
+                  general members were a five-column grid, so theirs hung on the
+                  left with three empty columns beside it. One short row centred
+                  directly above another short row jammed left reads as a
+                  mistake, because it is — nobody chose it, the two lists were
+                  just built at different times. Flex for both. */}
+              <ShowMore className="people-flow" id="members-preview"
                         href="/members">
                 {general.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
@@ -647,7 +755,7 @@ export default async function Home() {
                 <span className="qr-frame__corner" />
                 <span className="qr-frame__corner" />
                 <Icon name="qr" className="qr-frame__glyph icon" />
-                <p className="qr-frame__note">Facebook QR code goes here</p>
+                <p className="qr-frame__note">Facebook QR code</p>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="qr-frame__img" src="/images/qr-code.png"
                      alt="QR code linking to our Facebook page" />

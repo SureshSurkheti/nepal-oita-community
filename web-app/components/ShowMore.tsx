@@ -4,14 +4,17 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Icon } from './Sprite'
 
-/* Shows the first row of a long grid and puts the rest behind a control.
+/* Shows part of a long grid and puts the rest behind a control.
  *
- * Rows are MEASURED, never counted. These grids change column count between
- * phone and desktop, so "show the first three" leaves a ragged part-row on one
- * of them. Children are grouped by their offsetTop — each distinct top is one
- * row — and whole rows are added until at least MIN are visible. That minimum
- * matters on a phone, where a single-column grid's first row is one card, and
- * one card above a "Show all 6" button reads as a bug rather than a preview. */
+ * Rows are MEASURED, never counted. A grid that changes column count between
+ * phone and desktop makes "show the first three" a ragged part-row on one of
+ * them, so children are grouped by their offsetTop — each distinct top is one
+ * row — and whole rows are added until at least `min` are visible. Whole rows
+ * always, never a gap in the middle of one.
+ *
+ * So the preview is one full row: five on a five-column desktop, four on a
+ * two-column phone, and the control appears whenever there is anything left
+ * over. */
 export function ShowMore({
   children,
   className,
@@ -58,10 +61,12 @@ export function ShowMore({
       let count = 0
       for (const r of rows) { count += r; if (count >= min) break }
 
-      // Nothing worth hiding if the preview covers the grid, or leaves one card
-      // behind: a control that reveals a single extra card costs the reader more
-      // than just showing it.
-      setPreview(count >= items.length - 1 ? null : count)
+      /* Only suppressed when the preview already covers everything. There used
+         to be a `- 1` here, so a preview leaving exactly one card behind showed
+         no control — which on a five-column desktop meant six people rendered
+         with no "See all" at all. One row, then the control, whenever there is
+         anything left: five on a desktop, four on a phone. */
+      setPreview(count >= items.length ? null : count)
     }
 
     measure()

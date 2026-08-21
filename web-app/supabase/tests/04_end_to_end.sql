@@ -11,16 +11,21 @@ on conflict do nothing;
 \echo '=== a real run-through on a freshly installed database ==='
 begin;
   select test_anon();
-  -- Since 0010 the whole register is public. The count is asserted alongside
-  -- the two things that must NOT have come with it, because "28 rows" on its own
-  -- is equally consistent with having opened the private table by mistake.
+  /* Since 0010 the whole register is public. Thirteen, not twenty-eight: 0017
+     replaced the fifteen 'Member A'..'Member O' placeholders with the seven real
+     general members the committee gave, so a fresh install is thirteen office
+     holders and seven members.
+     
+     The count is asserted alongside the two things that must NOT have come with
+     it, because a row count on its own is equally consistent with having opened
+     the private table by mistake. */
   do $$
   declare n int; c int;
   begin
     select count(*) into n from public.members;
     select count(*) into c from public.member_contacts;
-    if n = 28 and c = 0 then
-      raise notice 'PASS  the public is served all 28 members and no contact rows';
+    if n = 20 and c = 0 then
+      raise notice 'PASS  the public is served all 20 members and no contact rows';
     else
       raise notice 'FAIL  the public sees % members and % contact rows', n, c;
     end if;
@@ -43,13 +48,20 @@ begin;
     raise notice 'PASS  they are served all % members', n;
   end $$;
 
-  -- Give a general member a number, the way the Committee page does.
+  /* The general member this test signs in as is created here rather than
+     borrowed from the seed. It used to use 'member-01', one of the placeholders
+     0017 deletes — and once that row was gone the lookup returned null, the RPC
+     matched nothing, and four assertions below "passed" without a card existing
+     at all. A test should not depend on sample data that is meant to be
+     removable. */
   do $$
   declare v uuid;
   begin
-    select id into v from public.members where slug = 'member-01';
+    v := public.admin_upsert_member(null, 'test-general', 'Test General Member',
+                                    null, 'TG', 'general', 900, true);
     perform public.admin_set_member_contact(v, '+818011112222', null, null, null);
-    raise notice 'PASS  a number was registered for Member A';
+    if v is null then raise notice 'FAIL  could not create the test general member';
+    else raise notice 'PASS  a general member was added and given a number'; end if;
   end $$;
 rollback;
 
@@ -67,7 +79,11 @@ begin;
   declare v uuid;
   begin
     perform public.link_member_to_current_user();
-    select id into v from public.members where slug='member-01';
+    select id into v from public.members where slug='test-general';
+    if v is null then
+      v := public.admin_upsert_member(null, 'test-general', 'Test General Member',
+                                      null, 'TG', 'general', 900, true);
+    end if;
     perform public.admin_set_member_contact(v,'+818011112222',null,null,null);
   end $$;
 commit;
@@ -78,26 +94,26 @@ begin;
   declare v uuid;
   begin
     v := public.link_member_to_current_user();
-    if v is not null then raise notice 'PASS  Member A signs in and gets their own card';
-    else raise notice 'FAIL  Member A could not link'; end if;
+    if v is not null then raise notice 'PASS  the general member signs in and gets their own card';
+    else raise notice 'FAIL  the general member could not link'; end if;
   end $$;
   -- Row count, not "did it error". An UPDATE that matches nothing succeeds
-  -- quietly, so this assertion passed for a while even though Member A was
+  -- quietly, so this assertion passed for a while even though the member was
   -- never linked to a card at all.
   do $$
   declare n int;
   begin
     update public.members set profession='Nurse' where user_id = auth.uid();
     get diagnostics n = row_count;
-    if n = 1 then raise notice 'PASS  Member A can set their own profession (1 row)';
+    if n = 1 then raise notice 'PASS  they can set their own profession (1 row)';
     else raise notice 'FAIL  it changed % rows, expected 1', n; end if;
   exception when others then
-    raise notice 'FAIL  Member A could not set their profession: %', sqlerrm;
+    raise notice 'FAIL  they could not set their profession: %', sqlerrm;
   end $$;
-  select expect('Member A CANNOT promote themselves to President',
+  select expect('the member CANNOT promote themselves to President',
     'update public.members set role=''President'' where user_id = auth.uid()', false);
-  select expect('Member A CANNOT grant themselves committee access',
+  select expect('the member CANNOT grant themselves committee access',
     'update public.members set is_admin=true where user_id = auth.uid()', false);
-  select expect('Member A CANNOT add anybody',
+  select expect('the member CANNOT add anybody',
     'select public.admin_upsert_member(null,''x'',''X'',null,null,''general'',1,true)', false);
 rollback;

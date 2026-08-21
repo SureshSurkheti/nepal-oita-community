@@ -51,7 +51,12 @@ setup() {
   # including the one that made the whole member register public. Derive the
   # list instead, so a new file is covered the moment it exists.
   local f
-  for f in $(ls "$MIG"/*.sql | grep -vE '/(0006|0007|0008)_') "$@"; do
+  # 0017 joins 0006/0007/0008 as DATA rather than schema. It inserts the six real
+  # general members and five stories, which in the fixtures database land on top
+  # of 01_fixtures.sql and break every count the policy tests make — nine
+  # failures, all of them "expected 3, saw 9". The install path below runs it
+  # explicitly, on the end of the seed where it belongs.
+  for f in $(ls "$MIG"/*.sql | grep -vE '/(0006|0007|0008|0017)_') "$@"; do
     if ! out="$($run -f "$f" 2>&1 | grep -vE 'NOTICE' || true)"; then :; fi
     if [ -n "${out:-}" ]; then echo "  ERROR applying $(basename "$f"):"; echo "$out"; exit 1; fi
   done
@@ -86,8 +91,13 @@ check noc_policies "$HERE/09_roles.sql"
 # --------------------------------------------------------------------------
 echo
 echo "### the real install path"
+# 0017 last, which is also where setup.sql puts it: 0007 and 0008 lay the sample
+# rows down, 0017 takes the placeholders out and puts the six real general members
+# in. In migration order its DELETEs would fire before 0007 had inserted anything
+# and the placeholders would come straight back — the test would then pass against
+# a database no real install ever produces.
 setup noc_install "$MIG/0007_seed_members.sql" "$MIG/0008_seed_content.sql" \
-                  "$HERE/05_install_admin.sql"
+                  "$MIG/0017_genuine_content.sql" "$HERE/05_install_admin.sql"
 check noc_install "$HERE/04_end_to_end.sql"
 
 # --------------------------------------------------------------------------
@@ -108,7 +118,7 @@ mklink() {   # $1 email  $2 slug  $3 admin  $4 out
 LM="$(mktemp -t noc_lm).sql"
 
 $PSQL -d noc_install -q -c "
-  update public.members set user_id = null where slug in ('member-13','member-14');
+  update public.members set user_id = null where slug in ('eva-tharu','yangi-sherpa-gole');
   insert into auth.users (id, email) values
     (gen_random_uuid(),'lm-one@test.invalid'), (gen_random_uuid(),'lm-two@test.invalid')
   on conflict do nothing;" >/dev/null
@@ -127,25 +137,25 @@ link_case() {   # $1 label  $2 email  $3 slug  $4 admin  $5 expected text
 }
 
 link_case "links a card and grants committee access" \
-          lm-one@test.invalid member-13 true "can now sign in"
+          lm-one@test.invalid eva-tharu true "can now sign in"
 link_case "and is safe to run twice" \
-          lm-one@test.invalid member-13 true "can now sign in"
+          lm-one@test.invalid eva-tharu true "can now sign in"
 link_case "refuses a second card for the same account" \
-          lm-one@test.invalid member-14 false "already holds card"
+          lm-one@test.invalid yangi-sherpa-gole false "already holds card"
 link_case "refuses a card that belongs to another account" \
-          lm-two@test.invalid member-13 false "already linked to a different account"
+          lm-two@test.invalid eva-tharu false "already linked to a different account"
 link_case "refuses an address with no account" \
-          nobody-at-all@test.invalid member-14 false "No account for"
+          nobody-at-all@test.invalid yangi-sherpa-gole false "No account for"
 link_case "refuses a slug that does not exist" \
           lm-two@test.invalid no-such-card false "No member card with slug"
 link_case "refuses the unedited template" \
-          someone@example.com member-14 false "Nothing was changed"
+          someone@example.com yangi-sherpa-gole false "Nothing was changed"
 
 # It must never take committee access away — removing it is a deliberate act on
 # the Committee page, not a side effect of re-running a setup script.
-mklink lm-one@test.invalid member-13 false "$LM"
+mklink lm-one@test.invalid eva-tharu false "$LM"
 $PSQL -d noc_install -q -f "$LM" >/dev/null 2>&1
-still=$($PSQL -d noc_install -q -t -A -c "select is_admin from public.members where slug='member-13';")
+still=$($PSQL -d noc_install -q -t -A -c "select is_admin from public.members where slug='eva-tharu';")
 if [ "$still" = "t" ]; then
   echo "  PASS  and re-running with admin=false does not revoke it"
 else

@@ -56,7 +56,7 @@ export function PageHead({ icon, eyebrow, title, lede, back, path, crumb }: {
         <div className="hero__grid">
           <div className="hero__cell">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/best.png" alt="" fetchPriority="high" decoding="async" />
+            <img src="/images/best.webp" alt="" fetchPriority="high" decoding="async" />
           </div>
         </div>
       </div>

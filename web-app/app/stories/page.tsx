@@ -29,7 +29,7 @@ export default async function StoriesPage() {
   if (member) {
     const supabase = await createClient()
     const { data } = await supabase.from('stories')
-      .select('id, quote, status')
+      .select('id, quote, author_role, status')
       .eq('member_id', member.id)
       .order('created_at', { ascending: false })
     own = (data ?? []) as OwnStory[]

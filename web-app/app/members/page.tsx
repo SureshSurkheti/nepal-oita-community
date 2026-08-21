@@ -25,7 +25,7 @@ export default async function MembersPage() {
 
   return (
     <>
-      <PageHead eyebrow="Members" title="The people of Nepal–Oita"
+      <PageHead icon="users" eyebrow="Members" title="The people of Nepal–Oita"
                 back={{ href: '/#members', label: 'Back to members' }}
                 lede={signedIn
                   ? 'Signed in — you are seeing the register with contact details.'
@@ -64,7 +64,10 @@ export default async function MembersPage() {
           {leadership.length > 0 && (
             <>
               <div className="section-head mt-lg reveal">
-                <p className="eyebrow">Office holders and advisers</p>
+                <p className="eyebrow">
+                  <span className="eyebrow__badge"><Icon name="shield" /></span>
+                  Office holders and advisers
+                </p>
                 <h2 className="display-2" id="leadership">Leadership team</h2>
               </div>
               <div className="people-flow">
@@ -78,7 +81,10 @@ export default async function MembersPage() {
           {general.length > 0 && (
             <>
               <div className="section-head mt-xl reveal">
-                <p className="eyebrow">Everybody else on the register</p>
+                <p className="eyebrow">
+                  <span className="eyebrow__badge"><Icon name="users" /></span>
+                  Everybody else on the register
+                </p>
                 <h2 className="display-2" id="general-members">General members</h2>
               </div>
               <div className="grid grid--five grid--people">

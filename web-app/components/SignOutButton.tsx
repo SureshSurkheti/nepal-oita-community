@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { Icon } from './Sprite'
 
 export function SignOutButton() {
   const [busy, setBusy] = useState(false)
@@ -12,6 +13,8 @@ export function SignOutButton() {
       className="btn btn--ghost nav__signout"
       type="button"
       disabled={busy}
+      aria-label="Sign out"
+      title="Sign out"
       onClick={async () => {
         setBusy(true)
         setFailed(false)
@@ -38,7 +41,10 @@ export function SignOutButton() {
         window.location.assign('/')
       }}
     >
-      {failed ? 'Sign out failed — retry' : busy ? 'Signing out…' : 'Sign out'}
+      <Icon name="log-out" />
+      <span className="nav__label">
+        {failed ? 'Sign out failed — retry' : busy ? 'Signing out…' : 'Sign out'}
+      </span>
     </button>
   )
 }

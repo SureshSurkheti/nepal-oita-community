@@ -6,6 +6,7 @@ import { Nav } from '@/components/Nav'
 import { SetupBanner } from '@/components/SetupBanner'
 import { Footer } from '@/components/Footer'
 import { DecisionsNotice } from '@/components/DecisionsNotice'
+import { BackButton } from '@/components/BackButton'
 import { getCurrentMember } from '@/lib/members'
 import { getMeetings, longDate } from '@/lib/content'
 
@@ -37,7 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
      no round trips on those. */
   const member = await getCurrentMember()
   const latest = member
-    ? (await getMeetings()).filter((m) => m.status === 'approved')[0] ?? null
+    ? (await getMeetings(true)).filter((m) => m.status === 'approved')[0] ?? null
     : null
 
   return (
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <DecisionsNotice id={latest.id} title={latest.title}
                            dateLabel={longDate(latest.held_on)} />
         )}
+        <BackButton />
         <main id="main">{children}</main>
         <Footer />
         <SiteMotion />

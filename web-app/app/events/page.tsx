@@ -29,7 +29,7 @@ export default async function EventsPage() {
 
   return (
     <>
-      <PageHead eyebrow="Events" title="Come to the next one"
+      <PageHead icon="calendar" eyebrow="Events" title="Come to the next one"
                 back={{ href: '/#events', label: 'Back to home' }}
                 lede={'You do not need to know anyone. Turn up, and you will by the '
                       + 'end of the day.'} />

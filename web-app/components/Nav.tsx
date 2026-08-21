@@ -38,7 +38,7 @@ export async function Nav() {
 
         <nav className="nav__links" aria-label="Primary">
           <Link className="nav__link" href="/#about">About</Link>
-          <Link className="nav__link" href="/programmes">What we do</Link>
+          <Link className="nav__link" href="/programmes">Programmes</Link>
           <Link className="nav__link" href="/events">Events</Link>
           <Link className="nav__link" href="/gallery">Gallery</Link>
           <Link className="nav__link" href="/decisions">Decisions</Link>
@@ -47,22 +47,34 @@ export async function Nav() {
           {member?.is_admin && <Link className="nav__link" href="/admin">Committee</Link>}
         </nav>
 
+        {/* Signing in and out stays in the header at EVERY width.
+            
+            These used to be hidden below the collapse point and offered inside
+            the drawer instead, which meant a visitor on a phone had to open a
+            menu to find "Sign in" and a member had to open it to sign out. The
+            labels collapse to icons on a narrow screen rather than the buttons
+            disappearing — the control is the thing worth keeping, not its text. */}
         <div className="nav__actions">
           {member ? (
             <>
-              <Link className="btn btn--ghost nav__cta" href="/me">Profile</Link>
+              <Link className="btn btn--ghost nav__cta" href="/me"
+                    aria-label="My profile" title="My profile">
+                <Icon name="user" /><span className="nav__label">Profile</span>
+              </Link>
               <SignOutButton />
             </>
           ) : hasSession ? (
             <>
-              <Link className="btn btn--primary nav__cta" href="/sign-in">
-                <Icon name="shield" /> Enter your code
+              <Link className="btn btn--primary nav__cta" href="/sign-in"
+                    aria-label="Enter your membership code" title="Enter your membership code">
+                <Icon name="shield" /><span className="nav__label">Enter your code</span>
               </Link>
               <SignOutButton />
             </>
           ) : (
-            <Link className="btn btn--primary nav__cta" href="/sign-in">
-              <Icon name="shield" /> Sign in
+            <Link className="btn btn--primary nav__cta" href="/sign-in"
+                  aria-label="Sign in" title="Sign in">
+              <Icon name="shield" /><span className="nav__label">Sign in</span>
             </Link>
           )}
           <Drawer member={member ? { name: member.name, isAdmin: member.is_admin } : null} />

@@ -20,7 +20,7 @@ export default async function GalleryPage() {
 
   return (
     <>
-      <PageHead eyebrow="Gallery" title="Seven years of Sundays"
+      <PageHead icon="images" eyebrow="Gallery" title="Seven years of Sundays"
                 back={{ href: '/', label: 'Back to home' }}
                 lede={'Festivals, welcome sessions, cooking, football and the ordinary '
                       + 'afternoons in between — the record of a community building '

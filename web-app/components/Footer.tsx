@@ -30,7 +30,7 @@ export function Footer() {
               <h4>Explore</h4>
               <div className="footer__links">
                 <Link href="/#about">About us</Link>
-                <Link href="/programmes">What we do</Link>
+                <Link href="/programmes">Programmes</Link>
                 <Link href="/events">Events</Link>
                 <Link href="/gallery">Gallery</Link>
                 <Link href="/decisions">Decisions</Link>

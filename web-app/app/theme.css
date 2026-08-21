@@ -286,6 +286,34 @@ ul, ol { list-style: none; padding: 0; }
   flex: none;
 }
 
+/* An icon in front of the label, so a section announces its subject the way the
+   cards inside it do — the same glyph vocabulary as `.plate`, a third of the
+   size. The drawn rules are dropped when a badge is present: a rule and a badge
+   in front of two words is two marks doing one job. */
+.eyebrow__badge {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 9px;
+  background: var(--crimson-wash);
+  color: var(--crimson);
+  border: 1px solid color-mix(in srgb, var(--crimson) 18%, transparent);
+}
+.eyebrow__badge .icon { width: 15px; height: 15px; }
+.eyebrow:has(.eyebrow__badge)::before,
+.eyebrow--center:has(.eyebrow__badge)::after { display: none; }
+
+/* Pale washes disappear on the dark sections; gold on a hint of paper is the
+   pairing the eyebrow rule already uses there. */
+.section--ink .eyebrow__badge,
+.panel--ink .eyebrow__badge {
+  background: rgba(247, 241, 232, 0.1);
+  color: var(--gold);
+  border-color: rgba(247, 241, 232, 0.22);
+}
+
 .lede {
   font-size: clamp(1.05rem, 1.5vw, 1.25rem);
   line-height: 1.6;
@@ -428,6 +456,28 @@ section[id], main[id] {
 .btn--on-ink-ghost:hover { background: rgba(247, 241, 232, 0.08); }
 
 .btn--block { width: 100%; }
+
+/* Smaller, for controls that sit inside content rather than under it — the
+   Edit/Delete pair on a meeting write-up. Still 32px tall, which is the same
+   floor .roster__links buttons use, so a row of them stays tappable. */
+.btn--sm {
+  padding: 0.32rem 0.9rem;
+  font-size: 0.8rem;
+  min-height: 32px;
+  gap: 0.35rem;
+}
+
+/* The destructive one. Crimson is the brand colour and is already on the primary
+   button, so a filled crimson "Delete" would read as the recommended action —
+   this is outlined instead, and fills only on hover, once the pointer has
+   committed. */
+.btn--danger {
+  --btn-bg: transparent;
+  --btn-fg: var(--crimson);
+  border-color: var(--crimson);
+  box-shadow: none;
+}
+.btn--danger:hover { --btn-bg: var(--crimson); --btn-fg: #fff; }
 
 .link-arrow {
   display: inline-flex;
@@ -599,15 +649,43 @@ section[id], main[id] {
    and clipped unless it opts out. */
 .nav__links > * { flex: none; }
 
-/* 960, raised from 940 when the Decisions link was added: at 941 the visitor's
-   row already ran 3px past the edge. Same lesson as the member breakpoint below
-   — these numbers are measurements of what is in the row, and adding a link
-   invalidates them silently. */
-@media (max-width: 960px) {
+/* Between the full row and the drawer: keep the links, make them smaller.
+   
+   The links used to vanish below 960 and the auth buttons with them. Losing the
+   links is a fair trade — the drawer has them — but losing "Sign in" and "Sign
+   out" is not, because there is nowhere else in the header to sign in from. So
+   the two things now collapse independently: the links get tighter, then give
+   way to the burger; the auth buttons only ever shrink to their icons. */
+@media (max-width: 1080px) {
+  .nav__link { padding-inline: 0.45rem; font-size: 0.86rem; }
+  .nav__link::after { left: 0.45rem; right: 0.45rem; }
+  .nav__inner { gap: 0.75rem; }
+}
+
+@media (max-width: 860px) {
   .nav__links { display: none; }
   .nav__burger { display: grid; }
-  .nav__cta { display: none; }
-  .nav__signout { display: none; }
+}
+
+/* On a phone, ONE labelled button rather than two unlabelled ones.
+   
+   Making both member controls icon-only fitted them in and made them
+   unreadable: the header became a wordmark and three bare glyphs, with nothing
+   to say which was the profile, which signed you out, and which opened the
+   menu.
+   
+   So Profile goes — it is in the drawer, under "My profile", where it reads as
+   words — and Sign out keeps its label. That is the one control that has to be
+   in the header, because it is deliberately not in the menu. A visitor's single
+   "Sign in" keeps its label for the same reason. */
+@media (max-width: 760px) {
+  .nav--member .nav__cta { display: none; }
+}
+
+/* Narrower than any phone in use, but the wordmark is the first thing that can
+   go if it ever comes to it — the button that signs you in matters more. */
+@media (max-width: 360px) {
+  .brand__text { display: none; }
 }
 
 /* Signed in the row carries two more controls, and for the committee an eighth
@@ -620,11 +698,16 @@ section[id], main[id] {
    if a link is ever added or a label lengthened — the number is a consequence of
    what is in the row, not a round figure, and the failure it prevents is silent
    because flex resolves overflow by squeezing rather than by complaining. */
-@media (max-width: 1300px) {
+/* Signed in there are two controls rather than one, and for the committee an
+   eighth link, so the links run out of room earlier. Only the LINKS give way —
+   the buttons stay, shrinking to icons at the width above. */
+/* 1120, measured: with the committee link present the member row is clean at
+   1121 and runs 15px past the edge at 1100. Down from 1300 — the auth buttons
+   shrinking to icons and the links tightening bought about 180px. Below this the
+   links move to the drawer; the buttons never do. */
+@media (max-width: 1120px) {
   .nav--member .nav__links { display: none; }
   .nav--member .nav__burger { display: grid; }
-  .nav--member .nav__cta { display: none; }
-  .nav--member .nav__signout { display: none; }
 }
 
 /* Signed in, the links themselves get tighter.
@@ -635,8 +718,8 @@ section[id], main[id] {
    eight links plus both member controls need about 1,264px inside a 1,180px
    container. Nothing was going to make that fit; something had to get smaller,
    and 4px either side of each link costs far less than the site's own name. */
-.nav--member .nav__link { padding-inline: 0.6rem; }
-.nav--member .nav__link::after { left: 0.6rem; right: 0.6rem; }
+.nav--member .nav__link { padding-inline: 0.55rem; }
+.nav--member .nav__link::after { left: 0.55rem; right: 0.55rem; }
 
 /* Mobile drawer */
 .drawer {
@@ -1049,19 +1132,48 @@ section[id], main[id] {
 .tiles--4 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .tiles--3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 
+/* A gallery tile is a card: photograph on top, caption underneath on the card's
+   own surface. The caption used to be absolutely positioned over the foot of the
+   frame with a scrim behind it to keep it legible — which reads on a 280px
+   desktop tile and buries the picture on a 165px phone one, where two lines of
+   white text cover most of what you came to look at. Two rows instead, at every
+   width, and no text over a photograph anywhere. */
 .tile {
   position: relative;
+  display: grid;
+  /* Media, then caption. The caption row takes the leftover height, so a
+     one-line and a two-line caption still leave both cards the same height in a
+     grid row: the foot absorbs the difference and the picture never changes
+     shape. */
+  grid-template-rows: auto 1fr;
   border-radius: var(--r);
   overflow: hidden;
   border: 1px solid var(--line);
   background: var(--surface);
-  aspect-ratio: 4 / 3;
-  display: block;
+  box-shadow: var(--shadow-sm);
   width: 100%;
   text-align: start;
-  transition: transform 0.34s var(--ease), box-shadow 0.34s var(--ease);
+  transition: transform 0.34s var(--ease), box-shadow 0.34s var(--ease),
+              border-color 0.34s var(--ease);
 }
-.tile:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+.tile:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
+  border-color: var(--line-strong);
+}
+
+/* The picture half, and the reason every photograph fits its box. `aspect-ratio`
+   fixes the window and `object-fit: cover` on the image fills it, so a portrait
+   phone snap and a wide DSLR frame both arrive as the same 4:3 crop — no
+   letterboxing, no card taller than the one beside it. */
+.tile__media {
+  position: relative;
+  display: block;
+  grid-row: 1;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--surface-2);
+}
 
 /* Photos sit on top of the generated artwork. app.js hides each one until it
    has really decoded, so a missing photo never flashes alt text over the art;
@@ -1158,58 +1270,48 @@ section[id], main[id] {
 /* The motif lines are dark ink by default, which vanishes on these deeper panels. */
 .tile__art { --art-line: rgba(255, 255, 255, 0.17); }
 
-/* The scrim exists to carry the white caption, and it used to only have to do
-   that over generated artwork — flat, dark, predictable. Real photographs put
-   sunlit crowds and white rice directly behind the text: measured 2.64 on the
-   Bisket Jatra chariot and 2.82 on the masked dance, against a 4.5 floor. The
-   ramp is therefore steeper and deeper at the bottom, and still clears the top
-   two thirds of the frame so the photograph is not dimmed for nothing. */
-.tile__scrim {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top,
-    rgba(16, 11, 8, 0.90) 0%,
-    rgba(16, 11, 8, 0.82) 20%,
-    rgba(16, 11, 8, 0.50) 40%,
-    rgba(16, 11, 8, 0.16) 62%,
-    rgba(16, 11, 8, 0) 80%);
-}
-
-/* These are <span>s, not divs/headings: a <button> may only contain phrasing
-   content, so the tile markup uses spans made block-level here. */
+/* The card foot. These are <span>s, not divs/headings: a <button> may only
+   contain phrasing content, so the tile markup uses spans made block-level here.
+   The hairline is drawn in the tile's own wash colour, which is otherwise hidden
+   behind the photograph — it is what keeps the four-colour cycle visible now
+   that the caption sits on white. */
 .tile__caption {
   display: block;
-  position: absolute;
-  inset-inline: 0;
-  inset-block-end: 0;
-  padding: 1.1rem 1.25rem;
-  color: #fff;
+  grid-row: 2;
+  padding: 0.8rem 1rem 0.95rem;
+  color: var(--ink);
+  border-block-start: 2px solid var(--wash, var(--crimson));
 }
-.tile__art,
-.tile__scrim { display: block; }
+.tile__art { display: block; }
+/* The title is clamped to two lines, so no caption can push a card out of line
+   with its neighbours whatever the committee types into it. */
 .tile__caption-title {
-  display: block;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
   font-family: var(--font-display);
   font-size: 1.02rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  line-height: 1.28;
+  color: var(--ink);
 }
+/* The category, above the title and set as a label rather than as more prose:
+   small, spaced, upper case, in the tile's wash colour. Categories are lower
+   case in the database. */
 .tile__caption-text {
   display: block;
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.76);
-  margin-top: 0.15rem;
-}
-
-.tile__index {
-  position: absolute;
-  inset-block-start: 0.85rem;
-  inset-inline-start: 1.1rem;
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--ink-3);
-  letter-spacing: 0.06em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-bottom: 0.3rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wash, var(--crimson));
 }
 
 .tile__zoom {
@@ -1223,12 +1325,16 @@ section[id], main[id] {
   border-radius: var(--r-pill);
   background: rgba(255, 255, 255, 0.92);
   color: #17120F;
-  opacity: 0;
-  transform: scale(0.85);
+  box-shadow: 0 2px 10px -4px rgba(14, 10, 7, 0.5);
+  /* Visible without hovering. It was `opacity: 0` until `:hover`, which on a
+     phone means never — and the badge is the only thing on the card that says
+     these open into a viewer. It brightens and grows on hover instead. */
+  opacity: 0.82;
+  transform: scale(0.94);
   transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
 }
 .tile:hover .tile__zoom,
-.tile:focus-visible .tile__zoom { opacity: 1; transform: scale(1); }
+.tile:focus-visible .tile__zoom { opacity: 1; transform: scale(1.06); }
 .tile__zoom .icon { width: 16px; height: 16px; }
 
 /* --------------------------------------------------------------------------
@@ -1460,6 +1566,182 @@ section[id], main[id] {
 }
 .minute__points { margin-top: 0.85rem; }
 
+/* The leadership team's controls under a write-up on /decisions, and the inline
+   form they open. Set in from the timeline rule and separated by a hairline, so
+   they read as tools attached to the entry above rather than as another
+   decision in it. */
+.minute-tools { margin-top: 0.9rem; }
+.minute-tools__warn {
+  margin: 0 0 0.6rem;
+  font-size: 0.86rem;
+  color: var(--crimson);
+  max-width: 34rem;
+}
+.minute-edit {
+  margin-top: 0.9rem;
+  padding: 1.1rem 1.15rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  max-width: 44rem;
+}
+.minute-edit .field-grid { margin-bottom: 0; }
+/* A write-up the committee has taken down. Still listed for the team that wrote
+   it — vanishing without explanation is worse — but plainly not live. */
+.minute--hidden { opacity: 0.72; }
+.minute--hidden::before { background: var(--ink-3); }
+.minute__flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0 0 0.35rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: var(--r-pill);
+  background: var(--crimson-wash);
+  color: var(--crimson);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.minute__flag .icon { width: 12px; height: 12px; }
+
+
+/* --------------------------------------------------------------------------
+   Meeting decisions, as a pager
+   --------------------------------------------------------------------------
+   The vertical timeline above (.minutes) is still what the /decisions archive
+   uses, where the job is reading everything in order. On the homepage the job is
+   different: show what was decided most recently, and let somebody step back
+   through the history without the section eating the page.
+
+   This was a sideways scroller for a while — a strip of narrow cards you dragged
+   or nudged with arrows. It is one card at a time now, because the scroller had
+   two faults that no amount of tuning fixed. It cut a card off at the container
+   edge whichever way you looked at it, which reads as a clipping bug however
+   softly it is faded; and it shrank the newest write-up — the only one most
+   people want — to a 250px column so that two you have already read could sit
+   beside it. One card gets the whole measure, and the arrows do the rest.
+
+   No scroll container, so nothing here needs snapping, edge fades, or a focusable
+   wrapper. See components/DecisionsPager.tsx. */
+.decisions { display: block; max-width: 46rem; }
+
+.decision {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* A floor and a ceiling rather than a fixed height. The floor stops a two-line
+     write-up reading as an error; the ceiling stops a fifteen-decision one
+     running down the page, and is what makes the list inside it scroll.
+     
+     The card does still change height as you step between write-ups — measured
+     192px to 416px across the three on the site — and that is left alone rather
+     than pinned, because pinning it would leave most cards, which are short, two
+     thirds empty. It costs nothing here: the arrows sit ABOVE the card, so the
+     button just pressed does not move when what is below it resizes. */
+  min-height: 12rem;
+  max-height: 26rem;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  padding: 1.3rem 1.4rem 0.45rem;
+}
+
+/* A hairline at the top edge, the way .card--feature carries one. Ink for the
+   record, crimson for the one that matters today. */
+.decision::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  height: 3px;
+  background: var(--line);
+}
+.decision--latest::before { background: var(--crimson); }
+.decision--latest {
+  border-color: color-mix(in srgb, var(--crimson) 32%, var(--line));
+  box-shadow: var(--shadow);
+}
+
+.decision__flag {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0 0 0.55rem;
+  padding: 0.22rem 0.6rem 0.24rem;
+  border-radius: var(--r-pill);
+  background: var(--crimson);
+  color: #fff;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.decision__flag .icon { width: 12px; height: 12px; }
+
+.decision__date {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.4rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.decision__date .icon { width: 14px; height: 14px; flex: none; }
+.decision__place::before { content: "·"; margin-inline-end: 0.35rem; }
+
+.decision__title {
+  font-family: var(--font-display);
+  /* The card has the whole measure now, so the title can carry the section the
+     way a heading should rather than being squeezed to fit a 250px column. */
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1.2;
+  margin: 0;
+  text-wrap: pretty;
+}
+.decision__summary {
+  margin: 0.4rem 0 0;
+  font-size: 0.92rem;
+  color: var(--ink-2);
+}
+
+/* The scrolling half of the card. `min-height: 0` is load-bearing: a flex child
+   defaults to min-height:auto, which is its content height, so the box would
+   grow to fit the list and never scroll — the overflow rule alone does nothing.
+   The fade is applied by the component, and only to the lists that really are
+   clipped: a fade over the last line of a short list reads as a bug. */
+.decision__points {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.decision__points.is-clipped {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4rem), transparent);
+}
+.decision__points::-webkit-scrollbar { width: 6px; }
+.decision__points::-webkit-scrollbar-track { background: transparent; }
+.decision__points::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: var(--r-pill);
+}
+.decision__points .checklist { margin-top: 0; gap: 0.55rem; }
+.decision__points .checklist li { font-size: 0.9rem; }
+.decision__points .checklist .icon { width: 16px; height: 16px; }
+
 /* --------------------------------------------------------------------------
    Member cards, as photographs
    
@@ -1491,16 +1773,27 @@ section[id], main[id] {
   margin-inline-start: 0.4rem;
 }
 
+/* A member card, in the same two-row shape as a gallery tile: the photograph on
+   top, the person's details beneath it on the card's own surface.
+   
+   It was a 4/5 portrait with the name, the office and the profession written
+   across the foot of it, held legible by a scrim. That reads at 260px wide. At
+   160px it does not — three lines of text stack into the bottom third of a small
+   square and sit on whatever the photograph happens to be doing there, which is
+   why phones were already given this layout and desktops were not. One design at
+   every width now, and nothing is written over anybody's face. */
 .ptile {
   position: relative;
-  display: block;
+  display: grid;
+  /* The caption row absorbs the slack, so a member with an office and a
+     profession and a member with neither still leave two cards the same height
+     side by side, and the pictures stay identical. */
+  grid-template-rows: auto 1fr;
   overflow: hidden;
   border-radius: var(--r);
   border: 1px solid var(--line);
-  /* Portrait, not landscape. A face fills a 4/5 frame; .place is 4/3 because a
-     mountain does not. */
-  aspect-ratio: 4 / 5;
-  background: var(--surface-2);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   isolation: isolate;
   transition: transform 0.32s var(--ease), box-shadow 0.32s var(--ease),
               border-color 0.32s var(--ease);
@@ -1509,6 +1802,29 @@ section[id], main[id] {
   transform: translateY(-4px);
   box-shadow: var(--shadow);
   border-color: var(--line-strong);
+}
+
+/* The wash on the card itself, not only on the art layer: it colours the
+   hairline over the caption and the office pill inside it as well as the
+   fallback pattern, and a custom property set on the child span cannot be read
+   by its sibling. */
+.ptile--crimson { --wash: var(--tile-crimson); }
+.ptile--indigo  { --wash: var(--tile-indigo); }
+.ptile--moss    { --wash: var(--tile-moss); }
+.ptile--gold    { --wash: var(--tile-gold); }
+
+/* The picture half. One square window whatever anybody uploads — a passport
+   crop, a wide group shot they have cut themselves out of — because
+   `aspect-ratio` fixes the box and `object-fit: cover` fills it. A square rather
+   than the gallery's 4:3: it keeps more of a portrait, and a row of faces the
+   same size reads as a row. */
+.ptile__media {
+  position: relative;
+  display: block;
+  grid-row: 1;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--surface-2);
 }
 
 .ptile__art {
@@ -1530,11 +1846,8 @@ section[id], main[id] {
   inset: 0;
   display: grid;
   place-items: center;
-  /* Lifted off centre: the caption occupies the lower third, and initials
-     centred in the frame collide with the name. */
-  padding-block-end: 22%;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4.5vw, 3.1rem);
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
   font-weight: 600;
   letter-spacing: 0.02em;
   color: rgba(255, 255, 255, 0.92);
@@ -1547,61 +1860,61 @@ section[id], main[id] {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Weighted above centre. A head is in the top half of a portrait, so a square
+     crop taken from the middle of one lands on a chest. */
+  object-position: 50% 30%;
   transition: transform 0.7s var(--ease), opacity 0.45s var(--ease);
 }
 .js .ptile__img { opacity: 0; }
 .js .ptile__img.is-loaded { opacity: 1; }
 .ptile:hover .ptile__img { transform: scale(1.05); }
 
-/* Same three stops as .place__scrim. The name sits on the darkest part of it,
-   and the contrast was measured against the wash colours rather than guessed. */
-.ptile__scrim {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top,
-    rgba(14, 10, 7, 0.84) 0%,
-    rgba(14, 10, 7, 0.42) 38%,
-    rgba(14, 10, 7, 0) 74%);
-}
-
+/* The details half. Dark ink on the card surface — there is no photograph behind
+   it any more, so there is nothing to darken and no scrim. */
 .ptile__cap {
-  position: absolute;
-  inset-inline: 0;
-  inset-block-end: 0;
-  padding: 0.9rem 1.05rem;
-  color: #fff;
-  transition: translate 0.45s var(--ease-out-soft);
+  display: block;
+  grid-row: 2;
+  padding: 0.7rem 0.85rem 0.85rem;
+  color: var(--ink);
+  border-block-start: 2px solid var(--wash, var(--crimson));
 }
-.ptile:hover .ptile__cap { translate: 0 -4px; }
 
 .ptile__name {
   display: block;
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 600;
   letter-spacing: -0.01em;
-  line-height: 1.25;
+  line-height: 1.28;
+  color: var(--ink);
 }
+/* White and bold, as asked — which on a light card has to mean white on
+   something. The office becomes a filled pill in the card's own wash colour, so
+   it keeps the white bold lettering, still reads as a label rather than as more
+   of the name, and joins the four-colour cycle instead of fighting it.
+   Contrast of #fff on all four washes is measured in the checks. */
 .ptile__role {
-  display: block;
-  margin-top: 0.15rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  /* White and bold, on request. It was gold so that the office read as a label
-     rather than as more of the name; uppercase, spaced and a third smaller is
-     now carrying that distinction on its own. */
+  display: inline-block;
+  margin-top: 0.3rem;
+  padding: 0.17rem 0.5rem 0.2rem;
+  border-radius: var(--r-pill);
+  background: var(--wash, var(--tile-crimson));
   color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1.25;
 }
 .ptile__job {
   display: block;
-  margin-top: 0.2rem;
-  font-size: 0.79rem;
-  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--ink-2);
 }
 .ptile__job--empty {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--ink-3);
   font-style: italic;
 }
 
@@ -1609,46 +1922,62 @@ section[id], main[id] {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   margin-top: 0.5rem;
 }
 .ptile__links a {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.2rem 0.5rem;
+  padding: 0.22rem 0.5rem;
   border-radius: var(--r-pill);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.12);
-  font-size: 0.72rem;
-  color: #fff;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  font-size: 0.7rem;
+  color: var(--ink-2);
   white-space: nowrap;
 }
 .ptile__links a:hover {
-  background: rgba(255, 255, 255, 0.24);
-  border-color: rgba(255, 255, 255, 0.55);
+  background: var(--paper-2);
+  border-color: var(--ink-3);
+  color: var(--ink);
 }
 .ptile__links .icon { width: 13px; height: 13px; }
 
-/* General members: name and face, no office. Smaller type so five sit across a
+/* General members: name and face, no office. A step smaller so five sit across a
    desktop row without the names breaking. */
-.ptile--roster { aspect-ratio: 1 / 1; }
-.ptile--roster .ptile__name { font-size: 0.92rem; }
-.ptile--roster .ptile__cap { padding: 0.75rem 0.85rem; }
-.ptile--roster .ptile__initials {
-  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
-  padding-block-end: 18%;
-}
+.ptile--roster .ptile__name { font-size: 0.9rem; }
+.ptile--roster .ptile__cap { padding: 0.6rem 0.7rem 0.75rem; }
+.ptile--roster .ptile__initials { font-size: clamp(1.5rem, 3.4vw, 2.3rem); }
 
 /* The leadership row packs five across, where the frames are narrow enough that
    the display face needs bringing down a step. */
-.people-flow .ptile__name { font-size: 0.92rem; }
-.people-flow .ptile__cap { padding: 0.8rem 0.85rem; }
+.people-flow .ptile__name { font-size: 0.9rem; }
+.people-flow .ptile__cap { padding: 0.65rem 0.75rem 0.8rem; }
 
+/* --------------------------------------------------------------------------
+   Phones: the member card, a step smaller
+   
+   The layout no longer changes here — photograph above, words below, at every
+   width. What is left is sizing: a card that is 160px wide instead of 240px
+   needs less padding and smaller type, and the grids that ask for five across
+   stop asking.
+   -------------------------------------------------------------------------- */
 @media (max-width: 620px) {
-  /* Two across on a phone, so a face is still a face. */
-  .ptile__name { font-size: 0.95rem; }
-  .ptile__job { font-size: 0.74rem; }
+  .ptile { border-radius: var(--r-sm); }
+  .ptile__cap { padding: 0.55rem 0.6rem 0.7rem; }
+  .ptile__name { font-size: 0.85rem; line-height: 1.3; }
+  .ptile__role { font-size: 0.58rem; letter-spacing: 0.05em; padding-inline: 0.42rem; }
+  .ptile__job { font-size: 0.72rem; margin-top: 0.25rem; }
+  .ptile__initials { font-size: clamp(1.5rem, 9vw, 2.2rem); }
+  .ptile__links { margin-top: 0.4rem; gap: 0.3rem; }
+  .ptile__links a { font-size: 0.66rem; padding: 0.18rem 0.42rem; }
+  .ptile--roster .ptile__cap { padding: 0.5rem 0.55rem 0.65rem; }
+
+  /* Two across, and the grids that asked for five stop asking. */
+  .grid--five { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+  .people-flow { --pf-gap: 0.7rem; }
+  .people-flow > * { flex-basis: calc((100% - var(--pf-gap)) / 2); }
 }
 
 .person--roster { padding: 1.1rem 0.75rem; }
@@ -2178,9 +2507,71 @@ dialog::backdrop {
 }
 .success-mark .icon { width: 30px; height: 30px; }
 
-/* Lightbox */
-.lightbox { background: transparent; }
+/* The back control, on every page but the homepage.
+   
+   Fixed to the bottom-left, not the top: the top of every page here is either a
+   full-height hero or a photographic header whose text sits low, and a floating
+   control up there lands on the headline. The bottom-left corner is also the
+   only part of the viewport nothing else uses — .to-top has the right. */
+.back-btn {
+  position: fixed;
+  inset-block-end: clamp(1rem, 3vw, 1.75rem);
+  inset-inline-start: clamp(1rem, 3vw, 1.75rem);
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.5rem 1rem 0.5rem 0.85rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  backdrop-filter: saturate(1.4) blur(10px);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  box-shadow: 0 2px 18px -8px rgba(58, 42, 28, 0.35);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease),
+              border-color 0.2s var(--ease), translate 0.2s var(--ease);
+}
+.back-btn:hover {
+  background: var(--paper);
+  border-color: var(--ink-3);
+  color: var(--ink);
+  translate: -2px 0;
+}
+.back-btn:focus-visible { outline: 2px solid var(--crimson); outline-offset: 3px; }
+.back-btn .icon { width: 17px; height: 17px; }
+/* Below the lightbox, which is 300, so it cannot float over a photograph. */
+
+/* Lightbox
+   
+   These rules were written for a native <dialog>, which the static site opened
+   with showModal(). The browser supplies a dialog's full-screen overlay and its
+   dark ::backdrop for free, so `background: transparent` was all that was needed.
+   
+   This app renders a plain <div role="dialog"> instead, which gets neither. With
+   no position, no inset and no z-index it laid out as an ordinary block in the
+   page flow — while the component locked body scroll behind it. Clicking a photo
+   therefore froze the page and showed nothing: the viewer was down the document
+   somewhere, transparent, and the page could not be scrolled to reach it.
+   
+   ::backdrop is kept for the day this becomes a real <dialog> again. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(10, 7, 5, 0.94);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  overscroll-behavior: contain;
+  animation: fade-in 0.2s var(--ease) both;
+}
 .lightbox::backdrop { background: rgba(10, 7, 5, 0.94); }
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
 .lightbox__stage {
   width: 100%;
   height: 100%;
@@ -2718,16 +3109,15 @@ main > :first-child > .section:first-child {
      paragraph each and turn into eight-line slivers if squeezed two-up. */
   .grid--people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
   .grid--5.grid--people { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
-  /* The general-members roster is name and face only, so three across still
-     leaves each card legible and keeps fifteen of them to five short rows. */
-  /* Seven-across and five-across both collapse on a phone: three columns keeps
-     each face and name legible instead of shrinking them to nothing. */
-  /* Two across for the leadership team on a phone, not three: these are full
-     names like "Yangi Sherpa Gole" and at a third of a 390px screen they wrap to
-     three lines. The general members are one short name each, so three fit. */
+  /* Two across for both people grids on a phone, not three. The general
+     members used to fit three because their cards were a face and one short
+     name; they now carry the profession and any social links underneath as
+     well, and at a third of a 390px screen that column is 105px wide — the
+     names wrap to three lines and the pills wrap to two. Full names like
+     "Yangi Sherpa Gole" never fitted three-up in the first place. */
   .people-flow > * { flex-basis: calc((100% - var(--pf-gap)) / 2); }
   .people-flow .avatar { width: 56px; height: 56px; }
-  .grid--five.grid--people { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+  .grid--five.grid--people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
   .person--roster { padding: 0.9rem 0.5rem; }
   .person--roster .avatar { width: 48px; height: 48px; font-size: 0.95rem; margin-bottom: 0.5rem; }
   .person--roster .person__name { font-size: 0.8rem; }
@@ -2767,6 +3157,87 @@ main > :first-child > .section:first-child {
      to a single column — four rows instead of two, 312px instead of 165px, which
      pushed the hero 162px past the fold. Pin it to 2x2. */
   .statbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+
+/* --------------------------------------------------------------------------
+   Phones: the containers themselves
+   --------------------------------------------------------------------------
+   The boxes were sized for a desktop and only ever inherited a smaller gutter.
+   A `.card` at clamp(1.5rem, 2.6vw, 2rem) spends 48px of a 350px column on its
+   own padding before a word is set; a `.quote` spends 51px. Multiplied by the
+   four audience cards, the three programmes and the six stories, that is most of
+   why those sections read as tall grey slabs on a phone.
+   
+   So the padding, the radii, the gaps and the type all come down a step
+   together — proportionally, so a card still looks like the same card and not
+   like a cramped one. Section heads lose the desktop breathing room for the same
+   reason: 2.9rem under a heading is generous at 1180px and a hole at 390px. */
+@media (max-width: 620px) {
+  .grid { gap: 0.85rem; }
+
+  .card {
+    padding: 1.1rem 1.15rem 1.25rem;
+    border-radius: var(--r-sm);
+  }
+  /* The accent hairline version adds 4px to whatever the padding is, and reads
+     the same clamp — so it has to be restated or it keeps the desktop value. */
+  .card--feature { padding-top: calc(1.1rem + 4px); }
+  .card__title { font-size: 1.05rem; }
+  .card__body { font-size: 0.88rem; }
+  .checklist { gap: 0.5rem; margin-top: 0.9rem; }
+  .checklist li { font-size: 0.85rem; gap: 0.5rem; }
+  .checklist .icon { width: 15px; height: 15px; }
+
+  /* The icon plate was 52px with 20px of margin under it — a fifth of the
+     card's height before the title. */
+  .plate { width: 42px; height: 42px; border-radius: 12px; margin-bottom: 0.85rem; }
+  .plate .icon { width: 20px; height: 20px; }
+  .plate--sm { width: 36px; height: 36px; margin-bottom: 0; }
+
+  .quote {
+    padding: 1.15rem 1.2rem 1.3rem;
+    gap: 0.85rem;
+    border-radius: var(--r-sm);
+  }
+  .quote__text { font-size: 0.96rem; line-height: 1.5; }
+  .quote__mark { font-size: 2.2rem; height: 0.85rem; }
+  .quote__who { gap: 0.65rem; }
+
+  .panel { padding: 1.2rem 1.2rem 1.35rem; border-radius: var(--r-sm); }
+
+  /* Heading blocks. `text-wrap: balance` on the display face is doing the work
+     that the 42rem measure does on a desktop, so the max-width is moot here and
+     only the vertical rhythm needs pulling in. */
+  .section-head { margin-bottom: 1.5rem; }
+  .section-head .eyebrow { margin-bottom: 0.75rem; }
+  .section-head .lede { margin-top: 0.65rem; }
+  .lede { font-size: 1rem; line-height: 1.55; }
+
+  .eyebrow { font-size: 0.68rem; letter-spacing: 0.1em; gap: 0.5rem; }
+  .eyebrow__badge { width: 24px; height: 24px; border-radius: 8px; }
+  .eyebrow__badge .icon { width: 13px; height: 13px; }
+
+  /* Two tiles across at ~165px each. The caption sits under the picture now, so
+     it gets the same step down as everything else rather than being squeezed
+     over one. */
+  .tiles { gap: 0.7rem; }
+  .tile { border-radius: var(--r-sm); }
+  .tile__caption { padding: 0.6rem 0.7rem 0.75rem; }
+  .tile__caption-title { font-size: 0.88rem; line-height: 1.3; }
+  .tile__caption-text { font-size: 0.6rem; letter-spacing: 0.08em; margin-bottom: 0.25rem; }
+  .tile__zoom { width: 28px; height: 28px; inset-block-start: 0.5rem; inset-inline-end: 0.5rem; }
+  .tile__zoom .icon { width: 14px; height: 14px; }
+
+  /* The one card fills the column on a phone, and comes down a step with
+     everything else in this block. */
+  .decision {
+    min-height: 10.5rem;
+    max-height: 21rem;
+    padding: 1rem 1.05rem 0.35rem;
+    border-radius: var(--r-sm);
+  }
+  .decision__points .checklist li { font-size: 0.85rem; }
 }
 
 
@@ -2926,6 +3397,81 @@ main > :first-child > .section:first-child {
 }
 .roster__links a { color: var(--crimson); text-decoration: underline; }
 .roster__links a:hover { color: var(--ink); }
+
+/* The committee's action buttons — approve, reject, publish, delete.
+   
+   There was no rule for `button` in here at all, so they rendered as the
+   browser's default push buttons: grey, square, jammed together, and impossible
+   to tell apart at a glance. On the members page that meant "Issue a code" sat
+   flush against "Remove" with nothing to say which one deletes somebody.
+   
+   Pills with real hit areas, a wider gap, and a distinct treatment for the ones
+   that destroy something. */
+.roster__links {
+  gap: 0.4rem 0.5rem;
+  margin-top: 0.5rem;
+}
+.roster__links button,
+.roster__links form { display: inline-flex; }
+.roster__links button {
+  align-items: center;
+  gap: 0.3rem;
+  /* 32px tall: comfortably tappable without making a list of six of them
+     dominate the row it belongs to. */
+  min-height: 32px;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.18s var(--ease), color 0.18s var(--ease),
+              border-color 0.18s var(--ease);
+}
+.roster__links button:hover {
+  background: var(--paper-2);
+  border-color: var(--ink-3);
+  color: var(--ink);
+}
+.roster__links button:focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: 2px;
+}
+.roster__links button[disabled] { opacity: 0.5; cursor: default; }
+
+/* The affirmative one in a row reads first. */
+.roster__links button[data-tone="go"] {
+  border-color: var(--moss);
+  color: var(--moss);
+  font-weight: 600;
+}
+.roster__links button[data-tone="go"]:hover {
+  background: var(--moss-wash);
+  border-color: var(--moss);
+  color: var(--moss);
+}
+
+/* Destructive. Not red until hovered — a list where one button is permanently
+   shouting is a list nobody reads carefully. */
+.roster__links button[data-tone="danger"] { color: var(--crimson); }
+.roster__links button[data-tone="danger"]:hover {
+  background: var(--crimson);
+  border-color: var(--crimson);
+  color: #fff;
+}
+
+/* On a phone the row stacks, so the buttons get the full width to sit in
+   rather than wrapping one word at a time. */
+@media (max-width: 620px) {
+  .roster li { flex-wrap: wrap; }
+  .roster__links { width: 100%; }
+  .roster__links button { font-size: 0.8rem; min-height: 36px; }
+}
 
 /* A member editing their own card: photo beside the file input, so the crop is
    visible before anything is sent. */

@@ -8,7 +8,7 @@ import { Icon } from './Sprite'
 const LINKS = [
   { href: '/', label: 'Home' },
   { href: '/#about', label: 'About' },
-  { href: '/programmes', label: 'What we do' },
+  { href: '/programmes', label: 'Programmes' },
   { href: '/events', label: 'Events' },
   { href: '/gallery', label: 'Gallery' },
   { href: '/stories', label: 'Stories' },
@@ -67,6 +67,10 @@ export function Drawer({ member = null }: {
               </Link>
             ))}
           </nav>
+          {/* Places to go, and nothing else. Signing out lives in the header at
+              every width now, so it is deliberately absent here: a destructive
+              action does not belong in a list of links, where it sits one thumb
+              away from "Members". */}
           <div className="drawer__foot">
             {member ? (
               <>
@@ -79,7 +83,7 @@ export function Drawer({ member = null }: {
                   </Link>
                 )}
                 <Link className="btn btn--primary btn--block" href="/me">
-                  <Icon name="user-plus" /> My profile
+                  <Icon name="user" /> My profile
                 </Link>
               </>
             ) : (

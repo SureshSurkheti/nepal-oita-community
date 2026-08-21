@@ -16,7 +16,7 @@ export default async function ProgrammesPage() {
 
   return (
     <>
-      <PageHead eyebrow="What we do" title="Everything we run"
+      <PageHead icon="star" eyebrow="What we do" title="Everything we run"
                 back={{ href: '/#programmes', label: 'Back to what we do' }}
                 lede={'The short list on the homepage is the first row of this one. '
                       + 'Nothing here is aspirational — every item below has happened, '

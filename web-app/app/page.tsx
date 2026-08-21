@@ -3,6 +3,7 @@ import { Icon, type IconName } from '@/components/Sprite'
 import { CountUp } from '@/components/CountUp'
 import { EventCard } from '@/components/EventCard'
 import { EventsRail } from '@/components/EventsRail'
+import { DecisionsPager } from '@/components/DecisionsPager'
 import { ShowMore } from '@/components/ShowMore'
 import { PersonCard } from '@/components/PersonCard'
 import { ContactForm } from '@/components/ContactForm'
@@ -86,18 +87,37 @@ const SOCIALS: { modifier: string; icon: IconName; href: string; label: string; 
 ]
 
 export default async function Home() {
-  const [member, members, events, programmes, stories, photos, meetings] = await Promise.all([
-    getCurrentMember(), getMembers(), getEvents(), getProgrammes(), getStories(), getPhotos(),
-    getMeetings(),
+  /* Two waves, not one, and only because of the minutes. Since 0016 they are
+     readable by members only — `anon` has no SELECT grant on the tables at all —
+     so getMeetings() has to be told whether there is a member before it decides
+     whether to send a query. That answer comes from getCurrentMember(), so it
+     cannot be in the same Promise.all as the call that needs it. One extra round
+     trip, and the alternative was to fire a query that fails for every visitor
+     and swallow the error. */
+  const member = await getCurrentMember()
+  const [members, events, programmes, stories, photos, meetings] = await Promise.all([
+    getMembers(), getEvents(), getProgrammes(), getStories(), getPhotos(),
+    getMeetings(member !== null),
   ])
 
   const past = events.filter((e) => e.past)
   const upcoming = events.filter((e) => !e.past)
   const orderedEvents = [...past, ...upcoming]
 
-  // Approved only on the homepage. A member's own pending write-up comes back
-  // from getMeetings() too, and the front page is not where they should find it.
-  const decisions = meetings.filter((m) => m.status === 'approved').slice(0, 3)
+  /* Live write-ups only. A taken-down one comes back from getMeetings() as well
+     for the leadership team, and the front page is not where they should find it.
+     
+     For a visitor this list is empty by construction — getMeetings() was handed
+     `false` above and sent no query — so the whole section disappears rather
+     than showing an empty band. 0016 took the minutes off the public web: they
+     are the community talking to itself about its own money and arrangements.
+     
+     No slice: only one is on screen at a time, so the length of the list costs
+     nothing and there is no argument for holding any of them back. Reversed,
+     because the pager opens on the last one and steps backwards in time — which
+     puts the newest first without the arrows working the wrong way round. */
+  const decisions = meetings.filter((m) => m.status === 'approved').reverse()
+  const latest = decisions.length - 1
 
   const leadership = members.filter((m) => m.category === 'leadership')
   const general = members.filter((m) => m.category === 'general')
@@ -159,7 +179,10 @@ export default async function Home() {
       <section className="section" id="about">
         <div className="container">
           <div className="section-head section-head--center reveal">
-            <p className="eyebrow eyebrow--center">Who we support</p>
+            <p className="eyebrow eyebrow--center">
+              <span className="eyebrow__badge"><Icon name="users" /></span>
+              Who we support
+            </p>
             <h2 className="display-2">Everyone who calls Oita home</h2>
             <p className="lede">
               Arriving in a new country is hard in ways nobody warns you about. Whatever
@@ -186,7 +209,10 @@ export default async function Home() {
       <section className="section" id="programmes">
         <div className="container">
           <div className="section-head reveal">
-            <p className="eyebrow">What we do</p>
+            <p className="eyebrow">
+              <span className="eyebrow__badge"><Icon name="star" /></span>
+              What we do
+            </p>
             <h2 className="display-2">Done properly, or not at all</h2>
             <p className="lede">
               We would rather do a few things properly than list twenty we cannot deliver.
@@ -217,7 +243,10 @@ export default async function Home() {
       <section className="section section--ink" id="places">
         <div className="container">
           <div className="section-head section-head--center reveal">
-            <p className="eyebrow eyebrow--center">Two homes</p>
+            <p className="eyebrow eyebrow--center">
+              <span className="eyebrow__badge"><Icon name="globe" /></span>
+              Two homes
+            </p>
             <h2 className="display-2">Six thousand kilometres apart</h2>
             <p className="lede">
               The mountains most of us grew up under, and the hot-spring valley that
@@ -251,7 +280,10 @@ export default async function Home() {
       <section className="section" id="events">
         <div className="container">
           <div className="section-head reveal">
-            <p className="eyebrow">Events</p>
+            <p className="eyebrow">
+              <span className="eyebrow__badge"><Icon name="calendar" /></span>
+              Events
+            </p>
             <h2 className="display-2">Come to the next one</h2>
             <p className="lede">
               You do not need to know anyone. Turn up, and you will by the end of the day.
@@ -276,7 +308,10 @@ export default async function Home() {
         <section className="section section--tinted" id="gallery">
           <div className="container">
             <div className="section-head reveal">
-              <p className="eyebrow">Gallery</p>
+              <p className="eyebrow">
+              <span className="eyebrow__badge"><Icon name="images" /></span>
+              Gallery
+            </p>
               <h2 className="display-2">Seven years of Sundays</h2>
               <p className="lede">
                 Every one of these was somebody far from home, having a very good day.
@@ -299,7 +334,10 @@ export default async function Home() {
         <section className="section" id="stories">
           <div className="container">
             <div className="section-head section-head--center reveal">
-              <p className="eyebrow eyebrow--center">In their words</p>
+              <p className="eyebrow eyebrow--center">
+              <span className="eyebrow__badge"><Icon name="heart" /></span>
+              In their words
+            </p>
               <h2 className="display-2">Community stories</h2>
             </div>
             <ShowMore className="grid grid--3" id="stories-grid" href="/stories">
@@ -336,7 +374,10 @@ export default async function Home() {
         <section className="section" id="decisions">
           <div className="container">
             <div className="section-head reveal">
-              <p className="eyebrow">Minutes</p>
+              <p className="eyebrow">
+              <span className="eyebrow__badge"><Icon name="check" /></span>
+              Minutes
+            </p>
               <h2 className="display-2">What we decided</h2>
               <p className="lede">
                 The committee and the members meet most months. Nobody has to
@@ -344,24 +385,44 @@ export default async function Home() {
               </p>
             </div>
 
-            <ol className="minutes">
-              {decisions.map((m) => (
-                <li key={m.id} className="minute reveal">
-                  <p className="minute__date">
-                    <Icon name="calendar" /> {longDate(m.held_on)}
-                    {m.place && <> · {m.place}</>}
-                  </p>
-                  <h3 className="minute__title">{m.title}</h3>
-                  {m.points.length > 0 && (
-                    <ul className="checklist minute__points">
-                      {m.points.slice(0, 4).map((p) => (
-                        <li key={p.id}><Icon name="check" /><span>{p.text}</span></li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ol>
+            {/* `reveal` on the wrapper, never on the cards inside it. Only one
+                card is mounted at a time and it appears mid-scroll when an arrow
+                is pressed, long after the IntersectionObserver has finished its
+                pass — so a card carrying `.reveal` itself would arrive at
+                opacity 0 and stay there. */}
+            <div className="reveal">
+              <DecisionsPager label="Meeting decisions">
+                {decisions.map((m, i) => (
+                  <article key={m.id}
+                           className={`decision${i === latest ? ' decision--latest' : ''}`}>
+                    {i === latest && (
+                      <p className="decision__flag"><Icon name="star" /> Latest</p>
+                    )}
+                    <p className="decision__date">
+                      <Icon name="calendar" /> {longDate(m.held_on)}
+                      {m.place && <span className="decision__place">{m.place}</span>}
+                    </p>
+                    <h3 className="decision__title">{m.title}</h3>
+                    {/* Room for it now that one card has the whole measure. It
+                        was left off the strip of narrow cards because a sentence
+                        in a 250px column pushed the decisions out of the box. */}
+                    {m.summary && <p className="decision__summary">{m.summary}</p>}
+                    {/* All the decisions, not the first four. The box has a
+                        ceiling and scrolls past it, so a meeting that decided
+                        fifteen things does not run down the page. */}
+                    {m.points.length > 0 && (
+                      <div className="decision__points">
+                        <ul className="checklist">
+                          {m.points.map((p) => (
+                            <li key={p.id}><Icon name="check" /><span>{p.text}</span></li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </DecisionsPager>
+            </div>
 
             <div className="cluster cluster--center mt-lg">
               <Link className="btn btn--ghost" href="/decisions">
@@ -376,7 +437,10 @@ export default async function Home() {
       <section className="section section--tinted" id="members">
         <div className="container">
           <div className="section-head section-head--center reveal">
-            <p className="eyebrow eyebrow--center">Our people</p>
+            <p className="eyebrow eyebrow--center">
+              <span className="eyebrow__badge"><Icon name="network" /></span>
+              Our people
+            </p>
             <h2 className="display-2">Six hundred neighbours</h2>
             <p className="lede">Spread across Oita City and Beppu City.</p>
           </div>
@@ -481,7 +545,10 @@ export default async function Home() {
         </div>
         <div className="container">
           <div className="section-head section-head--center reveal">
-            <p className="eyebrow eyebrow--center">Get involved</p>
+            <p className="eyebrow eyebrow--center">
+              <span className="eyebrow__badge"><Icon name="user-plus" /></span>
+              Get involved
+            </p>
             <h2 className="display-2">Join us today</h2>
             <p className="lede">
               Follow along, drop into a group, or come to an event and say hello.
@@ -529,7 +596,10 @@ export default async function Home() {
       <section className="section" id="contact">
         <div className="container">
           <div className="section-head reveal">
-            <p className="eyebrow">Contact</p>
+            <p className="eyebrow">
+              <span className="eyebrow__badge"><Icon name="mail" /></span>
+              Contact
+            </p>
             <h2 className="display-2">Get in touch</h2>
             <p className="lede">
               Questions, membership, or something urgent — write to us and a real person

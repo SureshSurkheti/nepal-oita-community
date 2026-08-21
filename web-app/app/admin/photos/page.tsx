@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { requireAdmin } from '@/lib/admin'
+import { Icon } from '@/components/Sprite'
 import { createClient } from '@/lib/supabase/server'
 import { PhotoAdmin } from '@/components/PhotoAdmin'
 import { assetUrl, type Photo } from '@/lib/content'
@@ -16,7 +17,10 @@ export default async function AdminPhotosPage() {
     <section className="section">
       <div className="container">
         <div className="section-head reveal">
-          <p className="eyebrow">Committee only</p>
+          <p className="eyebrow">
+            <span className="eyebrow__badge"><Icon name="shield" /></span>
+            Committee only
+          </p>
           <h1 className="display-2">Gallery</h1>
           <p className="lede">
             Upload a photograph and it appears in the gallery. If it came from

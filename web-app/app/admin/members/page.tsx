@@ -53,7 +53,10 @@ export default async function AdminMembersPage() {
     <section className="section">
       <div className="container">
         <div className="section-head reveal">
-          <p className="eyebrow">Committee only</p>
+          <p className="eyebrow">
+            <span className="eyebrow__badge"><Icon name="shield" /></span>
+            Committee only
+          </p>
           <h1 className="display-2">The member register</h1>
           <p className="lede">
             A member makes their own account with an email address and a password.

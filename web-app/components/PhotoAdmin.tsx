@@ -155,17 +155,22 @@ export function PhotoAdmin({ photos }: { photos: Row[] }) {
       {photos.length === 0 ? <p className="muted">No photographs yet.</p> : (
         <div className="tiles tiles--4">
           {photos.map((p) => (
+            /* Same two-row structure as the public tiles. This used to reach
+               for `.tile__cap` and `.tile__meta`, neither of which has a rule
+               anywhere in theme.css, so the admin preview rendered its captions
+               as unstyled inline text under the photograph. */
             <div key={p.id} className="tile">
-              {p.url && (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img className="tile__img" src={p.url} alt={p.alt ?? ''} loading="lazy" />
-              )}
-              <span className="tile__scrim" aria-hidden="true" />
-              <span className="tile__cap">
-                <span className="tile__caption">{p.caption ?? '(no caption)'}</span>
-                <span className="tile__meta">
+              <span className="tile__media">
+                {p.url && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img className="tile__img" src={p.url} alt={p.alt ?? ''} loading="lazy" />
+                )}
+              </span>
+              <span className="tile__caption">
+                <span className="tile__caption-text">
                   {p.category}{p.licence ? ` · ${p.licence}` : ' · no credit'}
                 </span>
+                <span className="tile__caption-title">{p.caption ?? '(no caption)'}</span>
               </span>
             </div>
           ))}

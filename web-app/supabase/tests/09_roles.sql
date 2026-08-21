@@ -17,6 +17,12 @@ begin;
      this update is refused and takes the whole block down with it. */
   update public.members set user_id = '33333333-3333-3333-3333-333333333333'
    where slug = 'member-a';
+  -- A live write-up for the two refusals at the end of this block to bite on. An
+  -- UPDATE or DELETE that matches no rows succeeds quietly, so without a row
+  -- here both would have "passed" by doing nothing at all.
+  insert into public.meetings (held_on, title, status, submitted_by)
+  values ('2026-06-14','Minutes somebody else wrote','approved',
+          'aaaaaaaa-0000-0000-0000-000000000002');
   select test_as('33333333-3333-3333-3333-333333333333');
 
   do $$
@@ -54,6 +60,45 @@ begin;
     raise notice 'FAIL  a general member added an event';
   exception when others then
     raise notice 'PASS  nor add an event';
+  end $$;
+
+  /* 0015 gave contributors UPDATE and DELETE on minutes. Both are gated on
+     can_contribute(), so a general member gets neither — asserted here rather
+     than assumed, because the grant itself is to `authenticated`, which is a
+     role every signed-in member holds. The policy is the only thing standing
+     between the two, and a policy that was never exercised is a policy nobody
+     knows works. Seeded as the owner first, before test_as, so there is a real
+     row to be refused. */
+  /* Asserted by counting rows, NOT by watching for an exception — and this is
+     the whole reason these two blocks are worth having. The UPDATE and DELETE
+     grants from 0015 are to `authenticated`, which every signed-in member holds,
+     so neither statement raises anything: the policy's can_contribute() test
+     silently filters the statement down to zero rows and it returns quietly.
+     A test that only caught exceptions would have called both of these a pass
+     with the policies dropped altogether. */
+  do $$
+  declare n int; v_title text;
+  begin
+    update public.meetings set title = 'Rewritten by a general member';
+    select count(*) into n from public.meetings
+     where title = 'Rewritten by a general member';
+    select title into v_title from public.meetings limit 1;
+    if n = 0 then raise notice 'PASS  cannot rewrite minutes (still "%")', v_title;
+    else raise notice 'FAIL  a general member rewrote % row(s)', n; end if;
+  exception when others then
+    -- Refused outright is also a pass; it just is not how RLS refuses.
+    raise notice 'PASS  cannot rewrite minutes (refused: %)', sqlerrm;
+  end $$;
+
+  do $$
+  declare n int;
+  begin
+    delete from public.meetings;
+    select count(*) into n from public.meetings;
+    if n > 0 then raise notice 'PASS  nor delete them (% still there)', n;
+    else raise notice 'FAIL  a general member deleted minutes'; end if;
+  exception when others then
+    raise notice 'PASS  nor delete them (refused: %)', sqlerrm;
   end $$;
 rollback;
 
@@ -123,7 +168,8 @@ begin;
     raise notice 'PASS  nor publish it';
   end $$;
 
-  -- Meeting minutes: yes, and still only as pending.
+  -- Meeting minutes: yes, and since 0015 they are live the moment they are
+  -- written. No committee step in between.
   do $$
   declare v_status text;
   begin
@@ -131,17 +177,54 @@ begin;
     values ('2026-08-09','Minutes by an officer',
             (select id from public.members where user_id = auth.uid()));
     select status into v_status from public.meetings where title='Minutes by an officer';
-    if v_status = 'pending' then raise notice 'PASS  can file meeting minutes, as pending';
+    if v_status = 'approved' then raise notice 'PASS  can file meeting minutes, live at once';
     else raise notice 'FAIL  minutes landed as %', v_status; end if;
   end $$;
 
-  -- And none of the committee's powers.
+  -- ...and can correct and delete them, which is the rest of 0015.
+  do $$
+  declare v_id uuid; v_title text;
+  begin
+    select id into v_id from public.meetings where title='Minutes by an officer';
+    update public.meetings set title='Minutes by an officer, corrected' where id=v_id;
+    select title into v_title from public.meetings where id=v_id;
+    if v_title = 'Minutes by an officer, corrected'
+      then raise notice 'PASS  and correct them afterwards';
+      else raise notice 'FAIL  the title is still %', v_title; end if;
+  end $$;
+
+  do $$
+  declare v_id uuid; n int;
+  begin
+    select id into v_id from public.meetings where title='Minutes by an officer, corrected';
+    delete from public.meetings where id=v_id;
+    select count(*) into n from public.meetings where id=v_id;
+    if n = 0 then raise notice 'PASS  and delete them';
+    else raise notice 'FAIL  the write-up is still there'; end if;
+  end $$;
+
+  /* The committee's own lever is still shut to them. `status` is in no grant, so
+     an officer cannot put back a write-up the committee has taken down — which
+     is the single thing 0015 left the committee over this section. */
+  do $$
+  declare v_id uuid;
+  begin
+    insert into public.meetings (held_on, title, submitted_by)
+    values ('2026-08-10','Minutes to be pulled',
+            (select id from public.members where user_id = auth.uid()))
+    returning id into v_id;
+    update public.meetings set status='rejected' where id=v_id;
+    raise notice 'FAIL  a leadership member set the status themselves';
+  exception when others then
+    raise notice 'PASS  but cannot touch status';
+  end $$;
+
   do $$ begin
     perform public.admin_set_meeting_status(
-      (select id from public.meetings where title='Minutes by an officer'), 'approved');
-    raise notice 'FAIL  a leadership member approved their own minutes';
+      (select id from public.meetings where title='Minutes to be pulled'), 'rejected');
+    raise notice 'FAIL  a leadership member called the committee status RPC';
   exception when others then
-    raise notice 'PASS  but cannot approve them';
+    raise notice 'PASS  nor call the committee RPC that would';
   end $$;
 
   do $$ begin
@@ -272,6 +355,12 @@ rollback;
 begin;
   update public.members set user_id = '33333333-3333-3333-3333-333333333333'
    where slug = 'member-a';
+  -- A live write-up for the two refusals at the end of this block to bite on. An
+  -- UPDATE or DELETE that matches no rows succeeds quietly, so without a row
+  -- here both would have "passed" by doing nothing at all.
+  insert into public.meetings (held_on, title, status, submitted_by)
+  values ('2026-06-14','Minutes somebody else wrote','approved',
+          'aaaaaaaa-0000-0000-0000-000000000002');
   select test_as('33333333-3333-3333-3333-333333333333');
   do $$ begin
     insert into public.photos (storage_path, caption, is_published, submitted_by)

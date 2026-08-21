@@ -68,7 +68,10 @@ const ORG_JSONLD = {
       name: SITE_NAME,
       alternateName: SITE_ALT_NAMES,
       url: SITE_URL,
-      logo: abs('/favicon.svg'),
+      /* A PNG, not the SVG. Google's Organization `logo` is documented as a
+         raster image of at least 112x112 — apple-icon.png is 180x180 and is
+         already there. The SVG is the browser-tab icon and stays at icon.svg. */
+      logo: abs('/apple-icon.png'),
       image: abs('/opengraph-image.jpg'),
       email: SITE_EMAIL,
       foundingDate: '2019',

@@ -1,3 +1,9 @@
+-- NOTE ON THE SLUGS BELOW
+-- They used to be 'member-01'..'member-07', the seeded placeholders. 0017 deletes
+-- those, and dev_sign_in_as() refuses a slug that does not exist — so three
+-- assertions in this file stopped running and printed nothing at all, which is
+-- how a suite loses coverage without ever going red. Real leadership cards now,
+-- chosen so nothing else in the suite claims them.
 \pset format unaligned
 \t on
 set client_min_messages = notice;
@@ -19,6 +25,23 @@ insert into auth.users (id, is_anonymous) values
 on conflict do nothing;
 
 begin;
+  /* The true totals, taken as the table owner before any role switch, so the
+     assertion below compares what a member sees against what is actually there.
+     
+     It used to test `n = 28`, a number that came from the seed — and the seed is
+     not a fixed thing: 0017 took fifteen placeholder rows out of it, and 04
+     commits one of its own, so the figure was both wrong and owned by two other
+     files. What the bypass has to prove is that a session sees the WHOLE
+     register, and that is what this now says. */
+  /* Stashed in transaction-local settings, not a temp table. A temp table
+     created by the owner is unreadable by `authenticated`, so the block below
+     aborted on permission denied — which took its own assertion AND the three
+     after it out of the run without printing anything. 134 passes where there
+     had been 138, and nothing said why. set_config survives the role switch,
+     needs no grant, and is discarded with the transaction. */
+  select set_config('test.members',  (select count(*)::text from public.members), true),
+         set_config('test.contacts', (select count(*)::text from public.member_contacts), true);
+
   select test_as('dddddddd-dddd-dddd-dddd-dddddddddddd');
   -- With no argument it should land on a committee card that nobody owns. On
   -- this database the bootstrapped admin IS owned (04 signed them in), so the
@@ -39,14 +62,16 @@ begin;
   -- the member-only data is actually there. A bypass that showed the members
   -- page with nothing on it would be worse than no bypass at all.
   do $$
-  declare n int; c int;
+  declare n int; c int; want_n int; want_c int;
   begin
     select count(*) into n from public.members;
     select count(*) into c from public.member_contacts;
-    if n = 28 and c > 0 then
+    want_n := current_setting('test.members')::int;
+    want_c := current_setting('test.contacts')::int;
+    if n = want_n and c = want_c and n > 0 and c > 0 then
       raise notice 'PASS  and then sees all % members and % contact rows, as a member does', n, c;
     else
-      raise notice 'FAIL  sees % members and % contact rows', n, c;
+      raise notice 'FAIL  sees %/% members and %/% contact rows', n, want_n, c, want_c;
     end if;
   end $$;
 rollback;
@@ -56,8 +81,8 @@ begin;
   do $$
   declare r record;
   begin
-    select * into r from public.dev_sign_in_as('member-01');
-    if r.member_name = 'Member A' and not r.is_committee then
+    select * into r from public.dev_sign_in_as('ashok-lama');
+    if r.member_name = 'Ashok Lama' and not r.is_committee then
       raise notice 'PASS  a named slug signs you in as that member, without committee access';
     else
       raise notice 'FAIL  got % (admin=%)', r.member_name, r.is_committee;
@@ -84,10 +109,10 @@ on conflict do nothing;
 
 begin;
   update public.members set user_id = '11111111-1111-1111-1111-111111111111'
-   where slug = 'member-02';
+   where slug = 'ashish-dheke';
   select test_as('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee');
   do $$ begin
-    perform public.dev_sign_in_as('member-02');
+    perform public.dev_sign_in_as('ashish-dheke');
     raise notice 'FAIL  it stole a card that belonged to a real account';
   exception when others then
     raise notice 'PASS  it refuses a card that already belongs to somebody';
@@ -115,17 +140,17 @@ begin;
   select test_as('dddddddd-dddd-dddd-dddd-dddddddddddd');
   -- PERFORM is PL/pgSQL, not SQL: at the top level of a script it is a syntax
   -- error, which aborts the transaction and takes the assertion below with it.
-  do $$ begin perform public.dev_sign_in_as('member-04'); end $$;
+  do $$ begin perform public.dev_sign_in_as('mahesh-giri'); end $$;
   select test_as('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee');
   do $$
   declare v_owner uuid; r record;
   begin
-    select * into r from public.dev_sign_in_as('member-05');
-    select user_id into v_owner from public.members where slug = 'member-04';
-    if v_owner is null and r.member_name = 'Member E' then
+    select * into r from public.dev_sign_in_as('shannon-hoon');
+    select user_id into v_owner from public.members where slug = 'mahesh-giri';
+    if v_owner is null and r.member_name = 'Shannon Hoon' then
       raise notice 'PASS  a new session releases the card the last one stranded';
     else
-      raise notice 'FAIL  member-04 still held by %', v_owner;
+      raise notice 'FAIL  mahesh-giri still held by %, signed in as %', v_owner, r.member_name;
     end if;
   end $$;
 rollback;
@@ -133,13 +158,13 @@ rollback;
 -- ...but a card belonging to a real account is still not touched by that sweep.
 begin;
   update public.members set user_id = '11111111-1111-1111-1111-111111111111'
-   where slug = 'member-06';
+   where slug = 'ruby-gauchan';
   select test_as('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee');
   do $$
   declare v_owner uuid;
   begin
-    perform public.dev_sign_in_as('member-07');
-    select user_id into v_owner from public.members where slug = 'member-06';
+    perform public.dev_sign_in_as('binita-lawgun');
+    select user_id into v_owner from public.members where slug = 'ruby-gauchan';
     if v_owner = '11111111-1111-1111-1111-111111111111' then
       raise notice 'PASS  and leaves a card owned by a real account alone';
     else

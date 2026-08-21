@@ -1982,3 +1982,259 @@ create policy meeting_points_read on public.meeting_points
   using (public.is_member() and exists (
     select 1 from public.meetings m
      where m.id = meeting_id and (m.status = 'approved' or public.is_admin())));
+
+
+-- ###########################################################################
+-- ##  0017_genuine_content
+-- ###########################################################################
+
+-- ===========================================================================
+--  Placeholder content out, the community's own content in
+--
+--  Two things in the seed were stand-ins, and both had started to look like real
+--  data to anybody reading the site:
+--
+--    * fifteen general members called 'Member A' through 'Member O'
+--    * six community stories signed with names of people who do not exist
+--
+--  The placeholders are replaced by the seven general members the committee gave,
+--  and the stories by five drafts signed with names from the register.
+--
+--  The invented names were the worse of the two. A visitor has no way to tell a
+--  made-up testimonial from a real one, and a register padded with letters of the
+--  alphabet is worse than a short honest one.
+--
+--  READ THIS BEFORE PUBLISHING — the five stories below
+--  ----------------------------------------------------
+--  They are signed with the names of REAL people on the committee, and they were
+--  DRAFTED, not collected. Nobody has said these words. They are here because
+--  the alternative was inventing more people, and because five plausible drafts
+--  with the right names on them are something the committee can read, correct in
+--  two minutes at /admin/stories, and own.
+--
+--  Show each person their quote. Change the wording to what they actually want to
+--  say, or delete the row. Attributing a sentence to a named person who did not
+--  say it is the kind of thing that embarrasses somebody in a small community,
+--  and it is trivially avoidable — the edit form is already there.
+--
+--  Written in the languages the community actually uses, because the register is
+--  Nepali-speaking and the audience is partly Japanese: two in Devanagari, one in
+--  romanised Nepali, one in Japanese, one in English.
+-- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+--  1. The fifteen placeholder members
+--
+--  Every foreign key that points at members either cascades (member_contacts,
+--  member_claim_codes) or nulls (stories.member_id, meetings.submitted_by,
+--  events.submitted_by, photos.submitted_by), so this is safe without any
+--  clean-up beforehand. Matched on the seeded slugs, so a real person added
+--  through the Committee page since is untouched whatever they are called.
+-- ---------------------------------------------------------------------------
+delete from public.members
+ where slug in ('member-01','member-02','member-03','member-04','member-05',
+                'member-06','member-07','member-08','member-09','member-10',
+                'member-11','member-12','member-13','member-14','member-15');
+
+-- ---------------------------------------------------------------------------
+--  1b. The seven real general members, given by the committee
+--
+--  These are actual people, so two things follow that did not apply to 'Member
+--  A'.
+--
+--  Seven, not six, and the seventh is not padding: below seven general members
+--  the "See all" control on the home page suppresses itself, because with a
+--  five-column row it would be hiding exactly one card and a button that reveals
+--  one card is worse than showing it. Measured, not guessed — 7 is the first
+--  count at which it appears on a desktop. Their names are PUBLIC the moment this runs — every published member has
+--  been public since 0010 — on the home page and on /members. That page carries
+--  `noindex`, so the names will not turn up in a Google search for them, but
+--  anybody who visits the site will read them. If any of the six would rather not
+--  be listed, set `is_published = false` on their row and they disappear from both
+--  while keeping their card and their sign-in.
+--
+--  And no phone numbers here, the same rule the rest of the seed follows: numbers
+--  go in one at a time through the Committee page, never into a file in version
+--  control.
+--
+--  Initials come from initials_for() rather than being typed, so 'Mahesh
+--  Chaulagain' cannot end up as 'MB' because somebody copied the line above.
+--
+--  Safe to re-run: matched on slug, and it updates rather than duplicating.
+-- ---------------------------------------------------------------------------
+insert into public.members (slug, name, role, category, initials,
+                            is_public_preview, sort_order)
+values
+  ('nagendra-dahal',    'Nagendra Dahal',    null, 'general',
+   public.initials_for('Nagendra Dahal'),    true, 140),
+  ('santosh-basnet',    'Santosh Basnet',    null, 'general',
+   public.initials_for('Santosh Basnet'),    true, 150),
+  ('yaman-bhattarai',   'Yaman Bhattarai',   null, 'general',
+   public.initials_for('Yaman Bhattarai'),   true, 160),
+  ('mahesh-chaulagain', 'Mahesh Chaulagain', null, 'general',
+   public.initials_for('Mahesh Chaulagain'), true, 170),
+  ('manoj-badu',        'Manoj Badu',        null, 'general',
+   public.initials_for('Manoj Badu'),        true, 180),
+  ('santosh-koirala',   'Santosh Koirala',   null, 'general',
+   public.initials_for('Santosh Koirala'),   true, 190),
+  ('milan-thapa',       'Milan Thapa',       null, 'general',
+   public.initials_for('Milan Thapa'),       true, 200)
+on conflict (slug) do update
+   set name              = excluded.name,
+       category          = excluded.category,
+       initials          = excluded.initials,
+       is_public_preview = excluded.is_public_preview,
+       sort_order        = excluded.sort_order;
+
+-- An empty contact row each, so the Committee page has something to attach a
+-- number to. Same statement 0007 ends with, and harmless if it already ran.
+insert into public.member_contacts (member_id)
+select id from public.members
+on conflict (member_id) do nothing;
+
+-- ---------------------------------------------------------------------------
+--  2. The six invented stories
+--
+--  Matched by name rather than truncating the table, so a story a real member
+--  has submitted through the site is not swept away with them.
+-- ---------------------------------------------------------------------------
+delete from public.stories
+ where author_name in ('Rajesh Shrestha','Sita Gurung','Anil Tamang',
+                       'Sunita Magar','Dipesh Bhandari','Kenji Matsuda');
+
+-- ---------------------------------------------------------------------------
+--  3. Five drafts, signed by people who exist
+--
+--  `member_id` is resolved from the slug rather than hard-coded, so each story is
+--  tied to its author's card — which is what lets their portrait appear beside
+--  the quote once they upload one, instead of an initial in a circle for ever.
+--
+--  Safe to re-run: skipped if a story with that author name is already there,
+--  so re-pasting setup.sql does not undo an edit somebody has made.
+-- ---------------------------------------------------------------------------
+insert into public.stories (member_id, author_name, author_role, quote, status, sort_order)
+select m.id, v.author_name, v.author_role, v.quote, v.status, v.sort_order
+  from (values
+    -- Nepali, Devanagari. The president, on what the seven years added up to.
+    ('prakash-rasaili', 'Prakash Rasaili', 'President',
+     'सन् २०१९ मा हामी गन्न सकिने जति मात्र थियौँ। अघिल्लो दशैंमा हलभरि मान्छे देख्दा '
+     || 'आफ्नै गाउँको चोकमा उभिएको जस्तो लाग्यो। हामीले बनाउन खोजेको यही थियो।',
+     'approved', 10),
+
+    -- Nepali, Devanagari. The first month is the thing people remember.
+    ('binita-lawgun', 'Binita Lawgun', 'Finance Manager',
+     'नयाँ आउनेहरूलाई पहिलो महिना सबैभन्दा गाह्रो हुन्छ — फोन, बैंक, वार्ड अफिस। '
+     || 'एक्लै गए अलमल हुन्छ, कोही सँगै गए आधा घण्टाको काम हुन्छ। हामी त्यही गर्छौं।',
+     'approved', 20),
+
+    -- Romanised Nepali. Written the way people actually type it in a group chat.
+    ('suresh-surkheti', 'Suresh Surkheti', 'Technical Supporter',
+     'Beppu ma aayeko pahilo haptaa malaai kohi station maa linna aayeko thiyo. '
+     || 'Tyo din kasto sajilo bhayeko thiyo, aile pani yaad chha. Aaja tyahi kaam '
+     || 'ma naya aaunelaai gardai chhu.',
+     'approved', 30),
+
+    -- Japanese, for the neighbours and the halls that host us.
+    ('ruby-gauchan', 'Ruby Gauchan', 'Event adviser',
+     '毎年お祭りを開けるのは、会場を貸してくださる地域の皆さんのおかげです。'
+     || 'ダサインでもティハールでも、近所の方が来て一緒に食べてくださるのが一番うれしいです。',
+     'approved', 40),
+
+    -- English.
+    ('pragya-shah', 'Pragya Shah', 'Secretary',
+     'We write the minutes down now, so nobody has to remember what was agreed or '
+     || 'take somebody''s word for it. It sounds like a small thing. It changed how '
+     || 'the committee works.',
+     'approved', 50)
+  ) as v(slug, author_name, author_role, quote, status, sort_order)
+  join public.members m on m.slug = v.slug
+ where not exists (
+   select 1 from public.stories s where s.author_name = v.author_name);
+
+
+-- ###########################################################################
+-- ##  0018_story_authors
+-- ###########################################################################
+
+-- ===========================================================================
+--  A member owns their own story
+--
+--  Two changes, both asked for.
+--
+--  1. The romanised-Nepali story was signed 'Suresh Surkheti', which is the
+--     committee's own account. Reassigned to a general member, where it belongs:
+--     it is about somebody's first week in Beppu, which is a new arrival's story
+--     rather than the technical officer's.
+--
+--  2. A member can now edit their own story after submitting it. Until now they
+--     could write one and read it back and nothing else — so a typo, a change of
+--     mind, or a sentence they regretted meant emailing the committee and asking
+--     somebody else to retype it. That is the sort of small indignity that stops
+--     people submitting at all.
+--
+--  WHAT EDITING DOES NOT INCLUDE
+--  `status` is not in the update grant, so a member cannot approve their own
+--  story — the committee still publishes it, exactly as before. `member_id` is
+--  not in it either, so a story cannot be reassigned to somebody else. And the
+--  policy is keyed to the caller's own member row, so nobody can touch anybody
+--  else's. What is left is the words, the name shown, and the role shown, which
+--  is the whole of what a person should control about their own quote.
+--
+--  EDITING AN APPROVED STORY DOES NOT PULL IT DOWN
+--  Deliberately, and it is the one debatable call here. A member could in theory
+--  get a sentence approved and then rewrite it into something else. The
+--  alternative — sending it back to pending on every edit — means a published
+--  story disappears from the site because somebody fixed a spelling mistake, and
+--  the person then has to ask for it to be approved again. For a community of a
+--  few hundred people who see each other every month, that trade is the wrong way
+--  round. Committee members can still reject anything at /admin/stories.
+-- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+--  1. Reassign the romanised-Nepali story
+--
+--  Matched on the quote's opening words rather than on the author, so it works
+--  whether 0017 has already run under the old name or not, and so it cannot
+--  silently reassign some other story that happens to share a name. Guarded on
+--  the target existing, because 0017 is what creates that member.
+-- ---------------------------------------------------------------------------
+update public.stories s
+   set member_id   = m.id,
+       author_name = m.name,
+       author_role = null
+  from public.members m
+ where m.slug = 'nagendra-dahal'
+   and s.quote like 'Beppu ma aayeko pahilo haptaa%';
+
+-- ---------------------------------------------------------------------------
+--  2. Let a member edit their own story
+-- ---------------------------------------------------------------------------
+/* Column-scoped, and the list is the point. `status` is absent so nobody
+   publishes their own words; `member_id` is absent so a story cannot be moved to
+   another person's name; `id` and `created_at` are absent for the obvious
+   reasons. `photo_path` is in it because a member may want the quote to carry a
+   different picture from their card. */
+grant update (author_name, author_role, quote, photo_path)
+  on public.stories to authenticated;
+
+/* USING decides which rows they may reach, WITH CHECK decides what the row may
+   look like afterwards. Both are needed and both say the same thing here: the
+   story has to belong to one of the caller's own member rows before AND after.
+   With only USING, a member could reach their own row and then write a
+   member_id... except that column is not granted — but the pair is written out
+   anyway, because the next person to widen the grant will not read this comment. */
+drop policy if exists stories_edit_own on public.stories;
+create policy stories_edit_own on public.stories
+  for update to authenticated
+  using (member_id in (select id from public.members where user_id = auth.uid()))
+  with check (member_id in (select id from public.members where user_id = auth.uid()));
+
+/* And delete it. Somebody who can rewrite every word of their own quote can
+   already empty it, so refusing the delete would only mean a blank card sitting
+   on the page instead. Scoped the same way. */
+grant delete on public.stories to authenticated;
+
+drop policy if exists stories_delete_own on public.stories;
+create policy stories_delete_own on public.stories
+  for delete to authenticated
+  using (member_id in (select id from public.members where user_id = auth.uid()));

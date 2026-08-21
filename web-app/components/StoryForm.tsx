@@ -1,10 +1,16 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 
-export type OwnStory = { id: string; quote: string; status: 'pending' | 'approved' | 'rejected' }
+export type OwnStory = {
+  id: string
+  quote: string
+  author_role: string | null
+  status: 'pending' | 'approved' | 'rejected'
+}
 
 const STATUS_NOTE: Record<OwnStory['status'], string> = {
   pending: 'Waiting for the committee to read it.',
@@ -22,16 +28,62 @@ const STATUS_NOTE: Record<OwnStory['status'], string> = {
  *
  * `member_id` is sent because the insert policy requires it to be one of the
  * caller's own member rows. It is not a claim about who you are that anybody
- * trusts — send somebody else's and the policy rejects the row. */
+ * trusts — send somebody else's and the policy rejects the row.
+ *
+ * EDITING THEIR OWN, since 0018. The words are theirs, so a typo should not mean
+ * emailing the committee and asking somebody else to retype it. What they cannot
+ * touch is `status` — it is in no grant, so nobody approves their own story — and
+ * `author_name`, which is not offered here because a member's name is their card's
+ * and the card is the committee's to set. */
 export function StoryForm({ member, own }: {
   member: { id: string; name: string; role: string | null; photo_path: string | null } | null
   own: OwnStory[]
 }) {
+  const router = useRouter()
   const [role, setRole] = useState(member?.role ?? '')
   const [quote, setQuote] = useState('')
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  /* Which of their own stories is open for editing, and the draft in the boxes.
+     Held here rather than in a child component because the list of their stories
+     is already here and splitting it would mean passing the whole thing down. */
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editQuote, setEditQuote] = useState('')
+  const [editRole, setEditRole] = useState('')
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [rowError, setRowError] = useState<string | null>(null)
+
+  const openEdit = (st: OwnStory) => {
+    setEditId(st.id)
+    setEditQuote(st.quote)
+    setEditRole(st.author_role ?? '')
+    setConfirmId(null)
+    setRowError(null)
+  }
+
+  async function saveEdit(id: string) {
+    const text = editQuote.trim()
+    if (text.length < 40) { setRowError('A few sentences, please — at least forty characters.'); return }
+    setBusy(true); setRowError(null)
+    const { error: e } = await createClient().from('stories')
+      .update({ quote: text, author_role: editRole.trim() || null })
+      .eq('id', id)
+    setBusy(false)
+    if (e) { setRowError(`Could not save that. ${e.message}`); return }
+    setEditId(null)
+    router.refresh()
+  }
+
+  async function removeStory(id: string) {
+    setBusy(true); setRowError(null)
+    const { error: e } = await createClient().from('stories').delete().eq('id', id)
+    setBusy(false)
+    if (e) { setRowError(`Could not delete that. ${e.message}`); return }
+    setConfirmId(null)
+    router.refresh()
+  }
 
   if (!member) {
     return (
@@ -80,19 +132,84 @@ export function StoryForm({ member, own }: {
 
       {own.length > 0 && (
         <ul className="roster u-mb-15">
-          {own.map((s) => (
-            <li key={s.id}>
+          {own.map((st) => (
+            <li key={st.id}>
               <span className="avatar" aria-hidden="true">
-                <Icon name={s.status === 'approved' ? 'check' : 'clock'} />
+                <Icon name={st.status === 'approved' ? 'check' : 'clock'} />
               </span>
               <span>
                 <span className="roster__name">
-                  Your story <span className="text-sm muted">· {s.status}</span>
+                  Your story <span className="text-sm muted">· {st.status}</span>
                 </span><br />
-                <span className="roster__meta">{STATUS_NOTE[s.status]}</span><br />
-                <span className="roster__meta">
-                  &ldquo;{s.quote.slice(0, 140)}{s.quote.length > 140 ? '…' : ''}&rdquo;
-                </span>
+                <span className="roster__meta">{STATUS_NOTE[st.status]}</span><br />
+
+                {editId === st.id ? (
+                  /* Inline, under the entry it changes. The alternative was a
+                     second copy of the form further down the page, which leaves
+                     somebody scrolling to check they are editing the right one. */
+                  <span className="story-edit">
+                    <span className="field">
+                      <label htmlFor={`e-role-${st.id}`}>
+                        What to put under your name <span className="muted">(optional)</span>
+                      </label>
+                      <input id={`e-role-${st.id}`} type="text" maxLength={80}
+                             value={editRole} onChange={(e) => setEditRole(e.target.value)} />
+                    </span>
+                    <span className="field">
+                      <label htmlFor={`e-quote-${st.id}`}>Your story</label>
+                      <textarea id={`e-quote-${st.id}`} rows={5} maxLength={1200}
+                                value={editQuote} onChange={(e) => setEditQuote(e.target.value)} />
+                    </span>
+                    <span className="cluster">
+                      <button className="btn btn--sm btn--primary" type="button"
+                              disabled={busy} onClick={() => saveEdit(st.id)}>
+                        <Icon name="check" />{busy ? 'Saving…' : 'Save'}
+                      </button>
+                      <button className="btn btn--sm btn--ghost" type="button"
+                              disabled={busy} onClick={() => setEditId(null)}>
+                        Cancel
+                      </button>
+                    </span>
+                    {st.status === 'approved' && (
+                      <span className="form-note">
+                        This one is published, so the change is live as soon as you save.
+                      </span>
+                    )}
+                  </span>
+                ) : confirmId === st.id ? (
+                  <span className="story-edit">
+                    <span className="minute-tools__warn">
+                      Delete your story? This cannot be undone.
+                    </span>
+                    <span className="cluster">
+                      <button className="btn btn--sm btn--danger" type="button"
+                              disabled={busy} onClick={() => removeStory(st.id)}>
+                        <Icon name="close" />{busy ? 'Deleting…' : 'Yes, delete it'}
+                      </button>
+                      <button className="btn btn--sm btn--ghost" type="button"
+                              disabled={busy} onClick={() => setConfirmId(null)}>
+                        Keep it
+                      </button>
+                    </span>
+                  </span>
+                ) : (
+                  <>
+                    <span className="roster__meta">
+                      &ldquo;{st.quote.slice(0, 140)}{st.quote.length > 140 ? '…' : ''}&rdquo;
+                    </span>
+                    <span className="roster__links">
+                      <button type="button" data-tone="go"
+                              onClick={() => openEdit(st)}>Edit</button>
+                      <button type="button" data-tone="danger"
+                              onClick={() => { setConfirmId(st.id); setRowError(null) }}>
+                        Delete
+                      </button>
+                    </span>
+                  </>
+                )}
+                {rowError && (editId === st.id || confirmId === st.id) && (
+                  <span className="form-note form-note--error">{rowError}</span>
+                )}
               </span>
             </li>
           ))}
@@ -115,13 +232,13 @@ export function StoryForm({ member, own }: {
               What to put under your name <span className="muted">(optional)</span>
             </label>
             <input id="story-role" type="text" maxLength={80}
-                   placeholder="Student, APU · Factory worker, Nakatsu · Parent, Oita City"
+                   placeholder="Student · Care worker · Parent · Kitchen staff"
                    value={role} onChange={(e) => setRole(e.target.value)} />
           </div>
           <div className="field">
             <label htmlFor="story-quote">Your story</label>
             <textarea id="story-quote" required maxLength={1200} rows={6}
-                      placeholder="How the first few months went, or the day somebody helped you out."
+                      placeholder="How your first few months here went, or a day somebody helped you out. A few sentences is plenty."
                       value={quote} onChange={(e) => setQuote(e.target.value)} />
           </div>
           <button className="btn btn--primary" type="submit" disabled={busy}>

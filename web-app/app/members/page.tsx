@@ -88,7 +88,10 @@ export default async function MembersPage() {
                 </p>
                 <h2 className="display-2" id="general-members">General members</h2>
               </div>
-              <div className="grid grid--five grid--people">
+              {/* people-flow, matching the leadership block above — see the
+                  note on the home page. A short final row centres instead of
+                  hanging off the left edge. */}
+              <div className="people-flow">
                 {general.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
                 ))}

@@ -119,6 +119,81 @@ begin;
   select expect('CANNOT submit in somebody else''s name',
     'insert into public.stories (member_id, author_name, quote)
        values (''aaaaaaaa-0000-0000-0000-000000000001'', ''Suresh'', ''x'')', false);
+
+  /* 0018: the words are theirs to change afterwards. Counted, not caught — the
+     UPDATE and DELETE grants are to `authenticated`, which every signed-in member
+     holds, so the policy filters the statement to zero rows rather than raising.
+     A test that only watched for an exception would pass with the policies
+     dropped altogether. */
+  do $$
+  declare n int; v text;
+  begin
+    update public.stories set quote = 'It went very well, actually.'
+     where member_id = 'aaaaaaaa-0000-0000-0000-000000000002';
+    get diagnostics n = row_count;
+    select quote into v from public.stories
+     where member_id = 'aaaaaaaa-0000-0000-0000-000000000002' limit 1;
+    if n = 1 and v = 'It went very well, actually.'
+      then raise notice 'PASS  and can edit their own story afterwards';
+      else raise notice 'FAIL  % row(s) changed, quote is now %', n, v; end if;
+  end $$;
+
+  -- Somebody else's is not theirs to rewrite.
+  do $$
+  declare n int;
+  begin
+    insert into public.stories (member_id, author_name, quote, status)
+    values ('aaaaaaaa-0000-0000-0000-000000000001', 'Suresh Surkheti',
+            'Not mine to touch.', 'approved');
+    raise notice 'FAIL  a member inserted a story for somebody else';
+  exception when others then
+    -- Expected. Seeded below as the owner instead, so there is a foreign row.
+    null;
+  end $$;
+  select expect('CANNOT change status on their own story',
+    'update public.stories set status = ''approved''
+      where member_id = ''aaaaaaaa-0000-0000-0000-000000000002''', false);
+rollback;
+
+-- A foreign story has to be created by the owner, since a member cannot insert
+-- one under another name — which is what the block above proves.
+begin;
+  insert into public.stories (member_id, author_name, quote, status)
+  values ('aaaaaaaa-0000-0000-0000-000000000001', 'Suresh Surkheti',
+          'A story belonging to somebody else entirely.', 'approved');
+  select test_as('22222222-2222-2222-2222-222222222222');
+  do $$ begin perform public.link_member_to_current_user(); end $$;
+  do $$
+  declare n int; v text;
+  begin
+    update public.stories set quote = 'Hijacked.'
+     where member_id = 'aaaaaaaa-0000-0000-0000-000000000001';
+    get diagnostics n = row_count;
+    select quote into v from public.stories
+     where member_id = 'aaaaaaaa-0000-0000-0000-000000000001' limit 1;
+    if n = 0 and v = 'A story belonging to somebody else entirely.'
+      then raise notice 'PASS  but cannot rewrite anybody else''s';
+      else raise notice 'FAIL  % row(s) changed, quote is now %', n, v; end if;
+  end $$;
+  do $$
+  declare n int;
+  begin
+    delete from public.stories where member_id = 'aaaaaaaa-0000-0000-0000-000000000001';
+    get diagnostics n = row_count;
+    if n = 0 then raise notice 'PASS  nor delete anybody else''s';
+    else raise notice 'FAIL  deleted % of somebody else''s stories', n; end if;
+  end $$;
+  -- Their own, though, yes.
+  do $$
+  declare n int;
+  begin
+    insert into public.stories (member_id, author_name, quote)
+    values ('aaaaaaaa-0000-0000-0000-000000000002', 'Prakash', 'One I will withdraw.');
+    delete from public.stories where member_id = 'aaaaaaaa-0000-0000-0000-000000000002';
+    get diagnostics n = row_count;
+    if n >= 1 then raise notice 'PASS  and can withdraw their own';
+    else raise notice 'FAIL  could not delete their own story'; end if;
+  end $$;
 rollback;
 
 \echo ''

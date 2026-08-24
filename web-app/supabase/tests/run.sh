@@ -82,6 +82,10 @@ check noc_policies "$HERE/03_preview.sql"
 check noc_policies "$HERE/07_claim_codes.sql"
 check noc_policies "$HERE/08_meetings.sql"
 check noc_policies "$HERE/09_roles.sql"
+# Last in this scenario because it relocates pgcrypto to where Supabase keeps
+# it. Every block rolls that back, but running it last means a mistake there
+# cannot quietly change what the files above were testing.
+check noc_policies "$HERE/10_supabase_layout.sql"
 
 # --------------------------------------------------------------------------
 #  Scenario two: the real install path — seed the 28 members, bootstrap the

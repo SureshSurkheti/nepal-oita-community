@@ -16,7 +16,22 @@ function slugify(name: string) {
     .replace(/^-+|-+$/g, '')
 }
 
-export type ActionResult = { ok: true; message: string } | { ok: false; message: string }
+export type ActionResult =
+  | {
+      ok: true
+      message: string
+      /* A freshly issued claim code, when there is one. Carried as its own field
+         rather than baked into `message`, because the code has to be rendered
+         differently from prose: monospace, large enough to read off a screen and
+         copy off it, and next to a Copy button. It was inside the sentence, and
+         the result was somebody trying to sign in with the member's NAME because
+         the actual code was ten characters lost in the middle of a paragraph at
+         the top of the page. */
+      code?: string
+      /** Which row the code belongs to, so it can be shown on that row. */
+      memberId?: string
+    }
+  | { ok: false; message: string }
 
 export async function addMember(formData: FormData): Promise<ActionResult> {
   const supabase = await createClient()
@@ -141,8 +156,9 @@ export async function issueClaimCode(formData: FormData): Promise<ActionResult> 
   revalidatePath('/admin/members')
   return {
     ok: true,
-    message: `Code for this member: ${data} — write it down now, it cannot be shown again. `
-      + 'Any code issued to them earlier has stopped working.',
+    message: '',                       // the panel says it all; no duplicate prose
+    code: String(data),
+    memberId: String(formData.get('member_id') ?? ''),
   }
 }
 
@@ -164,4 +180,65 @@ export async function setContributor(formData: FormData): Promise<ActionResult> 
       ? 'They can now add events and meeting write-ups, for you to publish.'
       : 'They can no longer add events or meeting write-ups.',
   }
+}
+
+/* The committee filling in somebody else's card.
+ *
+ * The member's own version of this is /me, and that is still the right place for
+ * anybody who can get to it. This exists for the rest of the register: people
+ * who have not claimed an account, and people who sent their photograph to the
+ * committee in a message and are never going to log in and upload it themselves.
+ *
+ * A missing field is sent as null, not as an empty string, and the two mean
+ * different things in the database: null leaves the column alone, '' clears it.
+ * That distinction is what stops "save the profession" from also wiping the
+ * portrait — `photo` is only ever sent when a new file has just been uploaded,
+ * or when the form is explicitly clearing the picture.
+ *
+ * As everywhere else on this page, the authorisation is admin_set_member_profile
+ * checking is_admin() inside the database. There is no `if` in this file that
+ * matters. */
+export async function setMemberProfile(formData: FormData): Promise<ActionResult> {
+  const supabase = await createClient()
+
+  const memberId = String(formData.get('member_id') ?? '')
+  if (!memberId) return { ok: false, message: 'No member was named.' }
+
+  /* Absent field -> null -> leave it as it is. Present but empty -> '' -> clear
+     it. `formData.get` returns null for a field the form did not include, which
+     is exactly the distinction needed, so it is passed through rather than
+     coerced with `?? ''`. */
+  const field = (name: string) => {
+    const v = formData.get(name)
+    return v === null ? null : String(v).trim()
+  }
+
+  const { error } = await supabase.rpc('admin_set_member_profile', {
+    p_member_id: memberId,
+    p_photo_path: field('photo_path'),
+    p_profession: field('profession'),
+    p_facebook_url: tidyUrl(field('facebook_url')),
+    p_instagram_url: tidyUrl(field('instagram_url')),
+    p_tiktok_url: tidyUrl(field('tiktok_url')),
+  })
+  if (error) return { ok: false, message: errorMessage(error.message) }
+
+  revalidatePath('/admin/members')
+  revalidatePath('/members')
+  revalidatePath('/')
+  return { ok: true, message: 'Card updated, and live on the members page.' }
+}
+
+/* People type "instagram.com/name", or "@name", or paste the whole thing with
+   tracking parameters on the end. Rejecting any of those would be pedantry, so
+   the scheme is added if it is missing and the value is otherwise left alone —
+   an href without one is read as a path on this site, which is how you get a
+   link to nepaloitacommunity.com/instagram.com/name.
+   
+   null and '' both pass straight through, because they are the two instructions
+   the function below distinguishes and neither is a URL to tidy. */
+function tidyUrl(raw: string | null): string | null {
+  if (raw === null || raw === '') return raw
+  if (/^https?:\/\//i.test(raw)) return raw
+  return `https://${raw.replace(/^\/+/, '')}`
 }

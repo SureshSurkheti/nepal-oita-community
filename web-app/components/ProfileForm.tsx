@@ -2,36 +2,13 @@
 
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
+import { compressImage, describeSaving } from '@/lib/image'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 import type { Member } from '@/lib/types'
 
 const OK_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_BYTES = 25 * 1024 * 1024
-
-/** Centre-crop to a square and shrink to 512px before upload.
- *
- *  A phone camera produces 5–12 MB, and the card never shows more than 128px.
- *  Done here so the member spends a tenth of a second and 60 KB of their data
- *  allowance rather than thirty seconds and 10 MB. The bucket enforces its own
- *  size and mime limits regardless — this is a courtesy, not a control. */
-async function toSquareJpeg(file: File, size = 512): Promise<Blob> {
-  const bitmap = await createImageBitmap(file)
-  const side = Math.min(bitmap.width, bitmap.height)
-  const canvas = document.createElement('canvas')
-  canvas.width = canvas.height = size
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('no canvas')
-  ctx.drawImage(
-    bitmap,
-    (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side,
-    0, 0, size, size,
-  )
-  bitmap.close()
-  return new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('encode'))), 'image/jpeg', 0.85),
-  )
-}
 
 /* People type "instagram.com/name", or "@name", or paste the whole thing with
    tracking parameters on the end. Rejecting any of those would be pedantry, so
@@ -56,6 +33,11 @@ export function ProfileForm({
   const fileRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl)
   const [blob, setBlob] = useState<Blob | null>(null)
+  /* The extension has to match the bytes. compressImage returns WebP where the
+     browser can encode it and JPEG where it cannot, so the key cannot be a
+     hard-coded '.jpg' — a WebP served as image/jpeg is a photograph that does
+     not render. */
+  const [ext, setExt] = useState<'webp' | 'jpg' | 'png'>('jpg')
   const [profession, setProfession] = useState(member.profession ?? '')
   /* All three now live on `members`, which is public, rather than on
      member_contacts, which is not. A Facebook or Instagram handle is already
@@ -91,10 +73,11 @@ export function ProfileForm({
 
     say('Preparing your photo…')
     try {
-      const square = await toSquareJpeg(file)
-      setBlob(square)
-      setPreview(URL.createObjectURL(square))
-      say('That is how it will be cropped. Now press Save.')
+      const out = await compressImage(file, { maxEdge: 512, square: true })
+      setBlob(out.blob)
+      setExt(out.ext)
+      setPreview(URL.createObjectURL(out.blob))
+      say(`That is how it will be cropped — nothing off the top. ${describeSaving(out)}. Now press Save.`)
     } catch {
       event.target.value = ''
       say('That image could not be read. Try a different file.', true)
@@ -114,10 +97,10 @@ export function ProfileForm({
            checks — the first path segment must equal their slug. A timestamp
            rather than a fixed name so the CDN cannot serve the old portrait
            from cache after a replacement. */
-        const path = `${member.slug}/${Date.now()}.jpg`
+        const path = `${member.slug}/${Date.now()}.${ext}`
         const { error: uploadError } = await supabase.storage
           .from('member-photos')
-          .upload(path, blob, { contentType: 'image/jpeg', upsert: false })
+          .upload(path, blob, { contentType: blob.type || 'image/jpeg', upsert: false })
         if (uploadError) throw new Error(`upload: ${uploadError.message}`)
         photoPath = path
       }

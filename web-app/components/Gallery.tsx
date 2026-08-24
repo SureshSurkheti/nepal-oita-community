@@ -29,7 +29,16 @@ export function Gallery({ photos }: { photos: TilePhoto[] }) {
         ))}
       </div>
 
-      <PhotoTiles photos={shown} />
+      {/* Eight, then a button. Two rows on a four-column desktop and four rows
+          on a phone, which is enough to show what the gallery is without making
+          somebody scroll past a hundred photographs to reach the form below it —
+          and it is eight image requests on first load instead of all of them.
+
+          `key` on the category, so switching filters resets the control to
+          collapsed. Without it, expanding "All" and then picking "festivals"
+          leaves the button reading "Show fewer" over a grid that is already
+          showing everything it has. */}
+      <PhotoTiles key={active} photos={shown} cap={8} id="gallery-tiles" />
 
       {shown.length === 0 && (
         <p className="muted center u-mt-2">No photographs in that category yet.</p>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { ShowMore } from './ShowMore'
 import { Icon } from './Sprite'
 
 /* Deliberately not `Photo` from lib/content: that module imports the server
@@ -44,7 +45,38 @@ export type TilePhoto = {
 const WASH = ['crimson', 'indigo', 'moss', 'gold']
 const ART = ['art-rays', 'art-wave', 'art-lattice', 'art-dots']
 
-export function PhotoTiles({ photos }: { photos: TilePhoto[] }) {
+/* `.tiles` either plain or wrapped in ShowMore, so PhotoTiles has one grid in
+   one place. ShowMore renders the container itself — it needs a ref on the
+   element whose children it measures — so it takes the class rather than sitting
+   inside a second div, which would have made `.tiles > *` selectors miss. */
+function Tiles({ cap, id, children }: {
+  cap?: number
+  id?: string
+  children: React.ReactNode
+}) {
+  if (cap === undefined) return <div className="tiles tiles--4">{children}</div>
+  return (
+    <ShowMore className="tiles tiles--4" cap={cap} id={id ?? 'photo-tiles'}>
+      {children}
+    </ShowMore>
+  )
+}
+
+export function PhotoTiles({ photos, cap, id }: {
+  photos: TilePhoto[]
+  /* Show this many, and put the rest behind a button. Left undefined the whole
+     grid renders, which is what the homepage preview wants — it already slices
+     to four before it gets here.
+
+     ShowMore HIDES the extra tiles rather than dropping them, using the global
+     [hidden] rule, so every index below still points at the same photograph and
+     the lightbox needs no adjusting for this. It also takes them out of the tab
+     order, so a keyboard reaches the button rather than eight cards it cannot
+     see. Arrowing inside the viewer still walks the whole set, which is the
+     right behaviour: somebody who has opened a photograph has asked to browse. */
+  cap?: number
+  id?: string
+}) {
   const [open, setOpen] = useState<number | null>(null)
 
   const move = useCallback((delta: number) => {
@@ -76,7 +108,7 @@ export function PhotoTiles({ photos }: { photos: TilePhoto[] }) {
 
   return (
     <>
-      <div className="tiles tiles--4">
+      <Tiles cap={cap} id={id}>
         {photos.map((p, i) => {
           return (
             <button key={p.id} type="button"
@@ -103,7 +135,7 @@ export function PhotoTiles({ photos }: { photos: TilePhoto[] }) {
             </button>
           )
         })}
-      </div>
+      </Tiles>
 
       {current && (
         <div className="lightbox" role="dialog" aria-modal="true"

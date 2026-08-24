@@ -3,7 +3,7 @@
    is a <use> pointing at it. */
 
 export const ICONS = [
-  'menu', 'close', 'arrow-right', 'arrow-down', 'arrow-up', 'chevron-left', 'chevron-right', 'chevron-down', 'check', 'users', 'calendar', 'clock', 'pin', 'mail', 'phone', 'images', 'graduate', 'briefcase', 'home', 'globe', 'star', 'heart', 'shield', 'network', 'expand', 'user-plus', 'qr', 'send', 'search', 'facebook', 'instagram', 'tiktok', 'youtube', 'log-out', 'user'
+  'menu', 'close', 'arrow-right', 'arrow-down', 'arrow-up', 'chevron-left', 'chevron-right', 'chevron-down', 'check', 'copy', 'users', 'calendar', 'clock', 'pin', 'mail', 'phone', 'images', 'graduate', 'briefcase', 'home', 'globe', 'star', 'heart', 'shield', 'network', 'expand', 'user-plus', 'qr', 'send', 'search', 'facebook', 'instagram', 'tiktok', 'youtube', 'log-out', 'user'
 ] as const
 
 export type IconName = (typeof ICONS)[number]
@@ -30,6 +30,7 @@ export function Sprite() {
         <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
         <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></symbol>
         <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></symbol>
+        <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11.5" height="11.5" rx="2.2"/><path d="M6.2 15H5a1.5 1.5 0 01-1.5-1.5v-9A1.5 1.5 0 015 3h9A1.5 1.5 0 0115.5 4.5v1.2"/></symbol>
         <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20.5c0-3.7 3-5.8 6.5-5.8s6.5 2.1 6.5 5.8M17.2 11.4a3.1 3.1 0 100-6.2M18.4 14.8c2.3.6 3.6 2.4 3.6 5.5"/></symbol>
         <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10.5h17"/></symbol>
         <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.3l3.4 2"/></symbol>

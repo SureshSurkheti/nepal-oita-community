@@ -10,12 +10,21 @@
 --  one without an email being sent:
 --
 --      Authentication -> Users -> Add user -> Create new user
---        Email:            committee@nepal-oita.example      (your real address)
+--        Email:            nepaloitacommunity11@gmail.com
 --        Password:         (choose one, write it down)
 --        Auto Confirm User: TICK IT
 --
---  Then put that same address in v_email below and run this. It links the
---  account to a member card and marks it committee.
+--  That address is already filled in below — it is the community's own address,
+--  the one on every page of the site. Then run this file. It links the account to
+--  the 'committee' member card and marks it committee.
+--
+--  IF SOMEBODY ELSE ALREADY HOLDS THAT CARD
+--  This MOVES it. `on conflict (slug) do update set user_id` re-points the
+--  'committee' card at the new account, and the account that held it before is
+--  left with no card — which means it can still sign in but sees only the public
+--  pages, and loses the /admin screens. That is usually the intent when you run
+--  this with a new address. If it is not, give the new address its own card with
+--  link_member.sql instead, and leave this file alone.
 --
 --  About sharing one password
 --  --------------------------
@@ -39,10 +48,11 @@
 do $$
 declare
   -- ##########################################################################
-  -- ##  EDIT THE NEXT LINE BEFORE RUNNING THIS FILE.
-  -- ##  It must be the same address you gave to Authentication -> Users.
+  -- ##  ALREADY SET: the community's own address. Change it only if you make
+  -- ##  the committee account under a DIFFERENT address in
+  -- ##  Authentication -> Users, in which case the two must match.
   -- ##########################################################################
-  v_email text := 'committee@nepal-oita.example';   -- <<<< CHANGE THIS
+  v_email text := 'nepaloitacommunity11@gmail.com';
   v_name  text := 'Nepal-Oita Committee';
   v_slug  text := 'committee';
   -- ##########################################################################
@@ -56,11 +66,16 @@ begin
   if v_email !~ '^[^@[:space:]]+@[^@[:space:]]+\.[a-zA-Z]{2,}$' then
     raise exception 'v_email is not an email address: %', v_email;
   end if;
+  /* Retained even though the placeholder above is now a real address: it is what
+     catches a future edit that puts the example domain back, and a guard that
+     costs one comparison is not worth removing. */
   if v_email like '%nepal-oita.example' then
     /* The message names the line and shows the edit, because the only person who
        ever sees it is somebody who ran the file straight from the repository —
        and "put your real one in" does not say where. */
-    raise exception E'Nothing was changed. Edit the line marked EDIT ME near the top of this file:\n'
+    /* "Nothing was changed" is the phrase run.sh greps for. Keeping it stable is
+       deliberate: rewording it silently turns that assertion green for ever. */
+    raise exception E'Nothing was changed. Edit v_email near the top of this file:\n'
       '    v_email text := ''%'';\n'
       '  becomes\n'
       '    v_email text := ''you@yourdomain.com'';\n'

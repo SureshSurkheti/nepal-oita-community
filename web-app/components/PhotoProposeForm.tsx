@@ -1,38 +1,11 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { compressImage, describeSaving } from '@/lib/image'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 
 const CATEGORIES = ['festivals', 'community', 'cultural', 'sports'] as const
-
-/* Shrink the long edge to 1600px and re-encode as JPEG.
- *
- * The bucket refuses anything over 10MB and a recent phone camera clears that
- * on its own, so without this a perfectly good photograph fails at the last
- * step with a storage error nobody can act on. 1600px is generous for a gallery
- * tile that renders at a few hundred, and it keeps the upload inside a few
- * hundred kilobytes — which matters most to whoever is uploading it on mobile
- * data at the end of an event. */
-async function downscale(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file)
-  const max = 1600
-  const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height))
-  const w = Math.round(bitmap.width * scale)
-  const h = Math.round(bitmap.height * scale)
-
-  const canvas = document.createElement('canvas')
-  canvas.width = w
-  canvas.height = h
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('This browser cannot resize the image.')
-  ctx.drawImage(bitmap, 0, 0, w, h)
-  bitmap.close?.()
-
-  return new Promise<Blob>((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not encode the image.'))),
-      'image/jpeg', 0.85))
-}
 
 /* Adding a gallery photograph, for the leadership team.
  *
@@ -85,11 +58,15 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
     const supabase = createClient()
 
     try {
-      const blob = await downscale(file)
-      const path = `${slug}/${Date.now()}.jpg`
+      /* 1600px on the long edge. Generous for a tile that renders at a few
+         hundred, and it keeps a phone photograph inside a few hundred kilobytes
+         — which matters most to whoever is uploading on mobile data at the end
+         of an event, and to the storage bill afterwards. */
+      const out = await compressImage(file, { maxEdge: 1600 })
+      const path = `${slug}/${Date.now()}.${out.ext}`
 
       const { error: uploadError } = await supabase.storage.from('site-photos')
-        .upload(path, blob, { contentType: 'image/jpeg', upsert: false })
+        .upload(path, out.blob, { contentType: out.contentType, upsert: false })
       if (uploadError) throw new Error(`Could not upload the file: ${uploadError.message}`)
 
       const { error: rowError } = await supabase.from('photos').insert({
@@ -146,7 +123,9 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
             <input ref={fileRef} id="ph-file" type="file"
                    accept="image/jpeg,image/png,image/webp" onChange={onPick} />
             <p className="form-note">
-              Straight off your phone is fine — it is shrunk here before uploading.
+              Straight off your phone is fine — it is shrunk and re-encoded here
+              before uploading, so a 5 MB photograph goes up as a few hundred
+              kilobytes with no visible difference.
             </p>
           </div>
         </div>

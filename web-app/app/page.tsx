@@ -468,7 +468,14 @@ export default async function Home() {
               </p>
             </div>
 
-            <PhotoTiles photos={tilePhotos(photos.slice(0, 4))} />
+            {/* Eight, which is two full rows on a desktop and four on a phone.
+                It was four — one row — and one row of a gallery reads as a
+                placeholder rather than as a gallery. Sliced here rather than
+                capped with ShowMore: the control below is a LINK to the full
+                page, so there is nothing on this page for an expand button to
+                reveal, and sending only eight photographs' worth of markup and
+                image requests is the point of a preview. */}
+            <PhotoTiles photos={tilePhotos(photos.slice(0, 8))} />
 
             <div className="cluster cluster--center mt-lg">
               <Link className="btn btn--ghost" href="/gallery">

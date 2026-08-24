@@ -3,9 +3,17 @@
 import { useState, useTransition } from 'react'
 import { setPhone, setAdmin, removeMember, issueClaimCode, setContributor,
          type ActionResult } from '@/app/admin/members/actions'
+import { AdminMemberProfile } from './AdminMemberProfile'
+import { ClaimCodePanel } from './ClaimCodePanel'
 import { formatJP } from '@/lib/phone'
 import { Icon } from './Sprite'
+import { supabaseEnv } from '@/lib/env'
 import type { Member, MemberContact } from '@/lib/types'
+
+/* Read once at module scope rather than per row. supabaseEnv() also strips the
+   `/rest/v1` that the dashboard's Data API panel shows, which is what would
+   otherwise be pasted into .env.local and produce a 404 for every portrait. */
+const SUPABASE_URL = supabaseEnv().url
 
 type Row = {
   member: Member
@@ -18,13 +26,38 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
   const [pending, startTransition] = useTransition()
   const [result, setResult] = useState<ActionResult | null>(null)
   const [editing, setEditing] = useState<string | null>(null)
+  /* Which row has its card open. Separate from `editing` rather than one
+     enum, because the two forms are different sizes and opening one while the
+     other is half filled in should close it, not stack it. */
+  const [carding, setCarding] = useState<string | null>(null)
+  /* The code that has just been issued, and whose. Held here so it can be shown
+     on that member's row instead of in the status line at the top of the page,
+     which is where it used to go — off-screen, unlabelled, and mid-sentence. */
+  const [issued, setIssued] = useState<{ id: string; code: string } | null>(null)
 
   const run = (fn: (fd: FormData) => Promise<ActionResult>) => (formData: FormData) =>
     startTransition(async () => {
       const r = await fn(formData)
-      setResult(r)
+      /* A result carrying a code is not a status message — it is a panel. Nothing
+         goes in the status line for it, or the code appears twice in two
+         different shapes. */
+      if (r.ok && r.code) {
+        setIssued({ id: r.memberId ?? '', code: r.code })
+        setResult(null)
+      } else {
+        setResult(r)
+        setIssued(null)
+      }
       if (r.ok) setEditing(null)
     })
+
+  /* AdminMemberProfile does its own upload before it calls the server action, so
+     it reports back rather than being driven through `run`. An empty message is
+     Cancel: close the form, say nothing. */
+  const cardDone = (r: ActionResult) => {
+    if (r.ok) setCarding(null)
+    setResult(r.message ? r : null)
+  }
 
   return (
     <div className="mt-lg">
@@ -37,7 +70,16 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
       <ul className="roster">
         {rows.map(({ member, contact, code }) => (
           <li key={member.id}>
-            <span className="avatar" aria-hidden="true">{member.initials ?? member.name.charAt(0)}</span>
+            {/* The portrait itself, not the initials, so "who still has no
+                photograph" is answerable by looking down the page rather than by
+                opening nineteen forms. */}
+            <span className="avatar" aria-hidden="true">
+              {member.photo_path
+                /* eslint-disable-next-line @next/next/no-img-element */
+                ? <img className="avatar__img" alt=""
+                       src={`${SUPABASE_URL}/storage/v1/object/public/member-photos/${member.photo_path}`} />
+                : (member.initials ?? member.name.charAt(0))}
+            </span>
             <span>
               <span className="roster__name">
                 {member.name}
@@ -66,7 +108,14 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
                     : <em>no code issued — they cannot claim their card yet</em>}
               </span>
 
-              {editing === member.id ? (
+              {issued?.id === member.id && (
+                <ClaimCodePanel code={issued.code} name={member.name}
+                                onDone={() => setIssued(null)} />
+              )}
+
+              {carding === member.id ? (
+                <AdminMemberProfile member={member} onDone={cardDone} />
+              ) : editing === member.id ? (
                 <form className="cluster u-mt-1" action={run(setPhone)}>
                   <input type="hidden" name="member_id" value={member.id} />
                   <input name="phone" type="tel" inputMode="tel" placeholder="080 0000 0000"
@@ -79,7 +128,13 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
                 </form>
               ) : (
                 <span className="roster__links">
-                  <button type="button" onClick={() => setEditing(member.id)}>
+                  <button type="button"
+                          onClick={() => { setCarding(member.id); setEditing(null) }}>
+                    {member.photo_path ? 'Edit their card' : 'Add a photo and details'}
+                  </button>
+
+                  <button type="button"
+                          onClick={() => { setEditing(member.id); setCarding(null) }}>
                     {contact?.phone_e164 ? 'Change number' : 'Add a number'}
                   </button>
 
@@ -162,6 +217,14 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
         this register. Give it to them in person or by a channel you trust — it is
         the whole of the identity check. It is shown once and cannot be looked up
         again; issuing a new one stops the old one working.
+      </p>
+      <p className="form-note">
+        <Icon name="user-plus" /> <strong>Edit their card</strong> sets the
+        photograph, profession and links for somebody who cannot do it themselves —
+        most of the register has never signed in, and the photographs arrive in a
+        message to the committee. Anything you put there they can change later at
+        My profile. Photographs are cropped square from the top, so nobody loses
+        the top of their head.
       </p>
       <p className="form-note">
         Removing a member deletes their card and their contact details. Their

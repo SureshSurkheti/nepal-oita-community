@@ -4209,3 +4209,168 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
   border-radius: 4px;
   font-size: 0.95em;
 }
+
+/* ---------------------------------------------------------------------------
+   The committee editing somebody else's card, on /admin/members
+   
+   Laid out as a preview beside the fields, because the one question being asked
+   is "does this photograph look right on the card" and an answer that requires
+   saving first and scrolling to /members to check is not an answer.
+
+   The preview is the same 1:1 box and the same top-anchored crop the real card
+   uses, so what is shown here is what will be published.
+   --------------------------------------------------------------------------- */
+.admin-card-edit {
+  display: flex;
+  gap: 1.1rem;
+  align-items: flex-start;
+  margin-top: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2, var(--indigo-wash));
+}
+.admin-card-edit__photo {
+  position: relative;
+  flex: none;
+  width: 108px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--indigo-wash);
+  display: grid;
+  place-items: center;
+}
+.admin-card-edit__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The same anchor as every other cover box on the site. Not inherited from the
+     shared rule above, because that one lists classes and this is a new box. */
+  object-position: 50% 0;
+}
+.admin-card-edit__initials {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 2rem;
+  color: var(--indigo);
+}
+.admin-card-edit__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;         /* or a long placeholder pushes the preview off the row */
+  flex: 1 1 auto;
+}
+.admin-card-edit__fields .field { margin: 0; }
+
+/* Under about 560px the preview and five fields cannot share a row without the
+   inputs becoming unusable, so the photograph goes above them. */
+@media (max-width: 560px) {
+  .admin-card-edit { flex-direction: column; }
+  .admin-card-edit__photo { width: 96px; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   A freshly issued membership code, on /admin/members
+
+   This is the only thing on the site that CANNOT BE RECOVERED once the screen
+   changes — only a one-way hash of it is stored. So it is given the weight of
+   something being handed over rather than the weight of a status message, which
+   is what it used to be: ten characters of prose in a sentence at the top of the
+   page, above every row, saying "this member" and never which.
+
+   The code itself is monospaced, letterspaced and large enough to read off a
+   laptop screen from arm's length while typing it into a phone — that is the
+   actual thing somebody is doing with it.
+   --------------------------------------------------------------------------- */
+.codeout {
+  margin: 0.85rem 0 0.35rem;
+  padding: 0.95rem 1.05rem;
+  border: 1px solid var(--crimson);
+  /* A hairline at this width reads as decoration. The code is unrecoverable, so
+     the border is the one on the page that is allowed to be assertive. */
+  border-left-width: 3px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  /* A measure, not the width of the row. Without this the warning ran the full
+     1180px container as a single line, which is the least readable way to print
+     the one sentence on this page that has to be read. */
+  max-width: 34rem;
+}
+.codeout__who {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.86rem;
+  color: var(--ink-2);
+}
+.codeout__who .icon { color: var(--crimson); flex: none; }
+
+.codeout__row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+}
+.codeout__code {
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  font-size: clamp(1.25rem, 1rem + 1.4vw, 1.7rem);
+  font-weight: 600;
+  /* Wide enough that O/0 and I/1 confusion has nowhere to hide. The generator
+     leaves all four characters out of the alphabet, but the person reading this
+     does not know that. */
+  letter-spacing: 0.13em;
+  line-height: 1.2;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px dashed rgba(27, 23, 20, 0.22);
+  border-radius: var(--r-sm);
+  padding: 0.42rem 0.75rem;
+  /* So a double-click takes the whole code and nothing around it. */
+  user-select: all;
+  -webkit-user-select: all;
+}
+
+.codeout__warn,
+.codeout__next {
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+.codeout__warn strong { color: var(--crimson); }
+
+/* Confirmation on the Copy button itself, rather than a line of text appearing
+   underneath and shifting everything below it while somebody is mid-copy. */
+.btn--ok {
+  background: var(--moss);
+  border-color: var(--moss);
+  color: #fff;
+}
+
+/* `.roster li` centres its children, which is right for a two-line row and wrong
+   for one that has grown a panel — the avatar ends up floating halfway down the
+   left edge, level with nothing. Scoped with :has() so only the rows that are
+   actually tall change, and every ordinary row keeps the alignment it had. */
+.roster li:has(.codeout),
+.roster li:has(.admin-card-edit) { align-items: flex-start; }
+
+/* `.roster` is a 46vh scroll box, which is right for skimming nineteen names and
+   wrong the moment one of them opens a panel taller than the box: on an 800px
+   window that is 368px of viewport holding a ~330px panel, so the code ends up
+   half inside a nested scrollbar. While a panel is open the list is not a scroll
+   box — the page grows instead, and ClaimCodePanel scrolls itself into view.
+   Reverts the moment the panel is dismissed. */
+.roster:has(.codeout),
+.roster:has(.admin-card-edit) { max-height: none; overflow: visible; }
+
+@media (max-width: 480px) {
+  .codeout__row { gap: 0.5rem; }
+  .codeout__code { width: 100%; text-align: center; }
+}

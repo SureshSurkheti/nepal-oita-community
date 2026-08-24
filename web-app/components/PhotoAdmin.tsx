@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { compressImage, describeSaving } from '@/lib/image'
 import { createClient } from '@/lib/supabase/client'
 import { savePhoto, deletePhoto, type Result } from '@/app/admin/photos/actions'
 import { Icon } from './Sprite'
@@ -37,18 +38,42 @@ export function PhotoAdmin({ photos }: { photos: Row[] }) {
 
     setUploading(true)
     setResult(null)
-    // A timestamped name so replacing a photograph cannot be served stale from
-    // the CDN under the old one.
-    const clean = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-')
-    const key = `${Date.now()}-${clean}`
+
+    /* SHRUNK AND RE-ENCODED FIRST, which this form did not do at all.
+       Every other uploader on the site went through some version of this; this
+       one — the committee's, and so the one that will handle nearly every
+       photograph the gallery ever gets — sent the raw file straight off the
+       phone. A 12MB camera JPEG became 12MB of Supabase storage and 12MB down
+       the wire to every visitor, for a tile that renders at about 300px. */
+    let out
+    try {
+      out = await compressImage(file, { maxEdge: 1600 })
+    } catch (err) {
+      setUploading(false)
+      e.target.value = ''
+      setResult({ ok: false, message: err instanceof Error ? err.message : 'That image could not be read.' })
+      return
+    }
+
+    /* The original extension has to go, because the bytes are no longer in that
+       format — a WebP stored as `.png` and served as image/png does not render.
+       The rest of the name is kept: it is often the only clue to what a file in
+       the bucket actually is. A timestamp in front so replacing a photograph
+       cannot be served stale from the CDN under the old key. */
+    const stem = file.name.toLowerCase()
+      .replace(/\.[a-z0-9]+$/, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'photo'
+    const key = `${Date.now()}-${stem}.${out.ext}`
+
     const { error } = await createClient().storage.from('site-photos')
-      .upload(key, file, { contentType: file.type, upsert: false })
+      .upload(key, out.blob, { contentType: out.contentType, upsert: false })
     setUploading(false)
 
     if (error) { setResult({ ok: false, message: `Upload failed: ${error.message}` }); return }
     setPath(key)
-    setPreview(URL.createObjectURL(file))
-    setResult({ ok: true, message: 'Uploaded. Now give it a caption and save.' })
+    setPreview(URL.createObjectURL(out.blob))
+    setResult({ ok: true, message: `Uploaded — ${describeSaving(out)}. Now give it a caption and save.` })
   }
 
   const form = editing === 'new'
@@ -85,7 +110,12 @@ export function PhotoAdmin({ photos }: { photos: Row[] }) {
               <input id="p-file" type="file" accept="image/jpeg,image/png,image/webp"
                      onChange={upload} disabled={uploading} />
               <p className="form-note">
-                {uploading ? 'Uploading…' : path ? `Uploaded as ${path}` : 'JPEG, PNG or WebP, up to 10 MB.'}
+                {uploading
+                  ? 'Shrinking and uploading…'
+                  : path
+                    ? `Uploaded as ${path}`
+                    : 'JPEG, PNG or WebP. Straight off the camera is fine — it is '
+                      + 'shrunk to 1600px and re-encoded here before it is uploaded.'}
               </p>
             </div>
           )}

@@ -19,15 +19,6 @@ export const metadata: Metadata = {
   description:
     'The Nepali community of Oita Prefecture, Japan — festivals, newcomer support, '
     + 'Nepali language classes, sport and volunteering across Oita City and Beppu.',
-  
-  // 👇 ここから追加：新しい favicon のパスを指定します
-  icons: {
-    icon: '/images/favicon.ico',       // public/images/favicon.ico を指します
-    shortcut: '/images/favicon.ico',   // ブラウザの互換性のための記述
-    apple: '/apple-icon.png',          // 現在 app/ フォルダにある apple-icon をそのまま維持
-  },
-  // 👆 ここまで追加
-
   /* Every relative URL in this app's metadata — canonicals, Open Graph images —
      is resolved against this. It has to be the domain the site is actually
      served from or the canonicals point somewhere that does not exist. */
@@ -37,8 +28,12 @@ export const metadata: Metadata = {
     'Nepali community Oita', 'Nepal Oita Community', 'ネパール大分コミュニティ',
     'Nepali in Japan', 'Nepali community Beppu', 'Oita Nepali association',
     'Dashain Oita', 'Tihar Japan', 'Nepali students APU Beppu',
-    'Nepali language classes Oita', 'नेपाली समुदायジャパン',
+    'Nepali language classes Oita', 'नेपाली समुदाय जापान',
   ],
+  /* No `alternates` here on purpose. Metadata is inherited, so a canonical set
+     in the layout would be inherited by every page that does not set its own —
+     which means half the site declaring itself a duplicate of the home page.
+     Each public page sets its own, and only its own. */
   openGraph: {
     siteName: SITE_NAME,
     locale: 'en_GB',
@@ -46,6 +41,9 @@ export const metadata: Metadata = {
     url: SITE_URL,
   },
   twitter: { card: 'summary_large_image' },
+  /* Explicit rather than left to Google's defaults: `max-image-preview: large`
+     is what allows a photograph beside the result instead of a thumbnail, and
+     this site is mostly photographs of events. */
   robots: {
     index: true,
     follow: true,

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { refreshStories } from '@/app/stories/actions'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 
 export type OwnStory = {
   id: string
@@ -168,7 +169,7 @@ export function StoryForm({ member, own }: {
                     <span className="cluster">
                       <button className="btn btn--sm btn--primary" type="button"
                               disabled={busy} onClick={() => saveEdit(st.id)}>
-                        <Icon name="check" />{busy ? 'Saving…' : 'Save'}
+                        {busy ? <Spinner /> : <Icon name="check" />}{busy ? 'Saving…' : 'Save'}
                       </button>
                       <button className="btn btn--sm btn--ghost" type="button"
                               disabled={busy} onClick={() => setEditId(null)}>
@@ -189,7 +190,7 @@ export function StoryForm({ member, own }: {
                     <span className="cluster">
                       <button className="btn btn--sm btn--danger" type="button"
                               disabled={busy} onClick={() => removeStory(st.id)}>
-                        <Icon name="close" />{busy ? 'Deleting…' : 'Yes, delete it'}
+                        {busy ? <Spinner /> : <Icon name="close" />}{busy ? 'Deleting…' : 'Yes, delete it'}
                       </button>
                       <button className="btn btn--sm btn--ghost" type="button"
                               disabled={busy} onClick={() => setConfirmId(null)}>
@@ -247,7 +248,7 @@ export function StoryForm({ member, own }: {
                       value={quote} onChange={(e) => setQuote(e.target.value)} />
           </div>
           <button className="btn btn--primary" type="submit" disabled={busy}>
-            <Icon name="send" />{busy ? 'Sending…' : 'Send to the committee'}
+            {busy ? <Spinner /> : <Icon name="send" />}{busy ? 'Sending…' : 'Send to the committee'}
           </button>
           {error && <p className="form-note form-note--error">{error}</p>}
           <p className="form-note">

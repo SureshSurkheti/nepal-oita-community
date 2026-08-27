@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 
 export function SignOutButton() {
   const [busy, setBusy] = useState(false)
@@ -41,7 +42,7 @@ export function SignOutButton() {
         window.location.assign('/')
       }}
     >
-      <Icon name="log-out" />
+      {busy ? <Spinner /> : <Icon name="log-out" />}
       <span className="nav__label">
         {failed ? 'Sign out failed — retry' : busy ? 'Signing out…' : 'Sign out'}
       </span>

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 import { MeetingForm, type MeetingDraft } from './MeetingForm'
 
 /* Edit and Delete on one write-up, for the leadership team.
@@ -65,7 +66,7 @@ export function MeetingEditor({ draft, allowDelete = true }: {
           <div className="cluster">
             <button className="btn btn--sm btn--danger" type="button" disabled={busy}
                     onClick={remove}>
-              <Icon name="close" />{busy ? 'Deleting…' : 'Yes, delete it'}
+              {busy ? <Spinner /> : <Icon name="close" />}{busy ? 'Deleting…' : 'Yes, delete it'}
             </button>
             <button className="btn btn--sm btn--ghost" type="button" disabled={busy}
                     onClick={() => setMode('idle')}>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { DEV_SIGNIN_CODE, type DevMemberChoice } from '@/lib/devSignIn'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 
 /* The development sign-in panel. Only ever rendered when both locks in
    lib/devSignIn.ts are open — see the comment there before changing anything.
@@ -113,7 +114,7 @@ export function DevSignIn() {
                  value={code} onChange={(e) => setCode(e.target.value)} />
         </div>
         <button className="btn btn--primary" type="submit" disabled={busy}>
-          <Icon name="check" />{busy ? 'Signing in…' : 'Sign in'}
+          {busy ? <Spinner /> : <Icon name="check" />}{busy ? 'Signing in…' : 'Sign in'}
         </button>
         {error && <p className="form-note form-note--error">{error}</p>}
       </form>

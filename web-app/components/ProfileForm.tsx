@@ -5,6 +5,7 @@ import { useRef, useState } from 'react'
 import { compressImage, describeSaving } from '@/lib/image'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 import type { Member } from '@/lib/types'
 
 const OK_TYPES = ['image/jpeg', 'image/png', 'image/webp']
@@ -187,7 +188,7 @@ export function ProfileForm({
       </p>
 
       <button className="btn btn--primary" type="submit" disabled={busy}>
-        <Icon name="check" />
+        {busy ? <Spinner /> : <Icon name="check" />}
         {busy ? 'Saving…' : 'Save my profile'}
       </button>
       {note && <p className={`form-note${bad ? ' form-note--error' : ''}`}>{note}</p>}

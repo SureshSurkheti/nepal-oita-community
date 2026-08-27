@@ -28,7 +28,24 @@ export function Drawer({ member = null }: {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
-  // Close on navigation, or the menu stays over the page you just asked for.
+  /* CLOSING IS DONE ON CLICK, NOT ON NAVIGATION.
+   *
+   * This used to rely on the pathname effect below alone, and that silently
+   * failed for four of the ten controls in here. usePathname() returns the path
+   * WITHOUT the hash, so on the home page "About" (/#about), "Contact"
+   * (/#contact), "Join the community" (/#join) and "Home" (/) all leave the
+   * pathname exactly as it was. The effect never re-ran, and the menu sat over
+   * the section it had just scrolled to. The six links that change the path —
+   * Programmes, Events, Gallery, Stories, Decisions, Members — worked, which is
+   * why it looked like an intermittent bug rather than a missing case.
+   *
+   * Closing on the click itself needs no assumption about whether the URL
+   * changes, so it cannot come apart the next time a hash link is added. */
+  const close = () => setOpen(false)
+
+  /* Kept as well, for navigation this component did not initiate: the browser's
+     back button, or a redirect out of a page. Harmless when the click already
+     closed it — setting false twice costs nothing. */
   useEffect(() => { setOpen(false) }, [pathname])
 
   useEffect(() => {
@@ -51,7 +68,7 @@ export function Drawer({ member = null }: {
       </button>
 
       <div className={`drawer${open ? ' is-open' : ''}`} id="drawer" inert={!open || undefined}>
-        <div className="drawer__scrim" onClick={() => setOpen(false)} />
+        <div className="drawer__scrim" onClick={close} />
         <div className="drawer__panel" role="dialog" aria-modal="true" aria-label="Site menu">
           <div className="drawer__top">
             <span className="brand__sub">Menu</span>
@@ -62,7 +79,7 @@ export function Drawer({ member = null }: {
           </div>
           <nav className="drawer__links" aria-label="Mobile">
             {LINKS.map((l, i) => (
-              <Link key={l.href} className="drawer__link" href={l.href}>
+              <Link key={l.href} className="drawer__link" href={l.href} onClick={close}>
                 {l.label} <small>{String(i + 1).padStart(2, '0')}</small>
               </Link>
             ))}
@@ -78,16 +95,16 @@ export function Drawer({ member = null }: {
                   Signed in as <strong>{member.name}</strong>
                 </p>
                 {member.isAdmin && (
-                  <Link className="btn btn--ghost btn--block u-mb-1" href="/admin">
+                  <Link className="btn btn--ghost btn--block u-mb-1" href="/admin" onClick={close}>
                     <Icon name="shield" /> Committee
                   </Link>
                 )}
-                <Link className="btn btn--primary btn--block" href="/me">
+                <Link className="btn btn--primary btn--block" href="/me" onClick={close}>
                   <Icon name="user" /> My profile
                 </Link>
               </>
             ) : (
-              <Link className="btn btn--primary btn--block" href="/#join">
+              <Link className="btn btn--primary btn--block" href="/#join" onClick={close}>
                 <Icon name="user-plus" /> Join the community
               </Link>
             )}

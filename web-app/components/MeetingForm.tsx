@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 
 /** The fields of a write-up being edited, as the form needs them. */
 export type MeetingDraft = {
@@ -234,7 +235,7 @@ export function MeetingForm({ memberId, canContribute, draft, onDone }: {
         {fields}
         <div className="cluster">
           <button className="btn btn--primary btn--sm" type="submit" disabled={busy}>
-            <Icon name="check" />{busy ? 'Saving…' : 'Save changes'}
+            {busy ? <Spinner /> : <Icon name="check" />}{busy ? 'Saving…' : 'Save changes'}
           </button>
           <button className="btn btn--ghost btn--sm" type="button" disabled={busy}
                   onClick={() => onDone && onDone()}>
@@ -254,7 +255,7 @@ export function MeetingForm({ memberId, canContribute, draft, onDone }: {
       <form onSubmit={submit}>
         {fields}
         <button className="btn btn--primary" type="submit" disabled={busy}>
-          <Icon name="send" />{busy ? 'Publishing…' : 'Publish the write-up'}
+          {busy ? <Spinner /> : <Icon name="send" />}{busy ? 'Publishing…' : 'Publish the write-up'}
         </button>
         <p className="form-note">
           It goes up straight away, on this page and on the front page. You can

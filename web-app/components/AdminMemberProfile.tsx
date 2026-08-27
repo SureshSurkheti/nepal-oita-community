@@ -6,6 +6,7 @@ import { compressImage, describeSaving } from '@/lib/image'
 import { supabaseEnv } from '@/lib/env'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 import type { Member } from '@/lib/types'
 
 const OK_TYPES = ['image/jpeg', 'image/png', 'image/webp']
@@ -179,7 +180,7 @@ export function AdminMemberProfile({ member, onDone }: {
         <span className="cluster">
           <button className="btn btn--sm btn--primary" type="button"
                   disabled={busy} onClick={save}>
-            <Icon name="check" />{busy ? 'Saving…' : 'Save this card'}
+            {busy ? <Spinner /> : <Icon name="check" />}{busy ? 'Saving…' : 'Save this card'}
           </button>
           {member.photo_path && !dropped && (
             <button className="btn btn--sm btn--ghost" type="button"

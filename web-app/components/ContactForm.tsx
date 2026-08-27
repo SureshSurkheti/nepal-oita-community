@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 
 /* On the static site this form validated, showed a success dialog, and threw
    away what was typed — there was nowhere for it to go. Now it writes to the
@@ -79,7 +80,7 @@ export function ContactForm() {
                   placeholder="Tell us what you need — in English, Nepali or Japanese." />
       </div>
       <button className="btn btn--primary" type="submit" disabled={busy}>
-        <Icon name="send" />{busy ? 'Sending…' : 'Send message'}
+        {busy ? <Spinner /> : <Icon name="send" />}{busy ? 'Sending…' : 'Send message'}
       </button>
       {error && <p className="form-note form-note--error">{error}</p>}
     </form>

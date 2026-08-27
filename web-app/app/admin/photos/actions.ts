@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { friendlyError } from '@/lib/admin'
 
@@ -37,6 +37,7 @@ export async function savePhoto(formData: FormData): Promise<Result> {
   if (error) return { ok: false, message: friendlyError(error.message) }
 
   revalidatePath('/admin/photos'); revalidatePath('/gallery'); revalidatePath('/')
+  updateTag('photos')   // the cached gallery read; see lib/content.ts
   return { ok: true, message: id ? 'Photograph updated.' : 'Photograph added to the gallery.' }
 }
 
@@ -54,5 +55,6 @@ export async function deletePhoto(formData: FormData): Promise<Result> {
   if (path) await supabase.storage.from('site-photos').remove([path])
 
   revalidatePath('/admin/photos'); revalidatePath('/gallery'); revalidatePath('/')
+  updateTag('photos')   // the cached gallery read; see lib/content.ts
   return { ok: true, message: 'Photograph removed.' }
 }

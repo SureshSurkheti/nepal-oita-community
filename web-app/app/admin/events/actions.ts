@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { slugify, friendlyError } from '@/lib/admin'
 
@@ -65,6 +65,11 @@ export async function saveEvent(formData: FormData): Promise<Result> {
   revalidatePath('/events')
   revalidatePath(`/events/${v.slug}`)
   revalidatePath('/')
+  /* The published-events read is cached for five minutes (see lib/content.ts).
+     revalidatePath alone does not clear it — the page would re-render and read
+     the same stale cache entry. Without this line, pressing Publish appears to
+     do nothing, and the natural response is to press it again. */
+  updateTag('events')
   return { ok: true, message: id ? `“${v.title}” saved.` : `“${v.title}” added.` }
 }
 
@@ -73,6 +78,7 @@ export async function deleteEvent(formData: FormData): Promise<Result> {
   const { error } = await supabase.from('events').delete().eq('id', String(formData.get('id') ?? ''))
   if (error) return { ok: false, message: friendlyError(error.message) }
   revalidatePath('/admin/events'); revalidatePath('/events'); revalidatePath('/')
+  updateTag('events')
   return { ok: true, message: 'Event removed.' }
 }
 
@@ -83,5 +89,6 @@ export async function togglePublished(formData: FormData): Promise<Result> {
     .eq('id', String(formData.get('id') ?? ''))
   if (error) return { ok: false, message: friendlyError(error.message) }
   revalidatePath('/admin/events'); revalidatePath('/events'); revalidatePath('/')
+  updateTag('events')
   return { ok: true, message: formData.get('to') === 'true' ? 'Published.' : 'Hidden from the site.' }
 }

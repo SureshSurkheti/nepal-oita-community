@@ -5,6 +5,14 @@ import { PersonCard } from '@/components/PersonCard'
 import { getCurrentMember, getMembers } from '@/lib/members'
 import { PageHead } from '@/components/PageHead'
 
+/* Depends on who is asking, so it can never be cached or prerendered.
+   This used to be inherited from the root layout's force-dynamic; the layout
+   dropped it so the public pages could be served from a CDN, which means the
+   viewer-specific routes have to declare it themselves. Reading cookies would
+   make it dynamic anyway — saying so explicitly stops a build trying to
+   prerender it, and stops a future edit quietly making it cacheable. */
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   alternates: { canonical: '/members' },
   title: 'Members',

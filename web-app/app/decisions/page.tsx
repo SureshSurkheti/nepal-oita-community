@@ -6,6 +6,14 @@ import { MeetingEditor } from '@/components/MeetingEditor'
 import { getMeetings, longDate, byMonth } from '@/lib/content'
 import { getCurrentMember } from '@/lib/members'
 
+/* Depends on who is asking, so it can never be cached or prerendered.
+   This used to be inherited from the root layout's force-dynamic; the layout
+   dropped it so the public pages could be served from a CDN, which means the
+   viewer-specific routes have to declare it themselves. Reading cookies would
+   make it dynamic anyway — saying so explicitly stops a build trying to
+   prerender it, and stops a future edit quietly making it cacheable. */
+export const dynamic = 'force-dynamic'
+
 /* noindex, and not out of caution: since 0016 the minutes are readable by
    members only, so there is nothing here for a search engine to have except the
    sign-in prompt — and a page indexed under "what the community decided" that

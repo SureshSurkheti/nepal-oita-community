@@ -9,6 +9,24 @@ import { supabaseEnv } from '@/lib/env'
    cookies onto the response. Without this a signed-in member is quietly logged
    out when their access token expires, mid-visit. */
 export default async function proxy(request: NextRequest) {
+  /* NOBODY SIGNED IN? DO NOTHING.
+   *
+   * This ran createServerClient() and getUser() on every matched request,
+   * signed in or not — and getUser() deliberately calls Supabase over the
+   * network rather than trusting the token. For the overwhelming majority of
+   * traffic (visitors who have never signed in, and every search-engine
+   * crawler) there is no session to refresh, so all of that was work done to
+   * discover there was nothing to do. It also sat in front of the newly
+   * prerendered pages, which is the one place a network call has no business
+   * being.
+   *
+   * A refresh is only possible if a session cookie exists, so its absence is a
+   * complete answer. @supabase/ssr names them sb-<project-ref>-auth-token, and
+   * chunks large ones with .0/.1 suffixes, so the prefix test covers both. */
+  const signedIn = request.cookies.getAll()
+    .some((c) => c.name.startsWith('sb-') && c.name.includes('auth-token'))
+  if (!signedIn) return NextResponse.next({ request })
+
   const env = supabaseEnv()
   let response = NextResponse.next({ request })
 

@@ -1,9 +1,17 @@
 import type { Metadata } from 'next'
 import { requireAdmin, friendlyError } from '@/lib/admin'
 import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { Icon } from '@/components/Sprite'
 import { AdminActionList, type ActionItem } from '@/components/AdminActionList'
+
+/* Depends on who is asking, so it can never be cached or prerendered.
+   This used to be inherited from the root layout's force-dynamic; the layout
+   dropped it so the public pages could be served from a CDN, which means the
+   viewer-specific routes have to declare it themselves. Reading cookies would
+   make it dynamic anyway — saying so explicitly stops a build trying to
+   prerender it, and stops a future edit quietly making it cacheable. */
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = { title: 'Committee — stories', robots: { index: false } }
 
@@ -20,6 +28,7 @@ async function setStatus(formData: FormData) {
     p_status: String(formData.get('status') ?? 'pending'),
   })
   revalidatePath('/admin/stories'); revalidatePath('/stories'); revalidatePath('/')
+  updateTag('stories')  // the cached approved-stories read; see lib/content.ts
   return error
     ? { ok: false, message: friendlyError(error.message) }
     : { ok: true, message: `Story marked ${formData.get('status')}.` }
@@ -30,6 +39,7 @@ async function remove(formData: FormData) {
   const supabase = await createClient()
   const { error } = await supabase.rpc('admin_delete_story', { p_id: String(formData.get('id') ?? '') })
   revalidatePath('/admin/stories'); revalidatePath('/stories'); revalidatePath('/')
+  updateTag('stories')  // the cached approved-stories read; see lib/content.ts
   return error ? { ok: false, message: friendlyError(error.message) } : { ok: true, message: 'Story deleted.' }
 }
 

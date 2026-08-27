@@ -2068,16 +2068,24 @@ section[id], main[id] {
   border-radius: var(--r-pill);
   background: var(--wash, var(--tile-crimson));
   color: #fff;
-  font-size: 0.62rem;
+  /* Was 0.62rem, which computed to 9.28px on a 390px screen because the root
+     font size shrinks at narrow widths — measured, not guessed. Uppercase at
+     0.07em tracking made it worse: small letterforms, spread further apart.
+     The floor stops it going under 11px however small the viewport gets, and
+     the tracking eases off as it shrinks. */
+  font-size: max(0.69rem, 11px);
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
   line-height: 1.25;
 }
 .ptile__job {
   display: block;
   margin-top: 0.3rem;
-  font-size: 0.78rem;
+  /* 0.78rem measured 11.52px on a phone. 12px is the floor below which body
+     text stops being comfortable, and this line carries a person's profession —
+     the one piece of information on the card somebody is actually reading. */
+  font-size: max(0.78rem, 12px);
   line-height: 1.4;
   color: var(--ink-2);
 }
@@ -2135,8 +2143,14 @@ section[id], main[id] {
   .ptile { border-radius: var(--r-sm); }
   .ptile__cap { padding: 0.55rem 0.6rem 0.7rem; }
   .ptile__name { font-size: 0.85rem; line-height: 1.3; }
-  .ptile__role { font-size: 0.58rem; letter-spacing: 0.05em; padding-inline: 0.42rem; }
-  .ptile__job { font-size: 0.72rem; margin-top: 0.25rem; }
+  /* These two shrink on a phone because the cards go two across, and that is
+     the right instinct — but the values landed at 9.28px and 11.52px, measured
+     on a 390px screen. Below about 11px an uppercase tracked pill stops being
+     readable and starts being decoration, and 12px is the floor for body text.
+     The floors win wherever the rem value would go under them; the rem value
+     still wins on a larger phone, so nothing gets bigger than it was meant to. */
+  .ptile__role { font-size: max(0.58rem, 11px); letter-spacing: 0.05em; padding-inline: 0.42rem; }
+  .ptile__job { font-size: max(0.72rem, 12px); margin-top: 0.25rem; }
   .ptile__initials { font-size: clamp(1.5rem, 9vw, 2.2rem); }
   .ptile__links { margin-top: 0.4rem; gap: 0.3rem; }
   .ptile__links a { font-size: 0.66rem; padding: 0.18rem 0.42rem; }

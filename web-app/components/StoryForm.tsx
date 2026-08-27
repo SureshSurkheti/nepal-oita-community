@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { refreshStories } from '@/app/stories/actions'
 import { Icon } from './Sprite'
 
 export type OwnStory = {
@@ -72,6 +73,9 @@ export function StoryForm({ member, own }: {
       .eq('id', id)
     setBusy(false)
     if (e) { setRowError(`Could not save that. ${e.message}`); return }
+    // Clears the cached approved-stories read, or an edit to a published story
+    // stays invisible for up to five minutes.
+    await refreshStories()
     setEditId(null)
     router.refresh()
   }
@@ -81,6 +85,7 @@ export function StoryForm({ member, own }: {
     const { error: e } = await createClient().from('stories').delete().eq('id', id)
     setBusy(false)
     if (e) { setRowError(`Could not delete that. ${e.message}`); return }
+    await refreshStories()
     setConfirmId(null)
     router.refresh()
   }

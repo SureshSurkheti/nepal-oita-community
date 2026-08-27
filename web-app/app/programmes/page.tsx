@@ -4,6 +4,14 @@ import { Icon, type IconName } from '@/components/Sprite'
 import { getProgrammes } from '@/lib/content'
 import { PageHead } from '@/components/PageHead'
 
+/* FULLY PUBLIC — no session is read anywhere on this page, so it is prerendered
+   and served from the CDN edge. Every visitor gets identical bytes with zero
+   database work and no serverless function.
+
+   `revalidate` is only the backstop: publishing or editing a programme calls
+   updateTag, which refreshes it at once. See lib/content.ts. */
+export const revalidate = 300
+
 export const metadata: Metadata = {
   alternates: { canonical: '/programmes' },
   title: 'What we do',

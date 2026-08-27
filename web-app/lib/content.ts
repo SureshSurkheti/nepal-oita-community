@@ -1,4 +1,6 @@
+import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 import { supabaseEnv } from '@/lib/env'
 import type { Meeting, MeetingPoint } from '@/lib/types'
 
@@ -161,15 +163,55 @@ function unwrap<T>(what: string, res: { data: T | null; error: { message: string
   return (res.data ?? []) as T
 }
 
-export async function getEvents(): Promise<EventRow[]> {
-  const supabase = await createClient()
-  const [evRes, hlRes] = await Promise.all([
-    supabase.from('events').select('*').eq('is_published', true).order('event_date'),
-    supabase.from('event_highlights').select('*').order('position'),
-  ])
-  const events = unwrap<Record<string, unknown>[]>('events', evRes)
-  const highlights = unwrap<{ event_id: string; text: string }[]>('event highlights', hlRes)
+/* ---------------------------------------------------------------------------
+   THE FOUR CACHED PUBLIC READS
+   ---------------------------------------------------------------------------
+   events, programmes, stories and photos are the same rows for everybody: each
+   query carries an explicit `is_published = true` or `status = 'approved'`
+   filter, so a signed-in member and a stranger get byte-identical results. That
+   is what makes them safe to cache — and it is a property of the QUERY, not of
+   the caller, so it cannot drift without somebody editing the filter.
 
+   Each runs through `createPublicClient()`, which has no cookie jar. Two reasons:
+   `unstable_cache` cannot read request-scope APIs at all, and a fetch made with
+   no session can only ever return what the public may see. See
+   lib/supabase/public.ts.
+
+   NOT cached, and must never be: getMeetings (takes the viewer), getMyDraft*
+   (returns the caller's own drafts), getMembers and getCurrentMember (the
+   member_contacts join returns phone numbers to a member and nothing to the
+   public). Caching any of those publishes members' private data to a CDN.
+
+   Tags, not just a TTL. Five minutes is the backstop; the committee publishing
+   an event calls revalidateTag('events') and it appears at once. A publish
+   button that takes five minutes to do anything gets pressed again.
+   --------------------------------------------------------------------------- */
+const PUBLIC_TTL = 300
+
+/* Raw rows only. `past` is computed from today's date OUTSIDE the cache: baked
+   in, it would keep saying "upcoming" about yesterday's event until the entry
+   expired, and the whole Events page splits on that boolean. */
+const cachedEventRows = unstable_cache(
+  async () => {
+    const supabase = createPublicClient()
+    const [evRes, hlRes] = await Promise.all([
+      supabase.from('events').select('*').eq('is_published', true).order('event_date'),
+      supabase.from('event_highlights').select('*').order('position'),
+    ])
+    return {
+      events: unwrap<Record<string, unknown>[]>('events', evRes),
+      highlights: unwrap<{ event_id: string; text: string }[]>('event highlights', hlRes),
+    }
+  },
+  ['public-events'],
+  { tags: ['events'], revalidate: PUBLIC_TTL },
+)
+
+export async function getEvents(): Promise<EventRow[]> {
+  const { events, highlights } = await cachedEventRows()
+
+  /* Rebuilt here rather than inside the cache: unstable_cache serialises what it
+     stores, and a Map does not survive that — it comes back as {}. */
   const byEvent = new Map<string, string[]>()
   for (const h of highlights) {
     const list = byEvent.get(h.event_id) ?? []
@@ -207,14 +249,24 @@ export async function getMyDraftEvents(): Promise<EventRow[]> {
   return rows.map((e) => ({ ...e, highlights: [], past: false })) as unknown as EventRow[]
 }
 
+const cachedProgrammeRows = unstable_cache(
+  async () => {
+    const supabase = createPublicClient()
+    const [pRes, ptRes] = await Promise.all([
+      supabase.from('programmes').select('*').eq('is_published', true).order('sort_order'),
+      supabase.from('programme_points').select('*').order('position'),
+    ])
+    return {
+      progs: unwrap<Record<string, unknown>[]>('programmes', pRes),
+      points: unwrap<{ programme_id: string; text: string }[]>('programme points', ptRes),
+    }
+  },
+  ['public-programmes'],
+  { tags: ['programmes'], revalidate: PUBLIC_TTL },
+)
+
 export async function getProgrammes(): Promise<Programme[]> {
-  const supabase = await createClient()
-  const [pRes, ptRes] = await Promise.all([
-    supabase.from('programmes').select('*').eq('is_published', true).order('sort_order'),
-    supabase.from('programme_points').select('*').order('position'),
-  ])
-  const progs = unwrap<Record<string, unknown>[]>('programmes', pRes)
-  const points = unwrap<{ programme_id: string; text: string }[]>('programme points', ptRes)
+  const { progs, points } = await cachedProgrammeRows()
   const byProg = new Map<string, string[]>()
   for (const p of points) {
     const list = byProg.get(p.programme_id) ?? []
@@ -226,17 +278,25 @@ export async function getProgrammes(): Promise<Programme[]> {
   }))
 }
 
-export async function getStories(): Promise<StoryRow[]> {
-  const supabase = await createClient()
-  return unwrap<StoryRow[]>('stories', await supabase
-    .from('stories').select('*').eq('status', 'approved').order('sort_order'))
-}
+export const getStories = unstable_cache(
+  async (): Promise<StoryRow[]> => {
+    const supabase = createPublicClient()
+    return unwrap<StoryRow[]>('stories', await supabase
+      .from('stories').select('*').eq('status', 'approved').order('sort_order'))
+  },
+  ['public-stories'],
+  { tags: ['stories'], revalidate: PUBLIC_TTL },
+)
 
-export async function getPhotos(): Promise<Photo[]> {
-  const supabase = await createClient()
-  return unwrap<Photo[]>('photos', await supabase
-    .from('photos').select('*').eq('is_published', true).order('sort_order'))
-}
+export const getPhotos = unstable_cache(
+  async (): Promise<Photo[]> => {
+    const supabase = createPublicClient()
+    return unwrap<Photo[]>('photos', await supabase
+      .from('photos').select('*').eq('is_published', true).order('sort_order'))
+  },
+  ['public-photos'],
+  { tags: ['photos'], revalidate: PUBLIC_TTL },
+)
 
 /** "Sunday 18 October 2026" — how the date is written for a reader. */
 export function longDate(iso: string): string {

@@ -5,10 +5,8 @@ import { SiteMotion } from '@/components/SiteMotion'
 import { Nav } from '@/components/Nav'
 import { SetupBanner } from '@/components/SetupBanner'
 import { Footer } from '@/components/Footer'
-import { DecisionsNotice } from '@/components/DecisionsNotice'
+import { DecisionsNoticeGate } from '@/components/DecisionsNoticeGate'
 import { BackButton } from '@/components/BackButton'
-import { getCurrentMember } from '@/lib/members'
-import { getMeetings, longDate } from '@/lib/content'
 import { SITE_URL, SITE_NAME, SITE_ALT_NAMES, SITE_EMAIL, SITE_SOCIALS, abs } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -98,25 +96,29 @@ const ORG_JSONLD = {
   ],
 }
 
-/* Nothing in this app can be static: the header renders the signed-in member's
-   name and links, so every page depends on the request's session. Declared once
-   here, for the whole tree, rather than repeated on each page — and it also
-   keeps the build from needing the Supabase credentials, which a CI build has no
-   business holding. */
-export const dynamic = 'force-dynamic'
+/* THE LAYOUT NO LONGER READS THE REQUEST, and that is the whole point.
+ *
+ * It used to say `export const dynamic = 'force-dynamic'`, because the header
+ * rendered the signed-in member's name and the decisions banner needed to know
+ * whether there was a member. Both meant reading cookies in the root layout,
+ * which forces EVERY route in the app to render per request. Measured from
+ * Japan: `x-vercel-cache: MISS` on every hit, seven database queries per page
+ * view, 1.0-3.2s to first byte — for pages whose content is identical for every
+ * visitor.
+ *
+ * Both readers moved into the browser: Nav resolves its own session, and
+ * DecisionsNoticeGate fetches the banner. Neither touches the request here, so
+ * pages are free to be prerendered and served from the edge. Pages that genuinely
+ * depend on the viewer — /me, /members, /decisions, /sign-in, /admin/* — declare
+ * `force-dynamic` themselves rather than inheriting it from the whole tree.
+ *
+ * ONE CONSEQUENCE WORTH KNOWING: a production build now prerenders the public
+ * pages, so it needs the Supabase environment variables at BUILD time, not only
+ * at run time. On Vercel they are already there. A build without them used to
+ * succeed and will now fail in lib/env.ts — which is the correct trade, because
+ * the alternative is shipping a site that cannot be cached. */
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  /* The new-decisions notice, for signed-in members only.
-     
-     In the layout rather than on a page because it is about the site, not about
-     wherever they happen to have landed. Both calls already happen further down
-     the tree on most routes, and Next dedupes them within a render, so this adds
-     no round trips on those. */
-  const member = await getCurrentMember()
-  const latest = member
-    ? (await getMeetings(true)).filter((m) => m.status === 'approved')[0] ?? null
-    : null
-
   return (
     /* `js` is set here rather than by a script, the way the static site had to.
        In this app there is no no-JavaScript render to fall back to, so the class
@@ -130,10 +132,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Sprite />
         <SetupBanner />
         <Nav />
-        {latest && (
-          <DecisionsNotice id={latest.id} title={latest.title}
-                           dateLabel={longDate(latest.held_on)} />
-        )}
+        <DecisionsNoticeGate />
         <BackButton />
         <main id="main">{children}</main>
         <Footer />

@@ -15,6 +15,14 @@ import { PhotoTiles } from '@/components/PhotoTiles'
 import { getCurrentMember, getMembers } from '@/lib/members'
 import { assetUrl, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos, todayInJapan } from '@/lib/content'
 
+/* Depends on who is asking, so it can never be cached or prerendered.
+   This used to be inherited from the root layout's force-dynamic; the layout
+   dropped it so the public pages could be served from a CDN, which means the
+   viewer-specific routes have to declare it themselves. Reading cookies would
+   make it dynamic anyway — saying so explicitly stops a build trying to
+   prerender it, and stops a future edit quietly making it cacheable. */
+export const dynamic = 'force-dynamic'
+
 /* The hero rotation. First one first: it is the only one in the server's HTML.
  *
  * WHAT IS NOT IN HERE, AND WHY

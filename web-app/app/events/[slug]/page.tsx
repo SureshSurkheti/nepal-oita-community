@@ -4,6 +4,23 @@ import { notFound } from 'next/navigation'
 import { Icon } from '@/components/Sprite'
 import { getEvent, getEvents, longDate } from '@/lib/content'
 
+/* FULLY PUBLIC — no session is read anywhere on this page, so it is prerendered
+   and served from the CDN edge. Every visitor gets identical bytes with zero
+   database work and no serverless function.
+
+   `revalidate` is only the backstop: publishing or editing an event calls
+   updateTag, which refreshes it at once. See lib/content.ts. */
+export const revalidate = 300
+
+/* Prerender every event at build time rather than on first visit. Without this
+   the route is rendered on demand — the first person to open an event waits for
+   a cold render, and with ten events that is ten people. The list comes from the
+   cached published-events read, so this costs one query for the whole set. */
+export async function generateStaticParams() {
+  const events = await getEvents()
+  return events.map((e) => ({ slug: e.slug }))
+}
+
 /* One route replaces the ten hand-written event-*.html files. Adding an event is
    now a database row, not a new file that somebody has to remember to create —
    which is how the static site ended up with a Details link that would 404 if

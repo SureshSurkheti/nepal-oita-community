@@ -611,6 +611,24 @@ section[id], main[id] {
 
 .nav__actions { display: flex; align-items: center; gap: 0.5rem; }
 
+/* The session is resolved in the browser now (see components/Nav.tsx), so the
+   cached HTML cannot know whether to show "Sign in" or "Profile · Sign out".
+   The signed-out control is rendered anyway and hidden here until the answer
+   arrives.
+
+   `visibility: hidden`, not `display: none` and not `opacity: 0`:
+
+     - it still occupies its exact layout box, so the nav links do not slide
+       sideways when the real control appears — no layout shift, and no pixel
+       value here that would have to be kept in step with the button's padding;
+     - unlike opacity, it is removed from the tab order and the accessibility
+       tree, so a keyboard or a screen reader cannot reach a button that is not
+       yet really there.
+
+   Only the CTA is hidden. The drawer button beside it is not conditional on the
+   session and has to work from the first paint. */
+.nav__actions--waiting .nav__cta { visibility: hidden; }
+
 .icon-btn {
   width: 40px;
   height: 40px;

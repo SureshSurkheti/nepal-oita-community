@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { compressImage, describeSaving } from '@/lib/image'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 
 const CATEGORIES = ['festivals', 'community', 'cultural', 'sports'] as const
 
@@ -157,7 +158,7 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
         </div>
 
         <button className="btn btn--primary" type="submit" disabled={busy}>
-          <Icon name="send" />{busy ? 'Uploading…' : 'Send to the committee'}
+          {busy ? <Spinner /> : <Icon name="send" />}{busy ? 'Uploading…' : 'Send to the committee'}
         </button>
         {error && <p className="form-note form-note--error">{error}</p>}
         <p className="form-note">

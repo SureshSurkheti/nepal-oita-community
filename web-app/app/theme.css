@@ -4392,3 +4392,103 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
   .codeout__row { gap: 0.5rem; }
   .codeout__code { width: 100%; text-align: center; }
 }
+
+
+/* ---------------------------------------------------------------------------
+   Busy indicators: the button spinner, and the page skeletons
+
+   WHY THERE IS A DELAY ON THE SKELETONS AND NOT ON THE SPINNER
+   These two wait for different things and so they behave differently.
+
+   The BUTTON spinner appears the moment a form is submitted. That is always a
+   network write — an insert, an upload, a sign-in — and none of those finishes
+   in under a couple of hundred milliseconds, so there is nothing to guard
+   against: it will be seen, and it should be.
+
+   The PAGE skeleton is a Suspense fallback, and Suspense shows its fallback
+   immediately. Since /programmes and the event pages are prerendered and answer
+   in about 30ms, a skeleton with no delay would strobe on and off on the fast
+   routes and make them feel BROKEN rather than fast. So it starts fully
+   transparent and fades in after 150ms: if the page arrives first, the skeleton
+   was never visible at all. Nothing is timing anything in JavaScript — the delay
+   is just where the animation starts.
+
+   150ms is the threshold below which people read a wait as instant. Showing a
+   spinner for 20ms is worse than showing none: it reads as a glitch.
+   --------------------------------------------------------------------------- */
+
+.spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: none;
+  border-radius: 50%;
+  /* currentColor, so it works on the crimson primary button and the ghost
+     button without a second rule for each. */
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: spin 0.6s linear infinite;
+  /* Optically centres it against the cap height of the label beside it. */
+  vertical-align: -0.125em;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --------------------------------------------------------------- skeletons */
+.skeleton {
+  opacity: 0;
+  /* forwards, and a delay: invisible until 150ms have passed, then fades in and
+     stays. A page that resolves sooner never shows this at all. */
+  animation: skeleton-in 140ms var(--ease, ease) 150ms forwards;
+}
+
+@keyframes skeleton-in { to { opacity: 1; } }
+
+.skel {
+  display: block;
+  border-radius: var(--r-xs);
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    rgba(27, 23, 20, 0.06) 37%,
+    var(--surface-2) 63%
+  );
+  background-size: 400% 100%;
+  animation: skel-sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes skel-sweep {
+  0%   { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+.skel--line   { height: 0.72rem; }
+.skel--title  { height: 1.1rem; width: 40%; margin-bottom: 0.9rem; }
+.skel--avatar { width: 38px; height: 38px; border-radius: 50%; flex: none; }
+.skel--w70 { width: 70%; }
+.skel--w45 { width: 45%; }
+.skel--w30 { width: 30%; }
+
+/* A roster row, mid-load: circle on the left, two lines beside it. Reuses
+   .roster's own spacing so the real rows land in the same places. */
+.skel-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  margin-bottom: 0.5rem;
+}
+.skel-row__body { flex: 1; display: grid; gap: 0.45rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Somebody who has asked for less movement still needs to know the page is
+     working, so the indicators stay — they simply stop moving. The spinner
+     becomes a static ring, the skeletons a flat block, and the fade-in becomes
+     an instant appearance rather than a transition. */
+  .spinner { animation: none; border-top-color: currentColor; opacity: 0.55; }
+  .skel    { animation: none; background: var(--surface-2); }
+  .skeleton { animation-duration: 1ms; }
+}

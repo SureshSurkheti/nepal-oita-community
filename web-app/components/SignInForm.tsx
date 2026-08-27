@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 
 type Mode = 'in' | 'up'
 
@@ -143,7 +144,7 @@ export function SignInForm({ hasAccount = false, hasMemberCard = false }: {
                      value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             <button className="btn btn--primary" type="submit" disabled={busy}>
-              <Icon name="shield" />
+              {busy ? <Spinner /> : <Icon name="shield" />}
               {busy ? 'Working…' : mode === 'in' ? 'Sign in' : 'Make my account'}
             </button>
             {error && <p className="form-note form-note--error">{error}</p>}
@@ -171,7 +172,7 @@ export function SignInForm({ hasAccount = false, hasMemberCard = false }: {
                      onChange={(e) => setCode(e.target.value.toUpperCase())} />
             </div>
             <button className="btn btn--primary" type="submit" disabled={busy}>
-              <Icon name="check" />{busy ? 'Checking…' : 'Link my membership'}
+              {busy ? <Spinner /> : <Icon name="check" />}{busy ? 'Checking…' : 'Link my membership'}
             </button>
             {error && <p className="form-note form-note--error">{error}</p>}
           </form>

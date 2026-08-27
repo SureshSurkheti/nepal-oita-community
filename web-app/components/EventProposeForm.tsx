@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { Spinner } from './Spinner'
 
 const ACCENTS = ['crimson', 'indigo', 'moss', 'gold'] as const
 
@@ -174,7 +175,7 @@ export function EventProposeForm({ memberId }: { memberId: string }) {
                     value={highlights} onChange={(e) => setHighlights(e.target.value)} />
         </div>
         <button className="btn btn--primary" type="submit" disabled={busy}>
-          <Icon name="send" />{busy ? 'Sending…' : 'Send to the committee'}
+          {busy ? <Spinner /> : <Icon name="send" />}{busy ? 'Sending…' : 'Send to the committee'}
         </button>
         {error && <p className="form-note form-note--error">{error}</p>}
         <p className="form-note">

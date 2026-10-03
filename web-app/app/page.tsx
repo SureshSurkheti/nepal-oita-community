@@ -266,7 +266,7 @@ export default async function Home() {
     /* `todayInJapan()` rather than the server's own clock: the site's year is
        Oita's year, and a box in another timezone would tick this over a day
        early or late. */
-    { to: Number(todayInJapan().slice(0, 13)) - FOUNDED, suffix: '', label: 'Years active', href: null },
+    { to: Number(todayInJapan().slice(0, 4)) - FOUNDED, suffix: '', label: 'Years active', href: null },
   ]
 
   const leadership = members.filter((m) => m.category === 'leadership')
@@ -663,7 +663,7 @@ export default async function Home() {
           {leadership.length > 0 && (
             <>
               <h3 className="display-3 center mt-lg u-mb-2">Leadership team</h3>
-              <ShowMore className="people-flow reveal" id="leadership-preview" href="/members" cap={13}>
+              <ShowMore className="people-flow reveal" id="leadership-preview" href="/members" cap={999}>
                 {leadership.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
                 ))}
@@ -684,7 +684,7 @@ export default async function Home() {
                   mistake, because it is — nobody chose it, the two lists were
                   just built at different times. Flex for both. */}
               <ShowMore className="people-flow reveal" id="members-preview"
-                        href="/members" cap={13}>
+                        href="/members" cap={4}>
                 {general.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
                 ))}

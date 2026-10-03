@@ -57,6 +57,8 @@ const HERO_PHOTOS = [
   '/images/place-sakura.jpg',
   '/images/place-amadablam.jpg',
   '/images/place-boudhanath.jpg',
+  '/images/festival.jpg',
+  '/images/movie.jpg'
 ]
 
 /* The hero numbers.

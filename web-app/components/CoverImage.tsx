@@ -18,6 +18,22 @@ import { useEffect, useRef, useState } from 'react'
  *
  * Done on load rather than from the file name because it then holds for covers
  * the committee uploads later, which nobody here will have measured. */
+/* How much taller than wide an image has to be before it is treated as a poster
+   rather than a photograph.
+   
+   Not a bare height > width. One of the gallery photographs is 1079x1080 — a
+   square group shot, one pixel taller than it is wide — and a bare comparison
+   letterboxed it between two blurred bars for no reason. The two real posters
+   are 1.50 and 1.41, so 1.15 separates them from anything merely square without
+   coming close to either. */
+const POSTER_RATIO = 1.15
+
+/* naturalWidth is 0 for an image that failed, which keeps a broken one on the
+   ordinary path instead of flipping it to contain. */
+function isPoster(img: HTMLImageElement): boolean {
+  return img.naturalWidth > 0 && img.naturalHeight / img.naturalWidth >= POSTER_RATIO
+}
+
 export function CoverImage({ src, alt, className = '', priority = false }: {
   src: string
   alt: string
@@ -41,9 +57,7 @@ export function CoverImage({ src, alt, className = '', priority = false }: {
    * broken image on the landscape path instead of flipping it to contain. */
   useEffect(() => {
     const img = ref.current
-    if (img?.complete && img.naturalWidth > 0 && img.naturalHeight > img.naturalWidth) {
-      setPortrait(true)
-    }
+    if (img?.complete && isPoster(img)) setPortrait(true)
   }, [src])
 
   return (
@@ -64,7 +78,7 @@ export function CoverImage({ src, alt, className = '', priority = false }: {
           const img = e.currentTarget
           /* Guard the zero case: a cached image can fire load with both at 0 in
              some browsers, and 0 > 0 is false, so it simply stays landscape. */
-          if (img.naturalHeight > img.naturalWidth) setPortrait(true)
+          if (isPoster(img)) setPortrait(true)
         }}
       />
     </>

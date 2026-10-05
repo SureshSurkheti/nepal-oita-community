@@ -60,35 +60,53 @@ export function DecisionsPager({ children, label }: {
   const atNewest = i === total - 1
 
   return (
-    <>
+    /* The arrows sit on the LEFT and RIGHT of the write-up rather than in a bar
+       above it, and the panel is wider than the 42rem measure it used to keep.
+       
+       That measure is the right width for a paragraph somebody reads top to
+       bottom. This is not that: it is one card at a time out of a set, and the
+       control that changes it was floating above the thing it changed, so the
+       eye had to go up and back for every step. Beside the card, at the height
+       of the card, the arrow is where the next one will come from.
+       
+       Below 900px they go back to a row under the card: a 46px target pinned to
+       the edge of a 390px screen sits exactly where a thumb already is while
+       scrolling, and would be pressed by accident. */
+    <div className={`pager${total > 1 ? '' : ' pager--single'}`}>
       {total > 1 && (
-        <div className="rail-bar">
-          <p className="text-sm muted rail-hint">
-            {atNewest
-              ? `The most recent of ${total} — the arrows step back through the earlier ones.`
-              : `${i + 1} of ${total}, oldest first.`}
-          </p>
-          <div className="rail-nav">
-            <button className="icon-btn rail-arrow" type="button" disabled={atOldest}
-                    aria-label={t.ui.earlierMeeting} onClick={() => setI((n) => Math.max(0, n - 1))}>
-              <Icon name="chevron-left" />
-            </button>
-            <button className="icon-btn rail-arrow" type="button" disabled={atNewest}
-                    aria-label={t.ui.laterMeeting} onClick={() => setI((n) => Math.min(total - 1, n + 1))}>
-              <Icon name="chevron-right" />
-            </button>
-          </div>
-        </div>
+        <p className="text-sm muted pager__hint">
+          {atNewest
+            ? `The most recent of ${total} — the arrows step back through the earlier ones.`
+            : `${i + 1} of ${total}, oldest first.`}
+        </p>
       )}
 
-      {/* aria-live, because pressing an arrow replaces the whole content of this
-          region and the button that did it stays put — without it a screen
-          reader reports nothing at all happening. Polite, not assertive: it is a
-          reader's own navigation, not an alert. */}
-      <div className="decisions" ref={box} role="group" aria-label={label}
-           aria-live="polite">
-        {items[i]}
+      <div className="pager__stage">
+        {total > 1 && (
+          <button className="icon-btn pager__arrow pager__arrow--prev" type="button"
+                  disabled={atOldest} aria-label={t.ui.earlierMeeting}
+                  onClick={() => setI((n) => Math.max(0, n - 1))}>
+            <Icon name="chevron-left" />
+          </button>
+        )}
+
+        {/* aria-live, because pressing an arrow replaces the whole content of
+            this region and the button that did it stays put — without it a
+            screen reader reports nothing at all happening. Polite, not
+            assertive: it is a reader's own navigation, not an alert. */}
+        <div className="decisions" ref={box} role="group" aria-label={label}
+             aria-live="polite">
+          {items[i]}
+        </div>
+
+        {total > 1 && (
+          <button className="icon-btn pager__arrow pager__arrow--next" type="button"
+                  disabled={atNewest} aria-label={t.ui.laterMeeting}
+                  onClick={() => setI((n) => Math.min(total - 1, n + 1))}>
+            <Icon name="chevron-right" />
+          </button>
+        )}
       </div>
-    </>
+    </div>
   )
 }

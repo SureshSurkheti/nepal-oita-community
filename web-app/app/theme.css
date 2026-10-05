@@ -685,6 +685,12 @@ section[id], main[id] {
   .nav__burger { display: grid; }
 }
 
+/* Signed in there is a labelled Sign out where a visitor has nothing — another
+   ~120px in the same row — so the wordmark has to go a little earlier still. */
+@media (max-width: 440px) {
+  .nav--member .brand__text { display: none; }
+}
+
 /* On a phone, ONE labelled button rather than two unlabelled ones.
    
    Making both member controls icon-only fitted them in and made them
@@ -700,9 +706,20 @@ section[id], main[id] {
   .nav--member .nav__cta { display: none; }
 }
 
-/* Narrower than any phone in use, but the wordmark is the first thing that can
-   go if it ever comes to it — the button that signs you in matters more. */
-@media (max-width: 360px) {
+/* The wordmark gives way to the logo, because the burger matters more.
+   
+   This said 360px and called itself "narrower than any phone in use". It is not:
+   a Pixel is 393 and most Android phones are 393 or 412, and in that band the
+   row ran 32px and 13px past its own gutter — so the burger, as the last item,
+   sat half off the screen and the menu could not be opened at all. Below 360 it
+   had always fitted, because the wordmark was already gone; at 430 it fits too.
+   The band that failed was 361-429, which is most phones, and "works on some
+   phones and not others" is exactly what that looks like from the outside.
+   
+   430 is measured, not chosen: the wordmark is 100px, the worst case was 32px
+   over, and 430 is the first common width that already fitted. The logo stays
+   and still goes home. */
+@media (max-width: 430px) {
   .brand__text { display: none; }
 }
 
@@ -1766,7 +1783,41 @@ section[id], main[id] {
    and the button all share one left and one right edge. Wider would read better
    as a box and worse as text: the decisions are set at 0.9rem, and past about
    700px a line of them is too long to scan back to the start of. */
-.decisions-panel { max-width: 42rem; margin-inline: auto; }
+/* Wider than the 42rem measure it used to keep, and the arrows moved to the
+   sides. 42rem is the right width for a paragraph read top to bottom; this is
+   one card at a time out of a set, and the write-ups carry a date, a place, a
+   summary and a list of decisions that were all being squeezed into a column
+   half the container's width while the rest of the row sat empty. */
+.decisions-panel { max-width: 64rem; margin-inline: auto; }
+
+.pager__hint { text-align: center; margin-bottom: 0.7rem; }
+
+/* The card, with an arrow either side of it. `align-items: center` puts each
+   arrow at the middle of the card's height rather than the top, which is where
+   the eye already is when it finishes reading one. */
+.pager__stage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.5rem, 2vw, 1.25rem);
+}
+.pager__stage > .decisions { min-width: 0; }
+.pager__arrow { flex: none; }
+.pager__arrow:disabled { opacity: 0.35; cursor: default; }
+
+@media (max-width: 900px) {
+  /* Back to a row under the card. A 46px target pinned to the edge of a 390px
+     screen sits exactly where a thumb already is while scrolling, and gets
+     pressed by accident; and once the card is full width there is no room
+     beside it anyway. */
+  .pager__stage {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+  .pager__stage > .decisions { order: 1; }
+  .pager__arrow--prev { order: 2; justify-self: start; grid-row: 2; }
+  .pager__arrow--next { order: 3; justify-self: end; grid-row: 2; }
+}
 .decisions { display: block; }
 
 .decision {
@@ -2834,12 +2885,20 @@ dialog::backdrop {
   border-color: var(--crimson);
   color: #fff;
 }
+/* NO INNER SCROLLBAR. This list is the committee's working surface — the member
+   register, the events waiting to be approved, the drafts somebody has sent in.
+   It used to carry `max-height: 46vh; overflow-y: auto`, which is a 414px window
+   on a laptop and 359px on a phone, holding twenty-eight people and scrolling
+   inside a page that is also scrolling.
+   
+   A nested scroll box is a bad place to do work. The page scrollbar no longer
+   reaches the thing you are looking at, the wheel stops at the box's edge
+   instead of carrying on, Find-in-page jumps to rows you cannot see, and on a
+   phone the whole list is a letterbox. The cap was there so the controls under
+   the list stayed reachable, which a long page already does by scrolling. */
 .roster {
   display: grid;
   gap: 0.5rem;
-  max-height: 46vh;
-  overflow-y: auto;
-  padding-inline-end: 0.35rem;
 }
 .roster li {
   display: flex;
@@ -2879,11 +2938,6 @@ dialog::backdrop {
    point where the layout goes to one column the list simply runs down the
    page, which is what it should have done all along. */
 @media (max-width: 860px) {
-  .roster {
-    max-height: none;
-    overflow-y: visible;
-    padding-inline-end: 0;
-  }
   /* The row's own buttons: full width and a proper target, instead of three
      pills wrapping into a ragged block. */
   .roster li .cluster { width: 100%; }
@@ -5126,4 +5180,29 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
   position: absolute;
   inset: 0;
   z-index: 1;
+}
+
+/* THE EVENTS BADGE COMES OUT WHERE THE BURGER GOES IN, and it is my own
+   regression that made this necessary.
+   
+   The header row is costed to the pixel — the notes in section 6 give the
+   measured widths at which each part gives way. I added a 40px control plus its
+   8px gap to `.nav__actions` without re-costing the narrow case, and flex
+   resolves an overflow by pushing the LAST item out of view rather than by
+   complaining. On a 393px phone that item is the burger, so a visitor had no way
+   to open the menu at all. Measured: 429px of controls in 393px signed out,
+   441px signed in; 381px without the badge, which is what it was before I
+   touched it.
+   
+   It comes out at the width where the links move into the drawer, because the
+   drawer already has Events. The badge is a second way to reach a page that is
+   still one tap away; the burger is the only way to reach eight of them.
+   
+   THIS RULE LIVES HERE, AT THE END, AND NOT IN THE SECTION 6 MEDIA QUERY WHERE
+   IT BELONGS BY SUBJECT. `.evbell { display: grid }` is declared further down
+   the file than that block, and at equal specificity the later rule wins — so
+   written up there it did nothing at all, which a screenshot caught and the
+   numbers did not. */
+@media (max-width: 860px) {
+  .evbell { display: none; }
 }

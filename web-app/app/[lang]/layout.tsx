@@ -10,6 +10,8 @@ import { BackButton } from '@/components/BackButton'
 import { SITE_URL, SITE_NAME, SITE_ALT_NAMES, SITE_EMAIL, SITE_SOCIALS, abs } from '@/lib/site'
 import { LOCALES, LOCALE_TAGS, toLocale, type Locale } from '@/lib/i18n'
 import { getDictionary } from '@/lib/dictionaries'
+import { assetUrl, chipDate, longDate, getEvents } from '@/lib/content'
+import type { ShowcaseEvent } from '@/components/EventsAlert'
 
 export const metadata: Metadata = {
   title: {
@@ -132,10 +134,39 @@ export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }))
 }
 
+/* The events the header's showcase walks through.
+ *
+ * getEvents() is one of the four PROVABLY PUBLIC fetchers: it goes through
+ * createPublicClient(), which has no cookie jar, and is held in unstable_cache
+ * for PUBLIC_TTL. So calling it here does NOT make the layout read the request,
+ * and every page stays prerenderable — the thing the header was moved to the
+ * client to protect in the first place.
+ *
+ * Trimmed hard, and filtered to what is still to come, because this list rides
+ * inside the HTML of every page on the site. All ten events measured 1.85 KB
+ * gzipped on a 13.7 KB page; the two upcoming ones are a fraction of that, and
+ * upcoming is all the header's badge claims to count. The events page opens the
+ * same view over the full timeline, where the data is already loaded. */
+async function upcomingEvents(): Promise<ShowcaseEvent[]> {
+  const events = await getEvents()
+  return events.filter((e) => !e.past).map((e) => {
+    const { month, day } = chipDate(e.event_date)
+    return {
+      slug: e.slug, title: e.title, summary: e.summary,
+      dateLabel: longDate(e.event_date), month, day,
+      start_time: e.start_time, end_time: e.end_time,
+      place: e.place, category: e.category, accent: e.accent,
+      cover: assetUrl('site-photos', e.cover_path) ?? null,
+      highlights: e.highlights, past: e.past,
+    }
+  })
+}
+
 export default async function RootLayout({
   children, params,
 }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
   const lang = toLocale((await params).lang)
+  const upcoming = await upcomingEvents()
   return (
     /* `js` is set here rather than by a script, the way the static site had to.
        In this app there is no no-JavaScript render to fall back to, so the class
@@ -151,7 +182,7 @@ export default async function RootLayout({
         <a className="skip-link" href="#main">{getDictionary(lang).nav.skipToContent}</a>
         <Sprite />
         <SetupBanner />
-        <Nav />
+        <Nav upcoming={upcoming} />
         <DecisionsNoticeGate />
         <BackButton />
         <main id="main">{children}</main>

@@ -296,6 +296,17 @@ export const ne: Dictionary = {
     newDecisions: 'नयाँ बैठक निर्णयहरू',
     subscribe: 'न्यूजलेटर सदस्यता लिनुहोस्',
     emailPlaceholder: 'you@example.com',
+    whatsOn: 'के आउँदैछ',
+    upcomingOne: 'कार्यक्रम आउँदैछ',
+    upcomingMany: 'कार्यक्रम आउँदैछन्',
+    openShowcase: 'के आउँदैछ हेर्नुहोस्',
+    viewFullScreen: 'हरेक कार्यक्रम पूरा स्क्रिनमा हेर्नुहोस्',
+    closeShowcase: 'बन्द गर्नुहोस्',
+    details: 'विवरण',
+    comingUp: 'आउँदै',
+    alreadyHappened: 'भइसकेको',
+    previousEvent: 'अघिल्लो कार्यक्रम',
+    nextEvent: 'अर्को कार्यक्रम',
   },
   /* --------------------------------------------------------------- contact */
   contactForm: {

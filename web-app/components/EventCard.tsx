@@ -1,11 +1,16 @@
 import { LocaleLink as Link } from './LocaleLink'
 import { Icon } from './Sprite'
 import { assetUrl, chipDate, type EventRow } from '@/lib/content'
+import { getDictionary, categoryLabel } from '@/lib/dictionaries'
+import type { Locale } from '@/lib/i18n'
 
 const ART = ['art-rays', 'art-wave', 'art-lattice', 'art-dots']
 
-export function EventCard({ event, index = 0 }: { event: EventRow; index?: number }) {
+export function EventCard({ event, index = 0, lang }: {
+  event: EventRow; index?: number; lang: Locale
+}) {
   const { month, day } = chipDate(event.event_date)
+  const t = getDictionary(lang)
   const cover = assetUrl('site-photos', event.cover_path)
   return (
     <article
@@ -56,9 +61,9 @@ export function EventCard({ event, index = 0 }: { event: EventRow; index?: numbe
         )}
       </div>
       <div className="event__foot">
-        {event.category && <span className="tag">{event.category}</span>}
+        {event.category && <span className="tag">{categoryLabel(t, event.category)}</span>}
         <Link className="link-arrow" href={`/events/${event.slug}`}>
-          Details <Icon name="arrow-right" />
+          {t.ui.details} <Icon name="arrow-right" />
         </Link>
       </div>
     </article>

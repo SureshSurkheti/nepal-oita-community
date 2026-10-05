@@ -474,7 +474,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
           ) : (
             <EventsRail pastCount={past.length}
                         upcomingIndex={upcoming.length > 0 ? past.length : -1}>
-              {orderedEvents.map((e, i) => <EventCard key={e.id} event={e} index={i} />)}
+              {orderedEvents.map((e, i) => <EventCard key={e.id} event={e} index={i} lang={lang} />)}
             </EventsRail>
           )}
         </div>

@@ -3,7 +3,9 @@ import { localeAlternates, toLocale } from '@/lib/i18n'
 import { getDictionary } from '@/lib/dictionaries'
 import { EventCard } from '@/components/EventCard'
 import { EventsRail } from '@/components/EventsRail'
-import { getEvents, getMyDraftEvents, longDate } from '@/lib/content'
+import { EventsShowcaseButton } from '@/components/EventsAlert'
+import type { ShowcaseEvent } from '@/components/EventsAlert'
+import { assetUrl, chipDate, getEvents, getMyDraftEvents, longDate, type EventRow } from '@/lib/content'
 import { getCurrentMember } from '@/lib/members'
 import { EventProposeForm } from '@/components/EventProposeForm'
 import { Icon } from '@/components/Sprite'
@@ -25,6 +27,20 @@ export async function generateMetadata(
     alternates: localeAlternates(lang, '/events'),
     title: getDictionary(lang).meta.eventsTitle,
     description: getDictionary(lang).meta.eventsDesc,
+  }
+}
+
+/* The same shape the header builds in the layout. Kept beside the only other
+   caller rather than in lib/content, because it exists for one component. */
+function showcaseEvent(e: EventRow): ShowcaseEvent {
+  const { month, day } = chipDate(e.event_date)
+  return {
+    slug: e.slug, title: e.title, summary: e.summary,
+    dateLabel: longDate(e.event_date), month, day,
+    start_time: e.start_time, end_time: e.end_time,
+    place: e.place, category: e.category, accent: e.accent,
+    cover: assetUrl('site-photos', e.cover_path) ?? null,
+    highlights: e.highlights, past: e.past,
   }
 }
 
@@ -89,9 +105,15 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: s
                   Nothing on the calendar just now — new dates go up as soon as they are set.
                 </p>
               )}
+              {/* The same full-screen view the header's badge opens, but over
+                  the whole timeline — free here, because the page has already
+                  loaded every event it needs. */}
+              <div className="cluster cluster--center u-mb-15">
+                <EventsShowcaseButton events={ordered.map(showcaseEvent)} />
+              </div>
               <EventsRail pastCount={past.length}
                           upcomingIndex={upcoming.length > 0 ? past.length : -1}>
-                {ordered.map((e, i) => <EventCard key={e.id} event={e} index={i} />)}
+                {ordered.map((e, i) => <EventCard key={e.id} event={e} index={i} lang={lang} />)}
               </EventsRail>
             </>
           )}

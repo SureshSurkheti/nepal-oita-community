@@ -287,6 +287,17 @@ export const en = {
     newDecisions: 'New meeting decisions',
     subscribe: 'Subscribe to the newsletter',
     emailPlaceholder: 'you@example.com',
+    whatsOn: 'What is coming up',
+    upcomingOne: 'event coming up',
+    upcomingMany: 'events coming up',
+    openShowcase: 'See what is coming up',
+    viewFullScreen: 'View every event full screen',
+    closeShowcase: 'Close',
+    details: 'Details',
+    comingUp: 'Coming up',
+    alreadyHappened: 'Already happened',
+    previousEvent: 'Previous event',
+    nextEvent: 'Next event',
   },
   /* --------------------------------------------------------------- contact */
   contactForm: {

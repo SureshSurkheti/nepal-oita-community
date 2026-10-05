@@ -4807,3 +4807,260 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
      has to be hit first time. */
   .adminbar__row .btn { flex: 1 1 100%; justify-content: center; }
 }
+
+/* ===================================================================== *
+   WHAT IS COMING UP — the header's count badge, and its full-screen view
+   ===================================================================== */
+
+/* The button. Sized like .icon-btn so it sits level with the drawer toggle and
+   the language switcher rather than setting its own height. */
+.evbell {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  background: transparent;
+  flex: 0 0 auto;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.evbell:hover { color: var(--crimson); border-color: var(--crimson); }
+.evbell .icon { width: 19px; height: 19px; }
+
+/* The count. Sits ON the corner rather than beside the icon so the control
+   keeps the same 40px footprint as its neighbours — the header runs out of room
+   between 950 and 1150px (see Nav) and a wider button would land in it. */
+.evbell__count {
+  position: absolute;
+  inset-block-start: -5px;
+  inset-inline-end: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--crimson);
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+.evshow {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(10, 7, 5, 0.94);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  overscroll-behavior: contain;
+  animation: fade-in 0.2s var(--ease) both;
+}
+.evshow__stage {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: clamp(3.5rem, 8vw, 5rem) clamp(1rem, 6vw, 5rem);
+  position: relative;
+}
+
+/* Photograph left, words right on a wide screen; stacked on a phone. The card
+   scrolls inside itself rather than the page behind it, which is held still. */
+.evshow__card {
+  width: min(1080px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  animation: sheet-in 0.35s var(--ease);
+}
+.evshow__card--past { opacity: 0.94; }
+
+/* The accent wash, keyed off the card the same way .event__art is. Without
+   these four the pattern falls back to --surface-2 and every event in the
+   showcase is the same grey — which at this size is most of the screen. */
+.evshow__card.accent-crimson .evshow__media { --event-wash: var(--crimson-wash); }
+.evshow__card.accent-indigo  .evshow__media { --event-wash: var(--indigo-wash); }
+.evshow__card.accent-moss    .evshow__media { --event-wash: var(--moss-wash); }
+.evshow__card.accent-gold    .evshow__media { --event-wash: var(--gold-wash); }
+
+.evshow__media {
+  position: relative;
+  min-height: 300px;
+  overflow: hidden;
+  background: var(--event-wash, var(--surface-2));
+}
+.evshow__art {
+  position: absolute;
+  inset: 0;
+}
+/* The generated pattern needs the same painted box the cards give it — the
+   .art-* rules supply only a background-image, so without this the fallback is
+   an empty panel the size of half the screen. */
+.evshow__art::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--event-wash, var(--surface-2));
+}
+.evshow__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.evshow__media--photo .evshow__art { display: none; }
+
+.evshow__chip {
+  position: absolute;
+  inset-block-start: 1rem;
+  inset-inline-start: 1rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: center;
+  line-height: 1.05;
+}
+.evshow__chip-m {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--crimson);
+}
+.evshow__chip-d {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.evshow__flag {
+  position: absolute;
+  inset-block-end: 1rem;
+  inset-inline-start: 1rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: var(--r-pill);
+  background: var(--crimson);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.evshow__flag--past { background: rgba(10, 7, 5, 0.6); }
+
+.evshow__body {
+  padding: clamp(1.4rem, 3vw, 2.2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.evshow__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.evshow__when,
+.evshow__where {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+.evshow__when .icon,
+.evshow__where .icon { width: 16px; height: 16px; color: var(--crimson); }
+.evshow__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ink-3, var(--ink-2));
+  margin-inline: 0.3rem;
+}
+.evshow__sum { color: var(--ink-2); line-height: 1.6; }
+.evshow__points {
+  display: grid;
+  gap: 0.45rem;
+  margin-block-start: 0.2rem;
+}
+.evshow__points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+.evshow__points .icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin-block-start: 0.18rem;
+  color: var(--moss, var(--crimson));
+}
+.evshow__foot {
+  margin-block-start: auto;
+  padding-block-start: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.evshow__btn {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  transition: background-color 0.2s var(--ease);
+  z-index: 3;
+}
+.evshow__btn:hover { background: rgba(255, 255, 255, 0.24); }
+.evshow__btn .icon { width: 20px; height: 20px; }
+.evshow__btn--close { inset-block-start: 1.25rem; inset-inline-end: 1.25rem; }
+.evshow__btn--prev  { inset-inline-start: clamp(0.75rem, 3vw, 2rem); top: 50%; transform: translateY(-50%); }
+.evshow__btn--next  { inset-inline-end: clamp(0.75rem, 3vw, 2rem);   top: 50%; transform: translateY(-50%); }
+.evshow__count {
+  position: absolute;
+  inset-block-end: 1.1rem;
+  inset-inline: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 860px) {
+  /* Stacked, and the arrows move off the sides where a thumb covers the card. */
+  .evshow__card { grid-template-columns: 1fr; }
+  .evshow__media { min-height: 200px; aspect-ratio: 16 / 10; }
+  .evshow__stage { padding: 3.25rem 0.75rem 3.5rem; }
+  .evshow__btn--prev { inset-inline-start: 0.75rem; top: auto; bottom: 0.6rem; transform: none; }
+  .evshow__btn--next { inset-inline-end: 0.75rem;   top: auto; bottom: 0.6rem; transform: none; }
+  .evshow__count { inset-block-end: 1.6rem; }
+}
+
+/* Icon and time travel together — see EventsAlert. */
+.evshow__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}

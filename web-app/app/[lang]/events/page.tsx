@@ -63,7 +63,7 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: s
 
   return (
     <>
-      <PageHead path="/events" icon="calendar" eyebrow={t.pages.events.eyebrow} title={t.pages.events.title}
+      <PageHead lang={lang} path="/events" icon="calendar" eyebrow={t.pages.events.eyebrow} title={t.pages.events.title}
                 back={{ href: '/#events', label: t.pages.events.back }}
                 lede={t.pages.events.lede} />
 

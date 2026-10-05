@@ -33,7 +33,7 @@ export default async function ProgrammesPage({ params }: { params: Promise<{ lan
 
   return (
     <>
-      <PageHead path="/programmes" icon="star" eyebrow={t.pages.programmes.eyebrow} title={t.pages.programmes.title}
+      <PageHead lang={lang} path="/programmes" icon="star" eyebrow={t.pages.programmes.eyebrow} title={t.pages.programmes.title}
                 back={{ href: '/#programmes', label: t.pages.programmes.back }}
                 lede={t.pages.programmes.lede} />
 

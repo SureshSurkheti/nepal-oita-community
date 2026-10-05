@@ -1,6 +1,7 @@
 import { LocaleLink as Link } from './LocaleLink'
 import { Icon, type IconName } from './Sprite'
-import { SITE_URL, SITE_NAME, abs } from '@/lib/site'
+import { SITE_NAME, abs } from '@/lib/site'
+import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n'
 
 /* The photographic page header used by every public sub-page.
  *
@@ -15,7 +16,7 @@ import { SITE_URL, SITE_NAME, abs } from '@/lib/site'
  * removes the element outright on error, which is what leaves the generated
  * gradient showing instead of a broken-image icon. Hardcoding the class here
  * would defeat both halves of that. */
-export function PageHead({ icon, eyebrow, title, lede, back, path, crumb }: {
+export function PageHead({ icon, eyebrow, title, lede, back, path, crumb, lang = DEFAULT_LOCALE }: {
   /* The eyebrow's glyph. Optional so nothing breaks without one, but every
      public page passes it — a page announces its subject with the same icon
      vocabulary the cards inside it use. */
@@ -34,15 +35,27 @@ export function PageHead({ icon, eyebrow, title, lede, back, path, crumb }: {
    *  written to be scanned ("Events"). Pass this where the eyebrow is not the
    *  clearest short name for the page either. */
   crumb?: string
+  /** The page's language. The breadcrumb names absolute URLs, and on this site
+   *  every real page lives under a locale — see the note below. */
+  lang?: Locale
 }) {
   /* Two levels is the whole trail: this site is one page deep. A longer
-     invented hierarchy would be a lie Google can check against the links. */
+     invented hierarchy would be a lie Google can check against the links.
+     
+     EVERY URL HERE CARRIES THE LOCALE, and it did not used to. The trail was
+     built from SITE_URL and abs('/events'), which are addresses that do not
+     exist: measured, both answer 307 and redirect to /en/…. So every breadcrumb
+     on the site pointed at a redirect, and on a Nepali page it pointed at the
+     ENGLISH page — telling Google that /ne/events sits under the English home
+     page, which is the same contradiction lib/i18n describes for canonicals and
+     is why nothing on this site may name a locale-less URL. */
+  const at = (p: string) => abs(`/${lang}${p === '/' ? '' : p}`)
   const crumbs = path && {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: SITE_NAME, item: SITE_URL },
-      { '@type': 'ListItem', position: 2, name: crumb ?? eyebrow, item: abs(path) },
+      { '@type': 'ListItem', position: 1, name: SITE_NAME, item: at('/') },
+      { '@type': 'ListItem', position: 2, name: crumb ?? eyebrow, item: at(path) },
     ],
   }
 

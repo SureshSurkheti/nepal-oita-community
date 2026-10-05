@@ -4,7 +4,9 @@ import { notFound } from 'next/navigation'
 import { Icon } from '@/components/Sprite'
 import { coverFor, getEvent, getEvents, longDate } from '@/lib/content'
 import { fallbackCoverFor } from '@/lib/covers'
-import { localeAlternates, toLocale } from '@/lib/i18n'
+import { localeAlternates, toLocale, LOCALE_TAGS } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
+import { SITE_NAME, abs } from '@/lib/site'
 import { CoverImage } from '@/components/CoverImage'
 
 /* FULLY PUBLIC — no session is read anywhere on this page, so it is prerendered
@@ -35,13 +37,23 @@ export async function generateMetadata(
   const { lang, slug } = await params
   const event = await getEvent(slug, toLocale(lang))
   if (!event) return { title: 'Event not found' }
-  const description = event.body ?? event.summary ?? undefined
+  /* The summary first, then the write-up. A meta description is a 155-character
+     pitch in a search result, and `body` opens with a full paragraph that gets
+     cut mid-sentence; `summary` is already written to that length. */
+  const description = event.summary ?? event.body ?? undefined
+  /* THE EVENT'S OWN PHOTOGRAPH, not the site-wide card. Every event shared one
+     opengraph-image.jpg, so ten different events posted to Facebook or sent in a
+     LINE message all previewed as the same picture — which is the one case where
+     a link preview actively misleads. coverFor never returns null, so there is
+     always one. */
+  const image = coverFor(slug, event.cover_path)
   return {
     title: event.title,
     description,
     alternates: localeAlternates(toLocale(lang), `/events/${slug}`),
     openGraph: { title: event.title, description, type: 'article',
-                 url: `/events/${slug}` },
+                 url: `/${lang}/events/${slug}`, images: [image] },
+    twitter: { card: 'summary_large_image', title: event.title, description, images: [image] },
   }
 }
 
@@ -53,29 +65,65 @@ export default async function EventPage(
   const [event, all] = await Promise.all([getEvent(slug, locale), getEvents(locale)])
   if (!event) notFound()
 
+  const t = getDictionary(locale)
+
   const i = all.findIndex((e) => e.slug === event.slug)
   const prev = i > 0 ? all[i - 1] : null
   const next = i >= 0 && i < all.length - 1 ? all[i + 1] : null
 
-  // Structured data, so the date and place can be read by search engines and
-  // calendar apps rather than only by people.
+  /* Structured data, so the date and the place can be read by a search engine
+     and a calendar app rather than only by a person.
+     
+     `image` IS WHAT MAKES THIS ELIGIBLE FOR AN EVENT RICH RESULT. Google's
+     documented requirements for the Event type are name, startDate, location and
+     image; this had the first three, so it validated as an Event and was never
+     shown as one. coverFor never returns null, so there is always an image to
+     give — see lib/covers.
+     
+     `url` and `inLanguage` carry the locale. Without the first, the two language
+     versions describe the same event with no way to tell which page each belongs
+     to; without the second, the Nepali page offers Google an English-looking
+     node. Both are the same mistake the breadcrumbs used to make.
+     
+     endDate only when there is one. An endDate equal to startDate is worse than
+     none: it tells a calendar the event lasts zero minutes. */
+  const tz = '+09:00'
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: event.title,
-    startDate: event.start_time ? `${event.event_date}T${event.start_time}:00+09:00` : event.event_date,
+    url: abs(`/${lang}/events/${slug}`),
+    inLanguage: LOCALE_TAGS[locale],
+    startDate: event.start_time ? `${event.event_date}T${event.start_time}:00${tz}` : event.event_date,
+    ...(event.end_time ? { endDate: `${event.event_date}T${event.end_time}:00${tz}` } : {}),
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: { '@type': 'Place', name: event.place ?? 'Oita, Japan',
                 address: { '@type': 'PostalAddress', addressRegion: 'Oita', addressCountry: 'JP' } },
-    description: event.body ?? event.summary ?? undefined,
-    organizer: { '@type': 'Organization', name: 'Nepal–Oita Community' },
+    image: [abs(coverFor(slug, event.cover_path))],
+    description: event.summary ?? event.body ?? undefined,
+    organizer: { '@type': 'Organization', name: SITE_NAME, url: abs(`/${lang}`) },
+  }
+
+  /* Three levels here, where the other pages have two: an event genuinely sits
+     under /events, and that is a hierarchy the links on the page back up. Every
+     URL carries the locale, for the reason written out in PageHead. */
+  const crumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: SITE_NAME, item: abs(`/${lang}`) },
+      { '@type': 'ListItem', position: 2, name: t.nav.events, item: abs(`/${lang}/events`) },
+      { '@type': 'ListItem', position: 3, name: event.title, item: abs(`/${lang}/events/${slug}`) },
+    ],
   }
 
   return (
     <>
       <script type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
 
       <section className="page-head">
         <div className="container">

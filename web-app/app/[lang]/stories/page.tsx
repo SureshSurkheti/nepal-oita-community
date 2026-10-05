@@ -53,7 +53,7 @@ export default async function StoriesPage({ params }: { params: Promise<{ lang: 
 
   return (
     <>
-      <PageHead path="/stories" crumb={t.pages.stories.title} icon="heart" eyebrow={t.pages.stories.eyebrow} title={t.pages.stories.title}
+      <PageHead lang={lang} path="/stories" crumb={t.pages.stories.title} icon="heart" eyebrow={t.pages.stories.eyebrow} title={t.pages.stories.title}
                 back={{ href: '/#stories', label: t.pages.stories.back }}
                 lede={t.pages.stories.lede} />
 

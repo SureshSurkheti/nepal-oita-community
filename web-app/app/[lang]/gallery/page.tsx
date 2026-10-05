@@ -37,7 +37,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ lang: 
 
   return (
     <>
-      <PageHead path="/gallery" icon="images" eyebrow={t.pages.gallery.eyebrow} title={t.pages.gallery.title}
+      <PageHead lang={lang} path="/gallery" icon="images" eyebrow={t.pages.gallery.eyebrow} title={t.pages.gallery.title}
                 back={{ href: '/', label: t.pages.gallery.back }}
                 lede={t.pages.gallery.lede} />
 

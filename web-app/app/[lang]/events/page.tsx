@@ -48,7 +48,7 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: s
   const lang = toLocale((await params).lang)
   const t = getDictionary(lang)
 
-  const [events, member] = await Promise.all([getEvents(), getCurrentMember()])
+  const [events, member] = await Promise.all([getEvents(lang), getCurrentMember()])
   const canAdd = member !== null && (member.can_contribute || member.is_admin)
 
   // Their own drafts, so a submission does not appear to vanish while it waits.

@@ -82,11 +82,14 @@ with checks as (
   -- that as "this community has no events" rather than as an error. Count them
   -- here so an empty database is never mistaken for an empty community.
   union all
-  select 12, 'events seeded', count(*)::text || ' of 10', count(*) = 10
+  -- 12 since 0021 added the Kabaddi film show and the Nepali Festival to the
+  -- ten seeded in 0008. This is a tripwire for "the seed never ran", so it moves
+  -- with the content on purpose rather than being loosened to >=.
+  select 12, 'events seeded', count(*)::text || ' of 12', count(*) = 12
     from public.events
 
   union all
-  select 13, 'event highlights', count(*)::text || ' of 39', count(*) = 39
+  select 13, 'event highlights', count(*)::text || ' of 47', count(*) = 47
     from public.event_highlights
 
   union all

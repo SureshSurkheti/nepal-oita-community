@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { Icon } from '@/components/Sprite'
 import { assetUrl, getEvent, getEvents, longDate } from '@/lib/content'
 import { localeAlternates, toLocale } from '@/lib/i18n'
+import { CoverImage } from '@/components/CoverImage'
 
 /* FULLY PUBLIC — no session is read anywhere on this page, so it is prerendered
    and served from the CDN edge. Every visitor gets identical bytes with zero
@@ -31,7 +32,7 @@ export async function generateMetadata(
   { params }: { params: Promise<{ lang: string; slug: string }> },
 ): Promise<Metadata> {
   const { lang, slug } = await params
-  const event = await getEvent(slug)
+  const event = await getEvent(slug, toLocale(lang))
   if (!event) return { title: 'Event not found' }
   const description = event.body ?? event.summary ?? undefined
   return {
@@ -46,8 +47,9 @@ export async function generateMetadata(
 export default async function EventPage(
   { params }: { params: Promise<{ lang: string; slug: string }> },
 ) {
-  const { slug } = await params
-  const [event, all] = await Promise.all([getEvent(slug), getEvents()])
+  const { lang, slug } = await params
+  const locale = toLocale(lang)
+  const [event, all] = await Promise.all([getEvent(slug, locale), getEvents(locale)])
   if (!event) notFound()
 
   const i = all.findIndex((e) => e.slug === event.slug)
@@ -94,9 +96,8 @@ export default async function EventPage(
               below the fold to show nothing. */}
           {assetUrl('site-photos', event.cover_path) && (
             <div className="event-hero reveal">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={assetUrl('site-photos', event.cover_path)!}
-                   alt={`${event.title}`} fetchPriority="high" />
+              <CoverImage src={assetUrl('site-photos', event.cover_path)!}
+                          alt={event.title} priority />
             </div>
           )}
 

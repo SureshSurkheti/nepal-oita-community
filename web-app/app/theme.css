@@ -5064,3 +5064,29 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
   gap: 0.35rem;
   white-space: nowrap;
 }
+
+/* A portrait cover (a printed poster) inside a landscape frame — see
+   components/CoverImage. The blurred copy fills the frame so the poster can be
+   shown whole instead of cropped, and never appears for a landscape photograph,
+   which keeps the old behaviour exactly. */
+.cover__wash {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(26px) saturate(1.25) brightness(0.82);
+  transform: scale(1.12);
+}
+.cover__img--portrait {
+  object-fit: contain !important;
+  object-position: 50% 50% !important;
+  /* Absolute, not relative. Both frames that use this are position: relative, but
+     the showcase's own img rule is already `position: absolute; inset: 0` — so
+     `relative` here would drop it out of that box and collapse it. Absolute works
+     for both, and is what puts it above the blurred wash (also absolute), which
+     would otherwise paint over a static image whatever the DOM order. */
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}

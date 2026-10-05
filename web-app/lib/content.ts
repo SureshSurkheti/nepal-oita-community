@@ -114,8 +114,21 @@ export async function getMeetings(viewerIsMember: boolean): Promise<Meeting[]> {
 }
 
 /** Public URL for a file in one of the site's storage buckets. */
+/* Where a stored image actually lives.
+ *
+ * Almost every one is an object in a Supabase bucket, uploaded through the
+ * committee's own screens, and is named by its key inside that bucket.
+ *
+ * A path that already starts with "/" is passed through untouched, because it is
+ * not a bucket key at all — it is a file shipped with the site under public/.
+ * Two events need that: the Kabaddi film show and the Nepali Festival are
+ * promoted with their printed posters, which arrived as files in the repository
+ * rather than as uploads, and an artwork that is part of the release belongs
+ * beside the code that ships it. The leading slash is unambiguous — a Supabase
+ * object key never begins with one — so the two cannot be confused. */
 export function assetUrl(bucket: 'site-photos' | 'member-photos', path?: string | null) {
   if (!path) return null
+  if (path.startsWith('/')) return path
   return `${supabaseEnv().url}/storage/v1/object/public/${bucket}/${path}`
 }
 
@@ -201,35 +214,46 @@ const cachedEventRows = unstable_cache(
     ])
     return {
       events: unwrap<Record<string, unknown>[]>('events', evRes),
-      highlights: unwrap<{ event_id: string; text: string }[]>('event highlights', hlRes),
+      highlights: unwrap<{ event_id: string; text: string; text_ne: string | null }[]>(
+        'event highlights', hlRes),
     }
   },
   ['public-events'],
   { tags: ['events'], revalidate: PUBLIC_TTL },
 )
 
-export async function getEvents(): Promise<EventRow[]> {
+/* The language is chosen out here, not in the cache — one entry serves both, the
+   same way `past` is computed out here rather than baked in. A null translation
+   falls back to English, so an event added in English this afternoon shows its
+   English on the Nepali site rather than a blank card. */
+export async function getEvents(lang: Locale = 'en'): Promise<EventRow[]> {
   const { events, highlights } = await cachedEventRows()
+  const ne = lang === 'ne'
 
   /* Rebuilt here rather than inside the cache: unstable_cache serialises what it
      stores, and a Map does not survive that — it comes back as {}. */
   const byEvent = new Map<string, string[]>()
   for (const h of highlights) {
     const list = byEvent.get(h.event_id) ?? []
-    list.push(h.text)
+    list.push((ne && h.text_ne) || h.text)
     byEvent.set(h.event_id, list)
   }
 
   const today = todayInJapan()
-  return (events as unknown as Omit<EventRow, 'highlights' | 'past'>[]).map((e) => ({
+  type Raw = Omit<EventRow, 'highlights' | 'past'>
+    & { title_ne: string | null; summary_ne: string | null; body_ne: string | null }
+  return (events as unknown as Raw[]).map((e) => ({
     ...e,
+    title: (ne && e.title_ne) || e.title,
+    summary: (ne && e.summary_ne) || e.summary,
+    body: (ne && e.body_ne) || e.body,
     highlights: byEvent.get(e.id) ?? [],
     past: e.event_date < today,
   }))
 }
 
-export async function getEvent(slug: string): Promise<EventRow | null> {
-  const all = await getEvents()
+export async function getEvent(slug: string, lang: Locale = 'en'): Promise<EventRow | null> {
+  const all = await getEvents(lang)
   return all.find((e) => e.slug === slug) ?? null
 }
 

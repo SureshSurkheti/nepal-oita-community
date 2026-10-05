@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { LocaleLink as Link } from './LocaleLink'
 import { Icon } from './Sprite'
 import { useI18n } from '@/lib/useI18n'
+import { CoverImage } from './CoverImage'
 import { categoryLabel } from '@/lib/dictionaries'
 
 /* What the showcase needs. Deliberately NOT the whole EventRow.
@@ -139,8 +140,7 @@ export function EventsShowcase({ events, at, setAt }: {
           <div className={`evshow__media${e.cover ? ' evshow__media--photo' : ''}`}>
             <span className={`evshow__art ${ART[at % 4]}`} aria-hidden="true" />
             {e.cover && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img className="evshow__img" src={e.cover} alt="" decoding="async" />
+              <CoverImage className="evshow__img" src={e.cover} alt={e.title} priority />
             )}
             <div className="evshow__chip">
               <span className="evshow__chip-m">{e.month}</span>

@@ -147,8 +147,8 @@ export function generateStaticParams() {
  * gzipped on a 13.7 KB page; the two upcoming ones are a fraction of that, and
  * upcoming is all the header's badge claims to count. The events page opens the
  * same view over the full timeline, where the data is already loaded. */
-async function upcomingEvents(): Promise<ShowcaseEvent[]> {
-  const events = await getEvents()
+async function upcomingEvents(lang: Locale): Promise<ShowcaseEvent[]> {
+  const events = await getEvents(lang)
   return events.filter((e) => !e.past).map((e) => {
     const { month, day } = chipDate(e.event_date)
     return {
@@ -166,7 +166,7 @@ export default async function RootLayout({
   children, params,
 }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
   const lang = toLocale((await params).lang)
-  const upcoming = await upcomingEvents()
+  const upcoming = await upcomingEvents(lang)
   return (
     /* `js` is set here rather than by a script, the way the static site had to.
        In this app there is no no-JavaScript render to fall back to, so the class

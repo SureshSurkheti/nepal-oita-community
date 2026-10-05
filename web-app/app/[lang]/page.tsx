@@ -59,8 +59,13 @@ const HERO_PHOTOS = [
   '/images/place-sakura.jpg',
   '/images/place-amadablam.jpg',
   '/images/place-boudhanath.jpg',
-  '/images/festival.jpg',
-  '/images/movie.jpg'
+  /* The web-sized copies, not the originals the committee dropped in. The
+     festival poster arrived at 4961x7016 and 3.58 MB — on the home page's hero,
+     so every visitor downloaded it before seeing anything. The .webp beside it
+     is 306 KB and no reader can tell them apart at this size. The originals are
+     still in the folder; nothing references them. */
+  '/images/event-nepali-festival-2027.webp',
+  '/images/event-kabaddi-oita-show.webp',
 ]
 
 /* The hero numbers.
@@ -219,7 +224,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
      and swallow the error. */
   const member = await getCurrentMember()
   const [members, events, programmes, stories, photos, meetings] = await Promise.all([
-    getMembers(), getEvents(), getProgrammes(lang), getStories(), getPhotos(),
+    getMembers(), getEvents(lang), getProgrammes(lang), getStories(), getPhotos(),
     getMeetings(member !== null),
   ])
 

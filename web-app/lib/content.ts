@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createPublicClient } from '@/lib/supabase/public'
 import { supabaseEnv } from '@/lib/env'
+import type { Locale } from '@/lib/i18n'
 import type { Meeting, MeetingPoint } from '@/lib/types'
 
 type MeetingRow = Omit<Meeting, 'points'>
@@ -258,23 +259,43 @@ const cachedProgrammeRows = unstable_cache(
     ])
     return {
       progs: unwrap<Record<string, unknown>[]>('programmes', pRes),
-      points: unwrap<{ programme_id: string; text: string }[]>('programme points', ptRes),
+      points: unwrap<{ programme_id: string; text: string; text_ne: string | null }[]>(
+        'programme points', ptRes),
     }
   },
   ['public-programmes'],
   { tags: ['programmes'], revalidate: PUBLIC_TTL },
 )
 
-export async function getProgrammes(): Promise<Programme[]> {
+/* One cache, both languages, and the choice made out here.
+ *
+ * The cached entry holds the raw rows — English and Nepali together — and the
+ * language is picked after. Keying the cache by locale instead would double
+ * every entry and double the database reads behind them, to serve two shapes of
+ * the same six rows. It is the same reason `past` is computed outside the events
+ * cache rather than inside it.
+ *
+ * A null translation falls back to English rather than rendering blank. That is
+ * what lets the committee add a programme today and translate it next week
+ * without the Nepali site showing an empty card in between — see migration 0020.
+ *
+ * The Maps are rebuilt here each call because unstable_cache serialises what it
+ * stores, and a Map does not survive that. */
+export async function getProgrammes(lang: Locale = 'en'): Promise<Programme[]> {
   const { progs, points } = await cachedProgrammeRows()
+  const ne = lang === 'ne'
   const byProg = new Map<string, string[]>()
   for (const p of points) {
     const list = byProg.get(p.programme_id) ?? []
-    list.push(p.text)
+    list.push((ne && p.text_ne) || p.text)
     byProg.set(p.programme_id, list)
   }
-  return (progs as unknown as Omit<Programme, 'points'>[]).map((p) => ({
-    ...p, points: byProg.get(p.id) ?? [],
+  type Raw = Omit<Programme, 'points'> & { title_ne: string | null; body_ne: string | null }
+  return (progs as unknown as Raw[]).map((p) => ({
+    ...p,
+    title: (ne && p.title_ne) || p.title,
+    body: (ne && p.body_ne) || p.body,
+    points: byProg.get(p.id) ?? [],
   }))
 }
 

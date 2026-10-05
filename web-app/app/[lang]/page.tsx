@@ -219,7 +219,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
      and swallow the error. */
   const member = await getCurrentMember()
   const [members, events, programmes, stories, photos, meetings] = await Promise.all([
-    getMembers(), getEvents(), getProgrammes(), getStories(), getPhotos(),
+    getMembers(), getEvents(), getProgrammes(lang), getStories(), getPhotos(),
     getMeetings(member !== null),
   ])
 

@@ -29,7 +29,7 @@ export default async function ProgrammesPage({ params }: { params: Promise<{ lan
   const lang = toLocale((await params).lang)
   const t = getDictionary(lang)
 
-  const programmes = await getProgrammes()
+  const programmes = await getProgrammes(lang)
 
   return (
     <>

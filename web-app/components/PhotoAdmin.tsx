@@ -5,6 +5,7 @@ import { compressImage, describeSaving } from '@/lib/image'
 import { createClient } from '@/lib/supabase/client'
 import { savePhoto, deletePhoto, type Result } from '@/app/[lang]/admin/photos/actions'
 import { Icon } from './Sprite'
+import { AdminPanel, AdminSection, AdminAdvanced, AdminActions } from './AdminForm'
 import type { Photo } from '@/lib/content'
 
 type Row = Photo & { url: string | null }
@@ -83,7 +84,9 @@ export function PhotoAdmin({ photos }: { photos: Row[] }) {
 
   return (
     <>
-      {result && (
+      {/* Only when no form is open — AdminActions shows it at the Save button
+          otherwise. The list's own publish/delete actions still need this. */}
+      {result && !form && (
         <p className={`form-note${result.ok ? '' : ' form-note--error'}`}>{result.message}</p>
       )}
 
@@ -97,6 +100,7 @@ export function PhotoAdmin({ photos }: { photos: Row[] }) {
       )}
 
       {form && (
+        <AdminPanel title={form.caption ?? 'photograph'}>
         <form className="panel u-mb-2" action={run(savePhoto)}>
           <h2 className="panel__title">
             <Icon name="images" /> {form.id ? 'Edit photograph' : 'New photograph'}
@@ -145,6 +149,11 @@ export function PhotoAdmin({ photos }: { photos: Row[] }) {
             <input id="p-alt" name="alt" defaultValue={form.alt ?? ''} />
           </div>
 
+          <AdminAdvanced label="Credit and licence">
+          <p className="adminsec__hint">
+            Only needed when somebody outside the community took the photograph.
+            Leave all four blank for our own.
+          </p>
           <div className="grid grid--2">
             <div className="field">
               <label htmlFor="p-credit">Photographer <span className="muted">(if not ours)</span></label>
@@ -167,18 +176,20 @@ export function PhotoAdmin({ photos }: { photos: Row[] }) {
             If somebody else took it and the licence says attribution is required,
             filling these in is the condition of using it at all.
           </p>
+          </AdminAdvanced>
 
-          <div className="cluster">
-            <button className="btn btn--primary" type="submit"
-                    disabled={pending || uploading || (!form.id && !path)}>
-              <Icon name="check" />{pending ? 'Saving…' : 'Save'}
-            </button>
-            <button className="btn btn--ghost" type="button"
-                    onClick={() => { setEditing(null); setPath(''); setPreview(null) }}>
-              Cancel
-            </button>
-          </div>
+          {/* `!form.id && !path` was on the original Save button and must stay:
+              a NEW photograph with no file uploaded would save a row pointing at
+              nothing, which renders as a blank tile in the gallery. */}
+          <AdminActions
+            busy={pending || uploading || (!form.id && !path)}
+            saveLabel={form.id ? 'Save changes' : 'Add to the gallery'}
+            busyLabel="Saving…"
+            onCancel={() => { setEditing(null); setPath(''); setPreview(null) }}
+            message={result ? { ok: result.ok, text: result.message } : null}
+          />
         </form>
+        </AdminPanel>
       )}
 
       <h2 className="display-3 u-mb-2">In the gallery</h2>

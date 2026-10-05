@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { saveEvent, deleteEvent, togglePublished, type Result } from '@/app/[lang]/admin/events/actions'
 import { supabaseEnv } from '@/lib/env'
 import { Icon } from './Sprite'
+import { AdminPanel, AdminSection, AdminAdvanced, AdminActions } from './AdminForm'
 
 /* Not imported from lib/content: that module pulls in the server Supabase
    client, which reaches for next/headers and cannot exist in a client bundle.
@@ -86,7 +87,10 @@ export function EventAdmin({ events, today }: { events: AdminEvent[]; today: str
 
   return (
     <>
-      {result && (
+      {/* Only when no form is open. With one open, AdminActions shows the same
+          message at the foot of the form where the Save button is — two copies
+          in two places is worse than one in the wrong place. */}
+      {result && !form && (
         <p className={`form-note${result.ok ? '' : ' form-note--error'}`}>{result.message}</p>
       )}
 
@@ -99,56 +103,48 @@ export function EventAdmin({ events, today }: { events: AdminEvent[]; today: str
       )}
 
       {form && (
+        <AdminPanel title={form.title}>
         <form className="panel u-mb-2" action={run(saveEvent)}>
           <h2 className="panel__title">
-            <Icon name="calendar" /> {form.id ? `Edit “${form.title}”` : 'New event'}
+            <Icon name="calendar" /> {form.id ? `Edit \u201C${form.title}\u201D` : 'New event'}
           </h2>
           <input type="hidden" name="id" value={form.id} />
 
-          <div className="grid grid--2">
-            <div className="field">
-              <label htmlFor="e-title">Title</label>
-              <input id="e-title" name="title" defaultValue={form.title} required
-                     placeholder="Dashain Celebration" />
+          <AdminSection title="When and where"
+                        hint="The four things somebody needs in order to turn up.">
+            <div className="grid grid--2">
+              <div className="field">
+                <label htmlFor="e-title">Title</label>
+                <input id="e-title" name="title" defaultValue={form.title} required
+                       placeholder="Dashain Celebration" />
+              </div>
+              <div className="field">
+                <label htmlFor="e-date">Date</label>
+                <input id="e-date" name="event_date" type="date" defaultValue={form.event_date} required />
+              </div>
+              <div className="field">
+                <label htmlFor="e-start">Starts</label>
+                <input id="e-start" name="start_time" defaultValue={form.start_time ?? ''} placeholder="11:00" />
+              </div>
+              <div className="field">
+                <label htmlFor="e-end">Ends</label>
+                <input id="e-end" name="end_time" defaultValue={form.end_time ?? ''} placeholder="18:00" />
+              </div>
+              <div className="field">
+                <label htmlFor="e-place">Place</label>
+                <input id="e-place" name="place" defaultValue={form.place ?? ''} placeholder="Oita Cultural Hall" />
+              </div>
+              <div className="field">
+                <label htmlFor="e-cat">Category</label>
+                <select id="e-cat" name="category" defaultValue={form.category ?? 'Community'}>
+                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                </select>
+              </div>
             </div>
-            <div className="field">
-              <label htmlFor="e-date">Date</label>
-              <input id="e-date" name="event_date" type="date" defaultValue={form.event_date} required />
-            </div>
-            <div className="field">
-              <label htmlFor="e-start">Starts</label>
-              <input id="e-start" name="start_time" defaultValue={form.start_time ?? ''} placeholder="11:00" />
-            </div>
-            <div className="field">
-              <label htmlFor="e-end">Ends</label>
-              <input id="e-end" name="end_time" defaultValue={form.end_time ?? ''} placeholder="18:00" />
-            </div>
-            <div className="field">
-              <label htmlFor="e-place">Place</label>
-              <input id="e-place" name="place" defaultValue={form.place ?? ''} placeholder="Oita Cultural Hall" />
-            </div>
-            <div className="field">
-              <label htmlFor="e-cat">Category</label>
-              <select id="e-cat" name="category" defaultValue={form.category ?? 'Community'}>
-                {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="e-cost">Cost</label>
-              <input id="e-cost" name="cost" defaultValue={form.cost ?? ''} placeholder="Free for members · ¥500 for guests" />
-            </div>
-            <div className="field">
-              <label htmlFor="e-accent">Colour</label>
-              <select id="e-accent" name="accent" defaultValue={form.accent}>
-                {ACCENTS.map((a) => <option key={a} value={a}>{a}</option>)}
-              </select>
-            </div>
-          </div>
+          </AdminSection>
 
-          <div className="field">
-            <label htmlFor="e-cover">
-              Cover photograph <span className="muted">(optional)</span>
-            </label>
+          <AdminSection title="The photograph"
+                        hint="Shown across the top of the card and the event page. Optional \u2014 without one the card falls back to a pattern.">
             {/* The key travels in the form; the file is already in storage. An
                 edit with no new file re-submits whatever the event had, so
                 saving a changed time does not silently drop the picture. */}
@@ -164,11 +160,10 @@ export function EventAdmin({ events, today }: { events: AdminEvent[]; today: str
                        onChange={pickCover} disabled={coverBusy} />
                 <p className="form-note">
                   {coverBusy
-                    ? 'Shrinking and uploading…'
+                    ? 'Shrinking and uploading\u2026'
                     : coverPath
                       ? 'Uploaded. Press Save to attach it to this event.'
-                      : 'Straight off a phone is fine — it is shrunk here first. '
-                        + 'Shown across the top of the card and the event page.'}
+                      : 'Straight off a phone is fine \u2014 it is shrunk here first.'}
                 </p>
                 {(coverPath || form.cover_path) && (
                   <button className="btn btn--sm btn--ghost" type="button"
@@ -178,44 +173,64 @@ export function EventAdmin({ events, today }: { events: AdminEvent[]; today: str
                 )}
               </div>
             </div>
-          </div>
+          </AdminSection>
 
-          <div className="field">
-            <label htmlFor="e-summary">One line for the card</label>
-            <input id="e-summary" name="summary" defaultValue={form.summary ?? ''} maxLength={160}
-                   placeholder="Tika, jamara and the longest lunch of the year." />
-          </div>
-          <div className="field">
-            <label htmlFor="e-body">The longer description</label>
-            <textarea id="e-body" name="body" defaultValue={form.body ?? ''} rows={3} />
-          </div>
-          <div className="field">
-            <label htmlFor="e-high">What happens <span className="muted">(one per line)</span></label>
-            <textarea id="e-high" name="highlights" rows={5}
-                      defaultValue={form.highlights.join('\n')}
-                      placeholder={'Tika and jamara from the elders\nFull Nepali lunch'} />
-          </div>
-          <div className="field">
-            <label htmlFor="e-email">Register by email</label>
-            <input id="e-email" name="register_email" defaultValue={form.register_email ?? ''} />
-          </div>
-          {form.id && (
+          <AdminSection title="What to say about it"
+                        hint="The one-liner is what appears on the card. The rest is only on the event's own page.">
             <div className="field">
-              <label htmlFor="e-slug">Web address <span className="muted">(changing it breaks old links)</span></label>
-              <input id="e-slug" name="slug" defaultValue={form.slug} />
+              <label htmlFor="e-summary">One line for the card</label>
+              <input id="e-summary" name="summary" defaultValue={form.summary ?? ''} maxLength={160}
+                     placeholder="Tika, jamara and the longest lunch of the year." />
             </div>
-          )}
+            <div className="field">
+              <label htmlFor="e-body">The longer description</label>
+              <textarea id="e-body" name="body" defaultValue={form.body ?? ''} rows={3} />
+            </div>
+            <div className="field">
+              <label htmlFor="e-high">What happens <span className="muted">(one per line)</span></label>
+              <textarea id="e-high" name="highlights" rows={5}
+                        defaultValue={form.highlights.join('\n')}
+                        placeholder={'Tika and jamara from the elders\nFull Nepali lunch'} />
+            </div>
+          </AdminSection>
 
-          <div className="cluster">
-            <button className="btn btn--primary" type="submit" disabled={pending}>
-              <Icon name="check" />{pending ? 'Saving…' : 'Save event'}
-            </button>
-            <button className="btn btn--ghost" type="button"
-                    onClick={() => { setEditing(null); setCoverPath(''); setCoverPreview(null) }}>
-              Cancel
-            </button>
-          </div>
+          <AdminAdvanced>
+            <div className="grid grid--2">
+              <div className="field">
+                <label htmlFor="e-cost">Cost</label>
+                <input id="e-cost" name="cost" defaultValue={form.cost ?? ''}
+                       placeholder="Free for members \u00b7 \u00a5500 for guests" />
+              </div>
+              <div className="field">
+                <label htmlFor="e-accent">Colour</label>
+                <select id="e-accent" name="accent" defaultValue={form.accent}>
+                  {ACCENTS.map((a) => <option key={a} value={a}>{a}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="e-email">Register by email</label>
+              <input id="e-email" name="register_email" defaultValue={form.register_email ?? ''} />
+            </div>
+            {form.id && (
+              <div className="field">
+                <label htmlFor="e-slug">
+                  Web address <span className="muted">(changing it breaks old links)</span>
+                </label>
+                <input id="e-slug" name="slug" defaultValue={form.slug} />
+              </div>
+            )}
+          </AdminAdvanced>
+
+          <AdminActions
+            busy={pending || coverBusy}
+            saveLabel={form.id ? 'Save changes' : 'Add this event'}
+            busyLabel="Saving\u2026"
+            onCancel={() => { setEditing(null); setCoverPath(''); setCoverPreview(null) }}
+            message={result ? { ok: result.ok, text: result.message } : null}
+          />
         </form>
+        </AdminPanel>
       )}
 
       <h2 className="display-3 u-mb-2">All events</h2>

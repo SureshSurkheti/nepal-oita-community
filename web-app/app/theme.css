@@ -4717,3 +4717,93 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
     border-radius: calc(var(--r-sm) - 1px) calc(var(--r-sm) - 1px) 0 0;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   The committee's add/edit forms
+
+   Before this the event form was nineteen inputs in one undifferentiated run,
+   the Save button was at the bottom of it, and the result message rendered at
+   the top of the page. These rules group the fields, keep Save permanently
+   reachable, and put the feedback next to the button that caused it.
+   --------------------------------------------------------------------------- */
+
+/* A group of related fields. The rule above the heading does the work a
+   fieldset border would, without the browser's own inconsistent box. */
+.adminsec { margin-bottom: 1.4rem; }
+.adminsec + .adminsec { padding-top: 1.2rem; border-top: 1px solid var(--line); }
+.adminsec__title {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin: 0 0 0.15rem;
+}
+.adminsec__hint {
+  font-size: 0.82rem;
+  color: var(--ink-3);
+  margin: 0 0 0.75rem;
+  line-height: 1.45;
+}
+.adminsec__title + .field,
+.adminsec__title + .grid { margin-top: 0.7rem; }
+
+/* The rarely-touched fields. */
+.adminadv { margin: 0.4rem 0 1.2rem; }
+.adminadv__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  list-style: none;
+}
+.adminadv__summary::-webkit-details-marker { display: none; }
+.adminadv__summary .icon { transition: transform 0.2s var(--ease); flex: none; }
+.adminadv[open] .adminadv__summary .icon { transform: rotate(180deg); }
+.adminadv__summary:hover { border-color: var(--line-strong, rgba(27,23,20,0.2)); }
+.adminadv__body { padding: 1rem 0.1rem 0.2rem; }
+
+/* Save, Cancel and the message, held at the foot of the viewport.
+
+   `position: sticky` with `bottom: 0` rather than `fixed`: it stays inside the
+   form, so it scrolls away naturally once the form ends instead of hovering
+   over the list of events underneath. */
+.adminbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin: 1.2rem -0.2rem -0.3rem;
+  padding: 0.8rem 0.2rem 0.6rem;
+  background: linear-gradient(to top,
+    var(--surface) 0%, var(--surface) 72%, rgba(255, 255, 255, 0) 100%);
+}
+.adminbar__row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.adminbar__msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0 0 0.7rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--r-sm);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  background: var(--moss-wash);
+  border: 1px solid rgba(61, 102, 80, 0.3);
+  color: var(--ink);
+}
+.adminbar__msg .icon { flex: none; margin-top: 0.1rem; color: var(--moss); }
+.adminbar__msg--error {
+  background: var(--crimson-wash);
+  border-color: rgba(166, 36, 50, 0.3);
+}
+.adminbar__msg--error .icon { color: var(--crimson); }
+
+@media (max-width: 620px) {
+  /* Full-width buttons on a phone: the bar is the one thing in the form that
+     has to be hit first time. */
+  .adminbar__row .btn { flex: 1 1 100%; justify-content: center; }
+}

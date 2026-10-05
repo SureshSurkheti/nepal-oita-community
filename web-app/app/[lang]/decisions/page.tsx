@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { localeAlternates, toLocale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 import { Icon } from '@/components/Sprite'
 import { PageHead } from '@/components/PageHead'
 import { MeetingForm } from '@/components/MeetingForm'
@@ -26,12 +27,15 @@ export async function generateMetadata(
   const lang = toLocale((await params).lang)
   return {
     alternates: localeAlternates(lang, '/decisions'),
-    title: 'Meeting decisions',
+    title: getDictionary(lang).meta.decisionsTitle,
     robots: { index: false },
   }
 }
 
-export default async function DecisionsPage() {
+export default async function DecisionsPage({ params }: { params: Promise<{ lang: string }> }) {
+  const lang = toLocale((await params).lang)
+  const t = getDictionary(lang)
+
   // The member first: getMeetings() needs to know whether to send a query at
   // all, because a visitor has no read grant on these tables. See lib/content.
   const member = await getCurrentMember()
@@ -54,8 +58,8 @@ export default async function DecisionsPage() {
 
   return (
     <>
-      <PageHead icon="check" eyebrow="Minutes" title="What we decided"
-                back={{ href: '/', label: 'Back to home' }}
+      <PageHead icon="check" eyebrow={t.pages.decisions.eyebrow} title={t.pages.decisions.title}
+                back={{ href: '/', label: t.pages.decisions.back }}
                 lede={member
                   ? 'The committee and the members meet most months. These are the '
                     + 'decisions that came out of those meetings, written up by the '

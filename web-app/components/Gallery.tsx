@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { PhotoTiles, type TilePhoto } from './PhotoTiles'
+import { useI18n } from '@/lib/useI18n'
 
 /* The full gallery: category chips over the shared tile grid.
  *
@@ -9,6 +10,7 @@ import { PhotoTiles, type TilePhoto } from './PhotoTiles'
  * it had to be done by hand and was silently broken for a while, because an
  * author `display` on .tile beat the browser's own [hidden] rule. */
 export function Gallery({ photos }: { photos: TilePhoto[] }) {
+  const { t } = useI18n()
   const categories = Array.from(new Set(photos.map((p) => p.category).filter(Boolean))) as string[]
   const [active, setActive] = useState<string>('all')
 
@@ -41,7 +43,7 @@ export function Gallery({ photos }: { photos: TilePhoto[] }) {
       <PhotoTiles key={active} photos={shown} cap={8} id="gallery-tiles" />
 
       {shown.length === 0 && (
-        <p className="muted center u-mt-2">No photographs in that category yet.</p>
+        <p className="muted center u-mt-2">{t.pages.gallery.emptyCategory}</p>
       )}
     </>
   )

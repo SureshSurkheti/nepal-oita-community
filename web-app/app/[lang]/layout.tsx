@@ -8,7 +8,8 @@ import { Footer } from '@/components/Footer'
 import { DecisionsNoticeGate } from '@/components/DecisionsNoticeGate'
 import { BackButton } from '@/components/BackButton'
 import { SITE_URL, SITE_NAME, SITE_ALT_NAMES, SITE_EMAIL, SITE_SOCIALS, abs } from '@/lib/site'
-import { LOCALES, LOCALE_TAGS, toLocale } from '@/lib/i18n'
+import { LOCALES, LOCALE_TAGS, toLocale, type Locale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 
 export const metadata: Metadata = {
   title: {
@@ -58,7 +59,8 @@ export const metadata: Metadata = {
  * `sameAs` is the part that earns its place: it is how the site, the Facebook
  * page, the YouTube channel and the TikTok account are understood as one body
  * rather than four unrelated results. */
-const ORG_JSONLD = {
+function orgJsonLd(lang: Locale) {
+  return {
   '@context': 'https://schema.org',
   '@graph': [
     {
@@ -91,10 +93,13 @@ const ORG_JSONLD = {
       '@id': `${SITE_URL}/#website`,
       url: SITE_URL,
       name: SITE_NAME,
-      inLanguage: 'en',
+      /* Follows the page. A Nepali page that tells Google its content is
+         English contradicts <html lang> and the hreflang pair beside it. */
+      inLanguage: LOCALE_TAGS[lang],
       publisher: { '@id': `${SITE_URL}/#organisation` },
     },
   ],
+  }
 }
 
 /* THE LAYOUT NO LONGER READS THE REQUEST, and that is the whole point.
@@ -142,15 +147,15 @@ export default async function RootLayout({
     <html lang={LOCALE_TAGS[lang]} className="js" data-scroll-behavior="smooth">
       <body>
         <script type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }} />
-        <a className="skip-link" href="#main">Skip to content</a>
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd(lang)) }} />
+        <a className="skip-link" href="#main">{getDictionary(lang).nav.skipToContent}</a>
         <Sprite />
         <SetupBanner />
         <Nav />
         <DecisionsNoticeGate />
         <BackButton />
         <main id="main">{children}</main>
-        <Footer />
+        <Footer lang={lang} />
         <SiteMotion />
       </body>
     </html>

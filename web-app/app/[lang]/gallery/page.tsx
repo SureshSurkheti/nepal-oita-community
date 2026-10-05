@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { localeAlternates, toLocale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 import { Gallery } from '@/components/Gallery'
 import { PageHead } from '@/components/PageHead'
 import { getPhotos, getMyDraftPhotos, tilePhotos } from '@/lib/content'
@@ -21,30 +22,29 @@ export async function generateMetadata(
   const lang = toLocale((await params).lang)
   return {
     alternates: localeAlternates(lang, '/gallery'),
-    title: 'Photo gallery',
-    description:
-      'Photographs from years of Nepali community life in Oita Prefecture — Dashain '
-      + 'and Tihar, Holi in the park, food festivals, student welcomes, football and volunteering.',
+    title: getDictionary(lang).meta.galleryTitle,
+    description: getDictionary(lang).meta.galleryDesc,
   }
 }
 
-export default async function GalleryPage() {
+export default async function GalleryPage({ params }: { params: Promise<{ lang: string }> }) {
+  const lang = toLocale((await params).lang)
+  const t = getDictionary(lang)
+
   const [photos, member] = await Promise.all([getPhotos(), getCurrentMember()])
   const canAdd = member !== null && (member.can_contribute || member.is_admin)
   const drafts = canAdd ? await getMyDraftPhotos() : []
 
   return (
     <>
-      <PageHead path="/gallery" icon="images" eyebrow="Gallery" title="Seven years of Sundays"
-                back={{ href: '/', label: 'Back to home' }}
-                lede={'Festivals, welcome sessions, cooking, football and the ordinary '
-                      + 'afternoons in between — the record of a community building '
-                      + 'itself, one weekend at a time.'} />
+      <PageHead path="/gallery" icon="images" eyebrow={t.pages.gallery.eyebrow} title={t.pages.gallery.title}
+                back={{ href: '/', label: t.pages.gallery.back }}
+                lede={t.pages.gallery.lede} />
 
       <section className="section">
         <div className="container">
           {photos.length === 0
-            ? <p className="muted">No photographs yet. The committee can add them under Committee → Photos.</p>
+            ? <p className="muted">{t.pages.gallery.empty}</p>
             : <Gallery photos={tilePhotos(photos)} />}
 
           {canAdd && (

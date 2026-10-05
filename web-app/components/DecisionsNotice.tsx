@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { LocaleLink as Link } from './LocaleLink'
 import { Icon } from './Sprite'
+import { useI18n } from '@/lib/useI18n'
 
 /* "There are new decisions" — shown to a signed-in member until they dismiss it.
  *
@@ -23,6 +24,7 @@ export function DecisionsNotice({ id, title, dateLabel }: {
   title: string
   dateLabel: string
 }) {
+  const { t } = useI18n()
   const [show, setShow] = useState(false)
 
   useEffect(() => {
@@ -46,13 +48,13 @@ export function DecisionsNotice({ id, title, dateLabel }: {
       <div className="container notice__inner">
         <Icon name="calendar" />
         <p className="notice__text">
-          <strong>New meeting decisions</strong> from {dateLabel} — {title}.
+          <strong>{t.ui.newDecisions}</strong> from {dateLabel} — {title}.
         </p>
         <Link className="btn btn--on-ink notice__cta" href="/decisions" onClick={dismiss}>
           Read them <Icon name="arrow-right" />
         </Link>
         <button className="icon-btn notice__close" type="button"
-                aria-label="Dismiss this notice" onClick={dismiss}>
+                aria-label={t.ui.dismissNotice} onClick={dismiss}>
           <Icon name="close" />
         </button>
       </div>

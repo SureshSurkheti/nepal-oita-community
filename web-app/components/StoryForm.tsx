@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { refreshStories } from '@/app/[lang]/stories/actions'
 import { Icon } from './Sprite'
 import { Spinner } from './Spinner'
+import { useI18n } from '@/lib/useI18n'
 
 export type OwnStory = {
   id: string
@@ -14,11 +15,15 @@ export type OwnStory = {
   status: 'pending' | 'approved' | 'rejected'
 }
 
-const STATUS_NOTE: Record<OwnStory['status'], string> = {
-  pending: 'Waiting for the committee to read it.',
-  approved: 'Published — it is on the site.',
-  rejected: 'Not published. Ask the committee if you would like to know why.',
-}
+/* Dictionary KEYS, not sentences — the text itself lives in both dictionaries
+   and is looked up at render time. Typed as the key union rather than `string`
+   so a typo here is a compile error instead of the literal word "statusPending"
+   appearing on the page. */
+const STATUS_NOTE = {
+  pending: 'statusPending',
+  approved: 'statusApproved',
+  rejected: 'statusRejected',
+} as const satisfies Record<OwnStory['status'], string>
 
 /* "Tell us your story", for members.
  *
@@ -41,6 +46,7 @@ export function StoryForm({ member, own }: {
   member: { id: string; name: string; role: string | null; photo_path: string | null } | null
   own: OwnStory[]
 }) {
+  const { t } = useI18n()
   const router = useRouter()
   const [role, setRole] = useState(member?.role ?? '')
   const [quote, setQuote] = useState('')
@@ -67,7 +73,7 @@ export function StoryForm({ member, own }: {
 
   async function saveEdit(id: string) {
     const text = editQuote.trim()
-    if (text.length < 40) { setRowError('A few sentences, please — at least forty characters.'); return }
+    if (text.length < 40) { setRowError(t.forms.tooShort); return }
     setBusy(true); setRowError(null)
     const { error: e } = await createClient().from('stories')
       .update({ quote: text, author_role: editRole.trim() || null })
@@ -94,7 +100,7 @@ export function StoryForm({ member, own }: {
   if (!member) {
     return (
       <div className="panel">
-        <h2 className="panel__title"><Icon name="send" /> Tell us your story</h2>
+        <h2 className="panel__title"><Icon name="send" /> {t.forms.tellYourStory}</h2>
         <p className="u-mb-15">
           This is for members. Sign in with your registered number and you can
           write yours here — the committee reads it before it goes on the site.
@@ -112,7 +118,7 @@ export function StoryForm({ member, own }: {
 
     const text = quote.trim()
     if (text.length < 40) {
-      setError('A few sentences, please — at least forty characters.')
+      setError(t.forms.tooShort)
       return
     }
 
@@ -134,7 +140,7 @@ export function StoryForm({ member, own }: {
 
   return (
     <div className="panel">
-      <h2 className="panel__title"><Icon name="send" /> Tell us your story</h2>
+      <h2 className="panel__title"><Icon name="send" /> {t.forms.tellYourStory}</h2>
 
       {own.length > 0 && (
         <ul className="roster u-mb-15">
@@ -147,7 +153,7 @@ export function StoryForm({ member, own }: {
                 <span className="roster__name">
                   Your story <span className="text-sm muted">· {st.status}</span>
                 </span><br />
-                <span className="roster__meta">{STATUS_NOTE[st.status]}</span><br />
+                <span className="roster__meta">{t.forms[STATUS_NOTE[st.status]]}</span><br />
 
                 {editId === st.id ? (
                   /* Inline, under the entry it changes. The alternative was a
@@ -156,20 +162,20 @@ export function StoryForm({ member, own }: {
                   <span className="story-edit">
                     <span className="field">
                       <label htmlFor={`e-role-${st.id}`}>
-                        What to put under your name <span className="muted">(optional)</span>
+                        What to put under your name <span className="muted">({t.common.optional})</span>
                       </label>
                       <input id={`e-role-${st.id}`} type="text" maxLength={80}
                              value={editRole} onChange={(e) => setEditRole(e.target.value)} />
                     </span>
                     <span className="field">
-                      <label htmlFor={`e-quote-${st.id}`}>Your story</label>
+                      <label htmlFor={`e-quote-${st.id}`}>{t.forms.yourStory}</label>
                       <textarea id={`e-quote-${st.id}`} rows={5} maxLength={1200}
                                 value={editQuote} onChange={(e) => setEditQuote(e.target.value)} />
                     </span>
                     <span className="cluster">
                       <button className="btn btn--sm btn--primary" type="button"
                               disabled={busy} onClick={() => saveEdit(st.id)}>
-                        {busy ? <Spinner /> : <Icon name="check" />}{busy ? 'Saving…' : 'Save'}
+                        {busy ? <Spinner /> : <Icon name="check" />}{busy ? t.common.saving : t.common.save}
                       </button>
                       <button className="btn btn--sm btn--ghost" type="button"
                               disabled={busy} onClick={() => setEditId(null)}>
@@ -190,7 +196,7 @@ export function StoryForm({ member, own }: {
                     <span className="cluster">
                       <button className="btn btn--sm btn--danger" type="button"
                               disabled={busy} onClick={() => removeStory(st.id)}>
-                        {busy ? <Spinner /> : <Icon name="close" />}{busy ? 'Deleting…' : 'Yes, delete it'}
+                        {busy ? <Spinner /> : <Icon name="close" />}{busy ? t.common.deleting : t.forms.confirmDelete}
                       </button>
                       <button className="btn btn--sm btn--ghost" type="button"
                               disabled={busy} onClick={() => setConfirmId(null)}>
@@ -205,7 +211,7 @@ export function StoryForm({ member, own }: {
                     </span>
                     <span className="roster__links">
                       <button type="button" data-tone="go"
-                              onClick={() => openEdit(st)}>Edit</button>
+                              onClick={() => openEdit(st)}>{t.common.edit}</button>
                       <button type="button" data-tone="danger"
                               onClick={() => { setConfirmId(st.id); setRowError(null) }}>
                         Delete
@@ -235,20 +241,20 @@ export function StoryForm({ member, own }: {
           </p>
           <div className="field">
             <label htmlFor="story-role">
-              What to put under your name <span className="muted">(optional)</span>
+              What to put under your name <span className="muted">({t.common.optional})</span>
             </label>
             <input id="story-role" type="text" maxLength={80}
-                   placeholder="Student · Care worker · Parent · Kitchen staff"
+                   placeholder={t.forms.roleePlaceholder}
                    value={role} onChange={(e) => setRole(e.target.value)} />
           </div>
           <div className="field">
-            <label htmlFor="story-quote">Your story</label>
+            <label htmlFor="story-quote">{t.forms.yourStory}</label>
             <textarea id="story-quote" required maxLength={1200} rows={6}
-                      placeholder="How your first few months here went, or a day somebody helped you out. A few sentences is plenty."
+                      placeholder={t.forms.storyPlaceholder}
                       value={quote} onChange={(e) => setQuote(e.target.value)} />
           </div>
           <button className="btn btn--primary" type="submit" disabled={busy}>
-            {busy ? <Spinner /> : <Icon name="send" />}{busy ? 'Sending…' : 'Send to the committee'}
+            {busy ? <Spinner /> : <Icon name="send" />}{busy ? t.common.sending : t.forms.sendToCommittee}
           </button>
           {error && <p className="form-note form-note--error">{error}</p>}
           <p className="form-note">

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 import { Spinner } from './Spinner'
+import { useI18n } from '@/lib/useI18n'
 
 type Mode = 'in' | 'up'
 
@@ -28,6 +29,7 @@ export function SignInForm({ hasAccount = false, hasMemberCard = false }: {
   hasAccount?: boolean
   hasMemberCard?: boolean
 }) {
+  const { t } = useI18n()
   const [mode, setMode] = useState<Mode>('in')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -111,86 +113,84 @@ export function SignInForm({ hasAccount = false, hasMemberCard = false }: {
   if (hasMemberCard) {
     return (
       <div className="gate-panel panel reveal">
-        <h1 className="panel__title"><Icon name="check" /> You are signed in</h1>
-        <p className="u-mb-15">Your account is linked to your member card.</p>
-        <a className="btn btn--primary" href="/me"><Icon name="user-plus" /> My profile</a>
+        <h1 className="panel__title"><Icon name="check" /> {t.auth.youAreSignedIn}</h1>
+        <p className="u-mb-15">{t.auth.linkedToCard}</p>
+        <a className="btn btn--primary" href="/me"><Icon name="user-plus" /> {t.nav.myProfile}</a>
       </div>
     )
   }
 
   return (
     <div className="gate-panel panel reveal">
-      <h1 className="panel__title"><Icon name="shield" /> Member sign in</h1>
+      <h1 className="panel__title"><Icon name="shield" /> {t.auth.memberSignIn}</h1>
 
       {!signedIn ? (
         <>
           <p className="u-mb-15">
             {mode === 'in'
-              ? 'Sign in with the email address and password you chose.'
-              : 'Any email address you can get back into, and a password you choose. '
-                + 'You will need the code from the committee on the next step.'}
+              ? t.auth.signInIntro
+              : t.auth.signUpIntro}
           </p>
           <form className="gate gate--tight" onSubmit={account}>
             <div className="field">
-              <label htmlFor="si-email">Email address</label>
+              <label htmlFor="si-email">{t.auth.email}</label>
               <input id="si-email" type="email" required autoComplete="email"
-                     placeholder="you@example.com"
+                     placeholder={t.ui.emailPlaceholder}
                      value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="field">
-              <label htmlFor="si-password">Password</label>
+              <label htmlFor="si-password">{t.auth.password}</label>
               <input id="si-password" type="password" required
                      autoComplete={mode === 'up' ? 'new-password' : 'current-password'}
                      value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             <button className="btn btn--primary" type="submit" disabled={busy}>
               {busy ? <Spinner /> : <Icon name="shield" />}
-              {busy ? 'Working…' : mode === 'in' ? 'Sign in' : 'Make my account'}
+              {busy ? t.auth.working : mode === 'in' ? t.nav.signIn : t.auth.makeMyAccount}
             </button>
             {error && <p className="form-note form-note--error">{error}</p>}
           </form>
           <p className="form-note">
-            {mode === 'in' ? 'First time here? ' : 'Already have an account? '}
+            {mode === 'in' ? `${t.auth.firstTime} ` : `${t.auth.haveAccount} `}
             <button className="link-button" type="button"
                     onClick={() => { setMode(mode === 'in' ? 'up' : 'in'); setError(null) }}>
-              {mode === 'in' ? 'Make an account' : 'Sign in instead'}
+              {mode === 'in' ? t.auth.makeAccount : t.auth.signInInstead}
             </button>
           </p>
         </>
       ) : (
         <>
           <p className="u-mb-15">
-            Signed in. Now the code the committee gave you — on your membership
-            card, or ask at the next meetup. Ten letters and numbers.
+            {t.auth.codeIntro}
           </p>
           <form className="gate gate--tight" onSubmit={claim}>
             <div className="field">
-              <label htmlFor="si-code">Your membership code</label>
+              <label htmlFor="si-code">{t.auth.membershipCode}</label>
               <input id="si-code" type="text" required autoComplete="off"
                      spellCheck={false} placeholder="ABCDE-FGHJK" maxLength={16}
                      value={code}
                      onChange={(e) => setCode(e.target.value.toUpperCase())} />
             </div>
             <button className="btn btn--primary" type="submit" disabled={busy}>
-              {busy ? <Spinner /> : <Icon name="check" />}{busy ? 'Checking…' : 'Link my membership'}
+              {busy ? <Spinner /> : <Icon name="check" />}{busy ? t.auth.checking : t.auth.linkMembership}
             </button>
             {error && <p className="form-note form-note--error">{error}</p>}
           </form>
           <p className="form-note">
-            Do not have one? Write to{' '}
-            <a href="mailto:nepaloitacommunity11@gmail.com">the committee</a> and
-            they will issue one. Case, spaces and the dash do not matter.
+            {t.auth.noCodeLead}{' '}
+            <a href="mailto:nepaloitacommunity11@gmail.com">{t.auth.theCommittee}</a>{' '}
+            {t.auth.noCodeTail}
           </p>
           {/* A way back out. Signing up with a typo in the address used to leave
               you here with no exit: the header shows no Sign out until an account
               has a member card, which is exactly what this step is for. */}
           <p className="form-note">
-            Signed in as the wrong account?{' '}
+            {t.auth.wrongAccount}{' '}
             <button className="link-button" type="button" onClick={async () => {
               await createClient().auth.signOut()
               window.location.assign('/sign-in')
             }}>
-              Sign out and start again
+              {t.auth.signOutStartAgain}
             </button>
           </p>
         </>

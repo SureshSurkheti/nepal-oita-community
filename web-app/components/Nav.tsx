@@ -110,7 +110,7 @@ export function Nav() {
           </span>
         </Link>
 
-        <nav className="nav__links" aria-label="Primary">
+        <nav className="nav__links" aria-label={t.nav.primaryNav}>
           <Link className="nav__link" href="/#about">{t.nav.about}</Link>
           <Link className="nav__link" href="/programmes">{t.nav.programmes}</Link>
           <Link className="nav__link" href="/events">{t.nav.events}</Link>

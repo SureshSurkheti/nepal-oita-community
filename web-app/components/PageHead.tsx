@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { LocaleLink as Link } from './LocaleLink'
 import { Icon, type IconName } from './Sprite'
 import { SITE_URL, SITE_NAME, abs } from '@/lib/site'
 

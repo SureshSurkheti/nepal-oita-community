@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ShowMore } from './ShowMore'
 import { Icon } from './Sprite'
+import { useI18n } from '@/lib/useI18n'
 
 /* Deliberately not `Photo` from lib/content: that module imports the server
    Supabase client, which reaches for `next/headers`. Nor a `urlFor` callback
@@ -77,6 +78,7 @@ export function PhotoTiles({ photos, cap, id }: {
   cap?: number
   id?: string
 }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState<number | null>(null)
 
   const move = useCallback((delta: number) => {
@@ -144,15 +146,15 @@ export function PhotoTiles({ photos, cap, id }: {
             if (e.target === e.currentTarget) setOpen(null)
           }}>
             <button className="lightbox__btn lightbox__btn--close" type="button"
-                    aria-label="Close viewer" onClick={() => setOpen(null)}>
+                    aria-label={t.ui.closeViewer} onClick={() => setOpen(null)}>
               <Icon name="close" />
             </button>
             <button className="lightbox__btn lightbox__btn--prev" type="button"
-                    aria-label="Previous" onClick={() => move(-1)}>
+                    aria-label={t.ui.previous} onClick={() => move(-1)}>
               <Icon name="chevron-left" />
             </button>
             <button className="lightbox__btn lightbox__btn--next" type="button"
-                    aria-label="Next" onClick={() => move(1)}>
+                    aria-label={t.ui.next} onClick={() => move(1)}>
               <Icon name="chevron-right" />
             </button>
             <div className="lightbox__frame">

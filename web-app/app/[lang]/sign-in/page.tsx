@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { toLocale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 import { redirect } from 'next/navigation'
 import { SignInForm } from '@/components/SignInForm'
 import { DevSignIn } from '@/components/DevSignIn'
@@ -14,7 +16,15 @@ import { createClient } from '@/lib/supabase/server'
    prerender it, and stops a future edit quietly making it cacheable. */
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = { title: 'Member sign in', robots: { index: false } }
+/* generateMetadata rather than a static `metadata` export: a static one cannot
+   see the route params, so the Nepali sign-in page would carry an English title.
+   noindex either way — this page is for members who already have the link. */
+export async function generateMetadata(
+  { params }: { params: Promise<{ lang: string }> },
+): Promise<Metadata> {
+  const lang = toLocale((await params).lang)
+  return { title: getDictionary(lang).meta.signInTitle, robots: { index: false } }
+}
 
 export default async function SignInPage() {
   const supabase = await createClient()

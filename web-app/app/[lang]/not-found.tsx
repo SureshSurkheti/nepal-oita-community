@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { LocaleLink as Link } from '@/components/LocaleLink'
 import { Icon } from '@/components/Sprite'
 
 export default function NotFound() {

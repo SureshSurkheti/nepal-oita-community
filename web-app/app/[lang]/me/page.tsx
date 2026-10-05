@@ -1,3 +1,5 @@
+import { toLocale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { Icon } from '@/components/Sprite'
@@ -14,7 +16,10 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = { title: 'My profile', robots: { index: false } }
 
-export default async function MyProfilePage() {
+export default async function MyProfilePage({ params }: { params: Promise<{ lang: string }> }) {
+  const lang = toLocale((await params).lang)
+  const t = getDictionary(lang)
+
   const member = await getCurrentMember()
   if (!member) redirect('/sign-in')
 
@@ -31,7 +36,7 @@ export default async function MyProfilePage() {
             <span className="eyebrow__badge"><Icon name="user" /></span>
             Members only
           </p>
-          <h1 className="display-2">My profile</h1>
+          <h1 className="display-2">{t.pages.me.title}</h1>
           <p className="lede">
             Your name and role are the committee&rsquo;s to set. Your photo,
             profession and your social links are yours.

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { LocaleLink as Link } from '@/components/LocaleLink'
 import type { Metadata } from 'next'
 import { Icon } from '@/components/Sprite'
 import { assetUrl, getStories } from '@/lib/content'
@@ -7,6 +7,7 @@ import { StoryForm, type OwnStory } from '@/components/StoryForm'
 import { getCurrentMember } from '@/lib/members'
 import { createClient } from '@/lib/supabase/server'
 import { localeAlternates, toLocale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 
 /* Depends on who is asking, so it can never be cached or prerendered.
    This used to be inherited from the root layout's force-dynamic; the layout
@@ -22,16 +23,17 @@ export async function generateMetadata(
   const lang = toLocale((await params).lang)
   return {
     alternates: localeAlternates(lang, '/stories'),
-    title: 'Community stories',
-    description:
-      'Members of the Nepali community in Oita and Beppu on arriving, settling in and '
-      + 'finding people — in their own words.',
+    title: getDictionary(lang).meta.storiesTitle,
+    description: getDictionary(lang).meta.storiesDesc,
   }
 }
 
 const ACCENTS = ['crimson', 'indigo', 'moss', 'gold'] as const
 
-export default async function StoriesPage() {
+export default async function StoriesPage({ params }: { params: Promise<{ lang: string }> }) {
+  const lang = toLocale((await params).lang)
+  const t = getDictionary(lang)
+
   const [stories, member] = await Promise.all([getStories(), getCurrentMember()])
 
   /* Their own submissions, whatever state those are in. stories_read_own exists
@@ -51,10 +53,9 @@ export default async function StoriesPage() {
 
   return (
     <>
-      <PageHead path="/stories" crumb="Community stories" icon="heart" eyebrow="In their words" title="Community stories"
-                back={{ href: '/#stories', label: 'Back to the stories' }}
-                lede={'What members say when we ask them how the first few months went. '
-                      + 'Printed as given, with their permission.'} />
+      <PageHead path="/stories" crumb={t.pages.stories.title} icon="heart" eyebrow={t.pages.stories.eyebrow} title={t.pages.stories.title}
+                back={{ href: '/#stories', label: t.pages.stories.back }}
+                lede={t.pages.stories.lede} />
 
       <section className="section">
         <div className="container">
@@ -84,7 +85,7 @@ export default async function StoriesPage() {
           </div>
 
           {stories.length === 0 && (
-            <p className="muted">No stories published yet.</p>
+            <p className="muted">{t.pages.stories.empty}</p>
           )}
 
           {/* Was a button pointing at the contact form, which meant a member's

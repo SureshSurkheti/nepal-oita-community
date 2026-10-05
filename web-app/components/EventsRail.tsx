@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Icon } from './Sprite'
+import { useI18n } from '@/lib/useI18n'
 
 /* The events timeline, as a pager.
  *
@@ -31,6 +32,7 @@ export function EventsRail({
   upcomingIndex: number
   pastCount: number
 }) {
+  const { t } = useI18n()
   const track = useRef<HTMLDivElement>(null)
   const [perPage, setPerPage] = useState(0)
   const [page, setPage] = useState(0)
@@ -110,11 +112,11 @@ export function EventsRail({
         {pages > 1 && (
           <div className="rail-nav">
             <button className="icon-btn rail-arrow" type="button" disabled={atStart}
-                    aria-label="Earlier events" onClick={() => setPage((p) => Math.max(0, p - 1))}>
+                    aria-label={t.ui.earlierEvents} onClick={() => setPage((p) => Math.max(0, p - 1))}>
               <Icon name="chevron-left" />
             </button>
             <button className="icon-btn rail-arrow" type="button" disabled={atEnd}
-                    aria-label="Later events" onClick={() => setPage((p) => Math.min(pages - 1, p + 1))}>
+                    aria-label={t.ui.laterEvents} onClick={() => setPage((p) => Math.min(pages - 1, p + 1))}>
               <Icon name="chevron-right" />
             </button>
           </div>

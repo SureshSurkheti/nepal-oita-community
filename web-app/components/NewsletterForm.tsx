@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
+import { useI18n } from '@/lib/useI18n'
 
 /* The footer newsletter box.
  *
@@ -13,6 +14,7 @@ import { Icon } from './Sprite'
  * only the committee can read. `name` and `body` are NOT NULL, hence the
  * filled-in values below; the address itself is what matters. */
 export function NewsletterForm() {
+  const { t } = useI18n()
   const [done, setDone] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,10 +49,10 @@ export function NewsletterForm() {
   return (
     <>
       <form className="newsletter" onSubmit={submit}>
-        <label className="visually-hidden" htmlFor="nl-email">Email address</label>
-        <input id="nl-email" type="email" name="email" placeholder="you@example.com"
+        <label className="visually-hidden" htmlFor="nl-email">{t.auth.email}</label>
+        <input id="nl-email" type="email" name="email" placeholder={t.ui.emailPlaceholder}
                autoComplete="email" required disabled={busy} />
-        <button type="submit" aria-label="Subscribe to the newsletter" disabled={busy}>
+        <button type="submit" aria-label={t.ui.subscribe} disabled={busy}>
           <Icon name="arrow-right" />
         </button>
       </form>

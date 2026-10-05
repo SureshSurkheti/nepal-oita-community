@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { LocaleLink as Link } from './LocaleLink'
 import { Icon } from './Sprite'
 import { assetUrl, chipDate, type EventRow } from '@/lib/content'
 

@@ -82,7 +82,7 @@ export function Drawer({ member = null }: {
               <Icon name="close" />
             </button>
           </div>
-          <nav className="drawer__links" aria-label="Mobile">
+          <nav className="drawer__links" aria-label={t.nav.mobileNav}>
             {LINKS.map((l, i) => (
               <Link key={l.href} className="drawer__link" href={l.href} onClick={close}>
                 {t.nav[l.key]} <small>{String(i + 1).padStart(2, '0')}</small>

@@ -2,6 +2,7 @@
 
 import { Children, useEffect, useRef, useState } from 'react'
 import { Icon } from './Sprite'
+import { useI18n } from '@/lib/useI18n'
 
 /* The meeting decisions on the homepage: the newest write-up, and buttons for the
  * earlier ones.
@@ -31,6 +32,7 @@ export function DecisionsPager({ children, label }: {
   /** Names the region for a screen reader — the card itself changes under it. */
   label: string
 }) {
+  const { t } = useI18n()
   const items = Children.toArray(children)
   const total = items.length
 
@@ -68,11 +70,11 @@ export function DecisionsPager({ children, label }: {
           </p>
           <div className="rail-nav">
             <button className="icon-btn rail-arrow" type="button" disabled={atOldest}
-                    aria-label="Earlier meeting" onClick={() => setI((n) => Math.max(0, n - 1))}>
+                    aria-label={t.ui.earlierMeeting} onClick={() => setI((n) => Math.max(0, n - 1))}>
               <Icon name="chevron-left" />
             </button>
             <button className="icon-btn rail-arrow" type="button" disabled={atNewest}
-                    aria-label="Later meeting" onClick={() => setI((n) => Math.min(total - 1, n + 1))}>
+                    aria-label={t.ui.laterMeeting} onClick={() => setI((n) => Math.min(total - 1, n + 1))}>
               <Icon name="chevron-right" />
             </button>
           </div>

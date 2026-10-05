@@ -1,9 +1,10 @@
-import Link from 'next/link'
+import { LocaleLink as Link } from '@/components/LocaleLink'
 import type { Metadata } from 'next'
 import { Icon, type IconName } from '@/components/Sprite'
 import { getProgrammes } from '@/lib/content'
 import { PageHead } from '@/components/PageHead'
 import { localeAlternates, toLocale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 
 /* FULLY PUBLIC — no session is read anywhere on this page, so it is prerendered
    and served from the CDN edge. Every visitor gets identical bytes with zero
@@ -19,23 +20,22 @@ export async function generateMetadata(
   const lang = toLocale((await params).lang)
   return {
     alternates: localeAlternates(lang, '/programmes'),
-    title: 'What we do',
-    description:
-      'Everything the Nepal–Oita Community runs: festivals, newcomer support, Nepali '
-      + 'language classes, sport, volunteering and help when something goes wrong.',
+    title: getDictionary(lang).meta.programmesTitle,
+    description: getDictionary(lang).meta.programmesDesc,
   }
 }
 
-export default async function ProgrammesPage() {
+export default async function ProgrammesPage({ params }: { params: Promise<{ lang: string }> }) {
+  const lang = toLocale((await params).lang)
+  const t = getDictionary(lang)
+
   const programmes = await getProgrammes()
 
   return (
     <>
-      <PageHead path="/programmes" icon="star" eyebrow="What we do" title="Everything we run"
-                back={{ href: '/#programmes', label: 'Back to what we do' }}
-                lede={'The short list on the homepage is the first row of this one. '
-                      + 'Nothing here is aspirational — every item below has happened, '
-                      + 'most of it more than once.'} />
+      <PageHead path="/programmes" icon="star" eyebrow={t.pages.programmes.eyebrow} title={t.pages.programmes.title}
+                back={{ href: '/#programmes', label: t.pages.programmes.back }}
+                lede={t.pages.programmes.lede} />
 
       <section className="section">
         <div className="container">

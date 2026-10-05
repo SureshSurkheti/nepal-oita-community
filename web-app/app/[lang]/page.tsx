@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { LocaleLink as Link } from '@/components/LocaleLink'
 import type { Metadata } from 'next'
 import { Icon, type IconName } from '@/components/Sprite'
 import { CountUp } from '@/components/CountUp'
@@ -15,6 +15,7 @@ import { PhotoTiles } from '@/components/PhotoTiles'
 import { getCurrentMember, getMembers } from '@/lib/members'
 import { assetUrl, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos, todayInJapan } from '@/lib/content'
 import { localeAlternates, toLocale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 
 /* Depends on who is asking, so it can never be cached or prerendered.
    This used to be inherited from the root layout's force-dynamic; the layout
@@ -93,8 +94,11 @@ const FOUNDED = 2019
    what is rendered. The fourth adds the events in the database to a baseline of
    the ones run before the site existed — a history the site cannot show, which
    is why its label carries the period. Nothing here needs editing as the
-   community grows. */
-const FOUNDED_LABEL = 'Events since 2019'
+   community grows.
+
+   That label used to be a FOUNDED_LABEL constant here. It is now
+   home.stats.events in both dictionaries — one place per language, and editing
+   it here would have changed nothing on the page. */
 
 /* Events run before the site started keeping the list. The figure on the page is
    this PLUS however many events are in the database, so adding one at
@@ -106,15 +110,11 @@ const FOUNDED_LABEL = 'Events since 2019'
    down by however many that is. One number, one place, either way. */
 const EVENTS_BEFORE_THE_SITE = 100
 
-const AUDIENCES: { icon: IconName; accent: string; title: string; body: string }[] = [
-  { icon: 'graduate', accent: 'indigo', title: 'Students',
-    body: 'Course guidance, visa paperwork, scholarship leads and senior students who remember their own first month at APU.' },
-  { icon: 'briefcase', accent: 'moss', title: 'Workers',
-    body: 'Job openings, workplace translation, help reading a contract, and a network of people in the same trades across the prefecture.' },
-  { icon: 'home', accent: 'gold', title: 'Families',
-    body: 'School enrolment support, childcare swaps, family gatherings, and a way for our children to grow up knowing both languages.' },
-  { icon: 'globe', accent: '', title: 'Neighbours',
-    body: 'Our Japanese friends and local organisations — every festival we hold is an open invitation, not a closed door.' },
+const AUDIENCES: { icon: IconName; accent: string; key: 'students' | 'workers' | 'families' | 'neighbours' }[] = [
+  { icon: 'graduate', accent: 'indigo', key: 'students' },
+  { icon: 'briefcase', accent: 'moss', key: 'workers' },
+  { icon: 'home', accent: 'gold', key: 'families' },
+  { icon: 'globe', accent: '', key: 'neighbours' },
 ]
 
 /* The two homes, as the theme lays them out: one group per country, each a wide
@@ -122,7 +122,7 @@ const AUDIENCES: { icon: IconName; accent: string; title: string; body: string }
    `.place--wide` spans both columns of `.places__grid`. */
 const PLACES = [
   {
-    label: <><span className="deva" lang="ne">नेपाल</span> Nepal</>,
+    key: 'nepal' as const,
     reveal: 'reveal--left',
     photos: [
       { file: 'place-everest.jpg', wide: true, name: 'Sagarmatha', where: 'Everest and Nuptse, above the Khumbu Glacier',
@@ -134,7 +134,7 @@ const PLACES = [
     ],
   },
   {
-    label: <><span className="jp" lang="ja">おおいた</span> Oita</>,
+    key: 'oita' as const,
     reveal: 'reveal--right',
     photos: [
       { file: 'place-umijigoku.jpg', wide: true, name: 'Umi Jigoku', where: 'The steaming pools of Beppu',
@@ -147,13 +147,7 @@ const PLACES = [
   },
 ]
 
-const BENEFITS = [
-  ['Free entry to most events', 'Which events are free is decided by a vote of the working members'],
-  ['The emergency chain', 'Someone reachable at any hour, in Nepali'],
-  ['Jobs and housing first', 'Openings circulate to members before anywhere else'],
-  ['The group chats', 'Facebook groups for your area'],
-  ['A say in what we do', 'Vote at the general meeting, held every two years'],
-]
+const BENEFITS = ['free', 'emergency', 'jobs', 'chats', 'vote'] as const
 
 /* The follower counts sit on the links, not in a strip of abstract figures
    further up the page.
@@ -169,16 +163,16 @@ const BENEFITS = [
    smell, and 65 people who subscribed to watch a community's festivals in full
    is not a number to be embarrassed by. Labelled subscribers, which is what
    YouTube calls them. */
-const SOCIALS: { modifier: string; icon: IconName; href: string; label: string; meta: string }[] = [
+const SOCIALS: { modifier: string; icon: IconName; href: string; label: string
+                 metaKey: 'facebookMeta' | 'youtubeMeta' | 'tiktokMeta' | 'emailMeta' }[] = [
   { modifier: 'facebook', icon: 'facebook', href: 'https://www.facebook.com/nepaloitacommunity98',
-    label: 'Facebook', meta: '600+ followers · announcements and event photos' },
+    label: 'Facebook', metaKey: 'facebookMeta' },
   { modifier: 'youtube', icon: 'youtube', href: 'https://www.youtube.com/@namastejapan-o2u',
-    label: 'YouTube — Namaste Japan',
-    meta: '65 subscribers · festivals and performances in full' },
+    label: 'YouTube — Namaste Japan', metaKey: 'youtubeMeta' },
   { modifier: 'tiktok', icon: 'tiktok', href: 'https://www.tiktok.com/@prayas03?_r=1&_t=ZS-992i3ERvHan',
-    label: 'TikTok — Namaste Japan', meta: '5,000+ followers · short clips from events' },
+    label: 'TikTok — Namaste Japan', metaKey: 'tiktokMeta' },
   { modifier: 'email', icon: 'mail', href: 'mailto:nepaloitacommunity11@gmail.com',
-    label: 'nepaloitacommunity11@gmail.com', meta: 'We reply within a day or two' },
+    label: 'nepaloitacommunity11@gmail.com', metaKey: 'emailMeta' },
 ]
 
 /* ONE RULE FOR EVERY SECTION HEAD ON THIS PAGE: centred.
@@ -212,7 +206,10 @@ export async function generateMetadata(
   }
 }
 
-export default async function Home() {
+export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
+  const lang = toLocale((await params).lang)
+  const t = getDictionary(lang)
+
   /* Two waves, not one, and only because of the minutes. Since 0016 they are
      readable by members only — `anon` has no SELECT grant on the tables at all —
      so getMeetings() has to be told whether there is a member before it decides
@@ -268,13 +265,13 @@ export default async function Home() {
      link that went somewhere approximate would be worse than a number that
      simply sits there. */
   const stats = [
-    { to: members.length, suffix: '', label: 'On the register', href: '#members' },
-    { to: EVENTS_BEFORE_THE_SITE + events.length, suffix: '', label: FOUNDED_LABEL, href: '#events' },
-    { to: thingsWeDo, suffix: '', label: 'Things we do', href: '#programmes' },
+    { to: members.length, suffix: '', label: t.home.stats.register, href: '#members' },
+    { to: EVENTS_BEFORE_THE_SITE + events.length, suffix: '', label: t.home.stats.events, href: '#events' },
+    { to: thingsWeDo, suffix: '', label: t.home.stats.things, href: '#programmes' },
     /* `todayInJapan()` rather than the server's own clock: the site's year is
        Oita's year, and a box in another timezone would tick this over a day
        early or late. */
-    { to: Number(todayInJapan().slice(0, 4)) - FOUNDED, suffix: '', label: 'Years active', href: null },
+    { to: Number(todayInJapan().slice(0, 4)) - FOUNDED, suffix: '', label: t.home.stats.years, href: null },
   ]
 
   const leadership = members.filter((m) => m.category === 'leadership')
@@ -300,10 +297,12 @@ export default async function Home() {
         <div className="container hero__content">
           <p className="eyebrow eyebrow--center hero__eyebrow">
             <span className="deva" lang="ne">नेपाल</span> &nbsp;·&nbsp;{' '}
-            <span className="jp" lang="ja">おおいた</span> &nbsp;·&nbsp; Est. 2019
+            <span className="jp" lang="ja">おおいた</span> &nbsp;·&nbsp; {t.home.hero.est}
           </p>
           <h1 className="display-1 hero__title">
-            Bridging Nepali Hearts<br />in <em>Oita</em>, Japan
+            {lang === 'ne'
+              ? <>{t.home.hero.titleB} <em>{t.home.hero.oita}</em>{t.home.hero.titleC}<br />{t.home.hero.titleA}</>
+              : <>{t.home.hero.titleA}<br />{t.home.hero.titleB} <em>{t.home.hero.oita}</em>, {t.home.hero.titleC}</>}
           </h1>
           <p className="lede hero__lede">
             Uniting the Nepali community in Oita through support, culture and togetherness.
@@ -320,7 +319,7 @@ export default async function Home() {
 
         <div className="container hero__stats">
           <a className="hero__scroll" href="#about">
-            <span className="hero__scroll-txt">Explore the community</span>
+            <span className="hero__scroll-txt">{t.home.hero.scroll}</span>
             <Icon name="chevron-down" className="icon hero__scroll-chev" />
           </a>
           <div className="statbar">
@@ -347,24 +346,22 @@ export default async function Home() {
           <div className="section-head section-head--center reveal">
             <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="users" /></span>
-              Who we support
+              {t.home.about.eyebrow}
             </p>
-            <h2 className="display-2">Everyone who calls Oita home</h2>
+            <h2 className="display-2">{t.home.about.title}</h2>
             <p className="lede">
-              Arriving in a new country is hard in ways nobody warns you about. Whatever
-              brought you here, there is already someone in this community who has been
-              exactly where you are.
+              {t.home.about.lede}
             </p>
           </div>
 
           <div className="grid grid--4">
             {AUDIENCES.map((a) => (
-              <article className="card reveal" key={a.title}>
+              <article className="card reveal" key={a.key}>
                 <div className={a.accent ? `plate plate--${a.accent}` : 'plate'}>
                   <Icon name={a.icon} />
                 </div>
-                <h3 className="card__title">{a.title}</h3>
-                <p className="card__body">{a.body}</p>
+                <h3 className="card__title">{t.home.audiences[`${a.key}Title`]}</h3>
+                <p className="card__body">{t.home.audiences[`${a.key}Body`]}</p>
               </article>
             ))}
           </div>
@@ -377,11 +374,11 @@ export default async function Home() {
           <div className="section-head section-head--center reveal">
             <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="star" /></span>
-              What we do
+              {t.home.programmes.eyebrow}
             </p>
-            <h2 className="display-2">Done properly, or not at all</h2>
+            <h2 className="display-2">{t.home.programmes.title}</h2>
             <p className="lede">
-              We would rather do a few things properly than list twenty we cannot deliver.
+              {t.home.programmes.lede}
             </p>
           </div>
 
@@ -411,19 +408,33 @@ export default async function Home() {
           <div className="section-head section-head--center reveal">
             <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="globe" /></span>
-              Two homes
+              {t.home.places.eyebrow}
             </p>
-            <h2 className="display-2">Six thousand kilometres apart</h2>
+            <h2 className="display-2">{t.home.places.title}</h2>
             <p className="lede">
-              The mountains most of us grew up under, and the hot-spring valley that
-              took us in. Both are home now.
+              {t.home.places.lede}
             </p>
           </div>
 
           <div className="places">
             {PLACES.map((group, gi) => (
               <div className={`places__group reveal ${group.reveal}`} key={gi}>
-                <h3 className="places__label">{group.label}</h3>
+                {/* The native-script word is the design, not a translation. For Nepal
+                    it IS the Nepali name, so on the Nepali site it stands alone rather
+                    than being followed by itself; おおいた is Japanese, foreign to both
+                    languages, so the local name always follows it. */}
+                <h3 className="places__label">
+                  {group.key === 'nepal' ? (
+                    <>
+                      <span className="deva" lang="ne">नेपाल</span>
+                      {lang === 'en' && <> {t.home.places.nepal}</>}
+                    </>
+                  ) : (
+                    <>
+                      <span className="jp" lang="ja">おおいた</span> {t.home.places.oita}
+                    </>
+                  )}
+                </h3>
                 <div className="places__grid">
                   {group.photos.map((p) => (
                     <figure className={p.wide ? 'place place--wide' : 'place'} key={p.file}>
@@ -448,17 +459,17 @@ export default async function Home() {
           <div className="section-head section-head--center reveal">
             <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="calendar" /></span>
-              Events
+              {t.home.events.eyebrow}
             </p>
-            <h2 className="display-2">Come to the next one</h2>
+            <h2 className="display-2">{t.home.events.title}</h2>
             <p className="lede">
-              You do not need to know anyone. Turn up, and you will by the end of the day.
+              {t.home.events.lede}
             </p>
           </div>
 
           {orderedEvents.length === 0 ? (
             <p className="muted">
-              Nothing on the calendar just now — new dates go up here as soon as they are set.
+              {t.home.events.empty}
             </p>
           ) : (
             <EventsRail pastCount={past.length}
@@ -476,11 +487,11 @@ export default async function Home() {
             <div className="section-head section-head--center reveal">
               <p className="eyebrow eyebrow--center">
                 <span className="eyebrow__badge"><Icon name="images" /></span>
-                Gallery
+                {t.home.gallery.eyebrow}
               </p>
-              <h2 className="display-2">Seven years of Sundays</h2>
+              <h2 className="display-2">{t.home.gallery.title}</h2>
               <p className="lede">
-                Every one of these was somebody far from home, having a very good day.
+                {t.home.gallery.lede}
               </p>
             </div>
 
@@ -495,7 +506,7 @@ export default async function Home() {
 
             <div className="cluster cluster--center mt-lg">
               <Link className="btn btn--ghost" href="/gallery">
-                <Icon name="images" /> View the full gallery
+                <Icon name="images" /> {t.home.gallery.viewAll}
               </Link>
             </div>
           </div>
@@ -509,9 +520,9 @@ export default async function Home() {
             <div className="section-head section-head--center reveal">
               <p className="eyebrow eyebrow--center">
                 <span className="eyebrow__badge"><Icon name="heart" /></span>
-                In their words
+                {t.home.stories.eyebrow}
               </p>
-              <h2 className="display-2">Community stories</h2>
+              <h2 className="display-2">{t.home.stories.title}</h2>
             </div>
             <ShowMore className="grid grid--3" id="stories-grid" href="/stories">
               {stories.map((s, i) => {
@@ -556,12 +567,11 @@ export default async function Home() {
             <div className="section-head section-head--center reveal">
               <p className="eyebrow eyebrow--center">
                 <span className="eyebrow__badge"><Icon name="check" /></span>
-                Minutes
+                {t.home.decisions.eyebrow}
               </p>
-              <h2 className="display-2">What we decided</h2>
+              <h2 className="display-2">{t.home.decisions.title}</h2>
               <p className="lede">
-                The committee and the members meet most months. Nobody has to
-                remember what was agreed, or take somebody&rsquo;s word for it.
+                {t.home.decisions.lede}
               </p>
             </div>
 
@@ -577,12 +587,12 @@ export default async function Home() {
                 card. The panel now carries the measure and everything inside it
                 inherits it — heading, arrows, card and button share one edge. */}
             <div className="decisions-panel reveal">
-              <DecisionsPager label="Meeting decisions">
+              <DecisionsPager label={t.home.decisions.pager}>
                 {decisions.map((m, i) => (
                   <article key={m.id}
                            className={`decision${i === latest ? ' decision--latest' : ''}`}>
                     {i === latest && (
-                      <p className="decision__flag"><Icon name="star" /> Latest</p>
+                      <p className="decision__flag"><Icon name="star" /> {t.home.decisions.latest}</p>
                     )}
                     <p className="decision__date">
                       <Icon name="calendar" /> {longDate(m.held_on)}
@@ -643,17 +653,16 @@ export default async function Home() {
           <div className="section-head section-head--center reveal">
             <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="network" /></span>
-              Our people
+              {t.home.members.eyebrow}
             </p>
             {/* Was "Six hundred neighbours", over a strip of four invented
                 figures. Six hundred is not a number anybody here could stand
                 behind, and it sat directly above the register that shows how many
                 there actually are. This heading says what the section is and
                 carries the words people search for, which the old one did not. */}
-            <h2 className="display-2">The committee, and the register</h2>
+            <h2 className="display-2">{t.home.members.title}</h2>
             <p className="lede">
-              Every office holder, and the members who have joined the register —
-              across Oita City, Beppu and the rest of the prefecture.
+              {t.home.members.lede}
             </p>
           </div>
 
@@ -670,7 +679,7 @@ export default async function Home() {
               them. Ungated, so it renders as a real link that navigates. */}
           {leadership.length > 0 && (
             <>
-              <h3 className="display-3 center mt-lg u-mb-2">Leadership team</h3>
+              <h3 className="display-3 center mt-lg u-mb-2">{t.home.members.leadership}</h3>
               <ShowMore className="people-flow reveal" id="leadership-preview" href="/members" cap={999}>
                 {leadership.map((m, i) => (
                   <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
@@ -681,7 +690,7 @@ export default async function Home() {
 
           {general.length > 0 && (
             <>
-              <h3 className="display-3 center mt-lg u-mb-2">General members</h3>
+              <h3 className="display-3 center mt-lg u-mb-2">{t.home.members.general}</h3>
               {/* The same `people-flow` as the leadership row above, not a CSS
                   grid. Both lists sat in this one section using different
                   layouts, and it showed: leadership is flex with
@@ -705,13 +714,16 @@ export default async function Home() {
           <div className="grid grid--2 mt-lg">
             <div className="panel reveal">
               <h3 className="panel__title">
-                <Icon name="heart" /> What membership gets you
+                <Icon name="heart" /> {t.home.benefits.title}
               </h3>
               <ul className="benefits">
-                {BENEFITS.map(([title, body]) => (
-                  <li key={title}>
+                {BENEFITS.map((k) => (
+                  <li key={k}>
                     <Icon name="check" />
-                    <div><h4>{title}</h4><p>{body}</p></div>
+                    <div>
+                      <h4>{t.home.benefits[`${k}Title`]}</h4>
+                      <p>{t.home.benefits[`${k}Body`]}</p>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -719,16 +731,16 @@ export default async function Home() {
 
             <div className="panel panel--ink reveal">
               <h3 className="panel__title">
-                <Icon name="user-plus" /> Becoming a member
+                <Icon name="user-plus" /> {t.home.joining.title}
               </h3>
               <ol className="steps">
-                <li><div><h4>Fill in the form</h4><p>Online below, or on paper at any event</p></div></li>
-                <li><div><h4>Pay the annual fee</h4><p>¥3,000 per year</p></div></li>
-                <li><div><h4>Get your card</h4><p>Member ID, and you are added to the groups</p></div></li>
+                <li><div><h4>{t.home.joining.step1Title}</h4><p>{t.home.joining.step1Body}</p></div></li>
+                <li><div><h4>{t.home.joining.step2Title}</h4><p>{t.home.joining.step2Body}</p></div></li>
+                <li><div><h4>{t.home.joining.step3Title}</h4><p>{t.home.joining.step3Body}</p></div></li>
               </ol>
               <div className="mt-md">
                 <Link className="btn btn--on-ink btn--block" href="#contact">
-                  Register now <Icon name="arrow-right" />
+                  {t.home.joining.cta} <Icon name="arrow-right" />
                 </Link>
               </div>
             </div>
@@ -736,15 +748,14 @@ export default async function Home() {
 
           <div className="cluster cluster--center mt-lg">
             <Link className="btn btn--ghost" href="/members">
-              <Icon name="users" /> The register, with contact details
+              <Icon name="users" /> {t.home.members.registerLink}
             </Link>
             <Link className="btn btn--ghost" href={signedIn ? '/me' : '/sign-in'}>
-              <Icon name="user-plus" /> Add my photo and profession
+              <Icon name="user-plus" /> {t.home.members.addPhoto}
             </Link>
           </div>
           <p className="center text-sm muted u-mt-05">
-            Everybody on the register is listed. Phone numbers are shown to verified
-            members only, and each member edits their own card and nobody else&rsquo;s.
+            {t.home.members.note}
           </p>
         </div>
       </section>
@@ -759,11 +770,11 @@ export default async function Home() {
           <div className="section-head section-head--center reveal">
             <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="user-plus" /></span>
-              Get involved
+              {t.home.join.eyebrow}
             </p>
-            <h2 className="display-2">Join us today</h2>
+            <h2 className="display-2">{t.home.join.title}</h2>
             <p className="lede">
-              Follow along, drop into a group, or come to an event and say hello.
+              {t.home.join.lede}
             </p>
           </div>
 
@@ -778,13 +789,13 @@ export default async function Home() {
                 <span className="qr-frame__corner" />
                 <span className="qr-frame__corner" />
                 <Icon name="qr" className="qr-frame__glyph icon" />
-                <p className="qr-frame__note">Facebook QR code</p>
+                <p className="qr-frame__note">{t.home.join.qrNote}</p>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="qr-frame__img" src="/images/qr-code.png"
-                     alt="QR code linking to our Facebook page" />
+                     alt={t.home.join.qrAlt} />
               </div>
-              <p className="card__title u-mt-1">Scan to follow us</p>
-              <p className="text-sm muted">Or use the links beside this card</p>
+              <p className="card__title u-mt-1">{t.home.join.scan}</p>
+              <p className="text-sm muted">{t.home.join.orLinks}</p>
             </div>
 
             <div className="social-list reveal">
@@ -794,7 +805,7 @@ export default async function Home() {
                   <span className="social__icon"><Icon name={s.icon} /></span>
                   <span>
                     <span className="social__label">{s.label}</span><br />
-                    <span className="social__meta">{s.meta}</span>
+                    <span className="social__meta">{t.home.join[s.metaKey]}</span>
                   </span>
                   <span className="social__go"><Icon name="arrow-right" /></span>
                 </a>
@@ -810,12 +821,11 @@ export default async function Home() {
           <div className="section-head section-head--center reveal">
             <p className="eyebrow eyebrow--center">
               <span className="eyebrow__badge"><Icon name="mail" /></span>
-              Contact
+              {t.home.contact.eyebrow}
             </p>
-            <h2 className="display-2">Get in touch</h2>
+            <h2 className="display-2">{t.home.contact.title}</h2>
             <p className="lede">
-              Questions, membership, or something urgent — write to us and a real person
-              will answer.
+              {t.home.contact.lede}
             </p>
           </div>
 
@@ -825,14 +835,14 @@ export default async function Home() {
                 <li>
                   <div className="plate plate--indigo plate--sm"><Icon name="pin" /></div>
                   <div>
-                    <p className="contact-list__label">Where we are</p>
-                    <p className="contact-list__value">Oita City and Beppu City, Oita Prefecture</p>
+                    <p className="contact-list__label">{t.home.contact.where}</p>
+                    <p className="contact-list__value">{t.home.contact.whereValue}</p>
                   </div>
                 </li>
                 <li>
                   <div className="plate plate--sm"><Icon name="mail" /></div>
                   <div>
-                    <p className="contact-list__label">Email</p>
+                    <p className="contact-list__label">{t.home.contact.email}</p>
                     <p className="contact-list__value">
                       <a href="mailto:nepaloitacommunity11@gmail.com">nepaloitacommunity11@gmail.com</a>
                     </p>
@@ -841,7 +851,7 @@ export default async function Home() {
                 <li>
                   <div className="plate plate--moss plate--sm"><Icon name="phone" /></div>
                   <div>
-                    <p className="contact-list__label">Phone</p>
+                    <p className="contact-list__label">{t.home.contact.phone}</p>
                     <p className="contact-list__value">
                       <a href="tel:+818043164111">080&nbsp;4316&nbsp;4111</a>
                     </p>

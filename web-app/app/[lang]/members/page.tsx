@@ -1,10 +1,11 @@
-import Link from 'next/link'
+import { LocaleLink as Link } from '@/components/LocaleLink'
 import type { Metadata } from 'next'
 import { Icon } from '@/components/Sprite'
 import { PersonCard } from '@/components/PersonCard'
 import { getCurrentMember, getMembers } from '@/lib/members'
 import { PageHead } from '@/components/PageHead'
 import { localeAlternates, toLocale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 
 /* Depends on who is asking, so it can never be cached or prerendered.
    This used to be inherited from the root layout's force-dynamic; the layout
@@ -20,10 +21,8 @@ export async function generateMetadata(
   const lang = toLocale((await params).lang)
   return {
     alternates: localeAlternates(lang, '/members'),
-    title: 'Members',
-    description:
-      'The leadership team and general members of the Nepal–Oita Community. '
-      + 'Contact details are returned only to verified members.',
+    title: getDictionary(lang).meta.membersTitle,
+    description: getDictionary(lang).meta.membersDesc,
     // Everyone here is a named private individual, and a page that is nothing but
     // a list of them should not become the top result for somebody's name.
     robots: { index: false, follow: true },
@@ -31,7 +30,10 @@ export async function generateMetadata(
 }
 
 
-export default async function MembersPage() {
+export default async function MembersPage({ params }: { params: Promise<{ lang: string }> }) {
+  const lang = toLocale((await params).lang)
+  const t = getDictionary(lang)
+
   const [member, members] = await Promise.all([getCurrentMember(), getMembers()])
   const signedIn = member !== null
 
@@ -40,10 +42,10 @@ export default async function MembersPage() {
 
   return (
     <>
-      <PageHead icon="users" eyebrow="Members" title="The people of Nepal–Oita"
-                back={{ href: '/#members', label: 'Back to members' }}
+      <PageHead icon="users" eyebrow={t.pages.members.eyebrow} title={t.pages.members.title}
+                back={{ href: '/#members', label: t.pages.members.back }}
                 lede={signedIn
-                  ? 'Signed in — you are seeing the register with contact details.'
+                  ? t.pages.members.ledeIn
                   : 'The whole committee and the whole register. Phone numbers are '
                     + 'shown to verified members only.'} />
 
@@ -56,8 +58,8 @@ export default async function MembersPage() {
                 {member.is_admin && ' · committee'}
               </p>
               <div className="cluster">
-                <Link className="chip" href="/me">Edit my card</Link>
-                {member.is_admin && <Link className="chip" href="/admin/members">Committee tools</Link>}
+                <Link className="chip" href="/me">{t.pages.members.editMine}</Link>
+                {member.is_admin && <Link className="chip" href="/admin/members">{t.pages.members.committeeTools}</Link>}
               </div>
             </div>
           ) : (
@@ -71,7 +73,7 @@ export default async function MembersPage() {
                 Phone numbers are shown to verified members.
               </p>
               <div className="cluster">
-                <Link className="chip" href="/sign-in">Sign in</Link>
+                <Link className="chip" href="/sign-in">{t.nav.signIn}</Link>
               </div>
             </div>
           )}
@@ -83,7 +85,7 @@ export default async function MembersPage() {
                   <span className="eyebrow__badge"><Icon name="shield" /></span>
                   Office holders and advisers
                 </p>
-                <h2 className="display-2" id="leadership">Leadership team</h2>
+                <h2 className="display-2" id="leadership">{t.pages.members.leadership}</h2>
               </div>
               <div className="people-flow reveal">
                 {leadership.map((m, i) => (
@@ -100,7 +102,7 @@ export default async function MembersPage() {
                   <span className="eyebrow__badge"><Icon name="users" /></span>
                   Everybody else on the register
                 </p>
-                <h2 className="display-2" id="general-members">General members</h2>
+                <h2 className="display-2" id="general-members">{t.pages.members.general}</h2>
               </div>
               {/* people-flow, matching the leadership block above — see the
                   note on the home page. A short final row centres instead of

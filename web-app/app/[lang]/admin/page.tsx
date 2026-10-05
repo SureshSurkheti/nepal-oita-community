@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { LocaleLink as Link } from '@/components/LocaleLink'
 import type { Metadata } from 'next'
 import { Icon, type IconName } from '@/components/Sprite'
 import { requireAdmin } from '@/lib/admin'

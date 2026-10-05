@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 import { Spinner } from './Spinner'
+import { useI18n } from '@/lib/useI18n'
 
 export function SignOutButton() {
+  const { t } = useI18n()
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
 
@@ -14,8 +16,8 @@ export function SignOutButton() {
       className="btn btn--ghost nav__signout"
       type="button"
       disabled={busy}
-      aria-label="Sign out"
-      title="Sign out"
+      aria-label={t.nav.signOut}
+      title={t.nav.signOut}
       onClick={async () => {
         setBusy(true)
         setFailed(false)

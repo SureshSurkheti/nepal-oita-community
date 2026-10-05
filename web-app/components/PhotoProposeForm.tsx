@@ -5,6 +5,7 @@ import { compressImage, describeSaving } from '@/lib/image'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 import { Spinner } from './Spinner'
+import { useI18n } from '@/lib/useI18n'
 
 const CATEGORIES = ['festivals', 'community', 'cultural', 'sports'] as const
 
@@ -19,6 +20,7 @@ const CATEGORIES = ['festivals', 'community', 'cultural', 'sports'] as const
  * committee's own gallery files sit at the root of the bucket, and this cannot
  * land on top of one. */
 export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: string }) {
+  const { t } = useI18n()
   const fileRef = useRef<HTMLInputElement>(null)
   const [caption, setCaption] = useState('')
   const [alt, setAlt] = useState('')
@@ -33,7 +35,7 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
     const file = e.target.files?.[0]
     if (!file) { setPreview(null); return }
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
-      setError('A JPEG, PNG or WebP, please.')
+      setError(t.forms.imageTypeOnly)
       e.target.value = ''
       setPreview(null)
       return
@@ -46,12 +48,12 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
     setError(null)
 
     const file = fileRef.current?.files?.[0]
-    if (!file) { setError('Choose a photograph first.'); return }
-    if (!caption.trim()) { setError('A short caption — two or three words.'); return }
+    if (!file) { setError(t.forms.pickImageFirst); return }
+    if (!caption.trim()) { setError(t.forms.captionNeeded); return }
     if (!alt.trim()) {
       // Not optional. It is what somebody using a screen reader gets instead of
       // the photograph, and "image" is not a description.
-      setError('Please describe what is in the photograph.')
+      setError(t.forms.altNeeded)
       return
     }
 
@@ -88,7 +90,7 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
 
       setSent(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not add that just now.')
+      setError(err instanceof Error ? err.message : t.forms.addFailed)
     } finally {
       setBusy(false)
     }
@@ -97,7 +99,7 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
   if (sent) {
     return (
       <div className="panel">
-        <h2 className="panel__title"><Icon name="check" /> Sent to the committee</h2>
+        <h2 className="panel__title"><Icon name="check" /> {t.forms.sentToCommittee}</h2>
         <p>
           Uploaded, but not in the gallery yet — a committee member publishes it.
           You cannot change or remove it from here, so tell them if something is
@@ -109,7 +111,7 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
 
   return (
     <div className="panel">
-      <h2 className="panel__title"><Icon name="images" /> Add a photograph</h2>
+      <h2 className="panel__title"><Icon name="images" /> {t.forms.addPhotograph}</h2>
       <form onSubmit={submit}>
         <div className="upload">
           <span className="avatar avatar--moss avatar--upload" aria-hidden="true">
@@ -120,7 +122,7 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
             )}
           </span>
           <div className="field">
-            <label htmlFor="ph-file">The photograph</label>
+            <label htmlFor="ph-file">{t.forms.thePhotograph}</label>
             <input ref={fileRef} id="ph-file" type="file"
                    accept="image/jpeg,image/png,image/webp" onChange={onPick} />
             <p className="form-note">
@@ -133,13 +135,13 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
 
         <div className="field-grid">
           <div className="field">
-            <label htmlFor="ph-caption">Caption</label>
+            <label htmlFor="ph-caption">{t.forms.caption}</label>
             <input id="ph-caption" type="text" required maxLength={60}
-                   placeholder="Dashain lunch"
+                   placeholder={t.forms.captionPlaceholder}
                    value={caption} onChange={(e) => setCaption(e.target.value)} />
           </div>
           <div className="field">
-            <label htmlFor="ph-cat">Which part of the gallery</label>
+            <label htmlFor="ph-cat">{t.forms.whichGallery}</label>
             <select id="ph-cat" value={category} onChange={(e) => setCategory(e.target.value)}>
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -147,9 +149,9 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
         </div>
 
         <div className="field">
-          <label htmlFor="ph-alt">What is in it</label>
+          <label htmlFor="ph-alt">{t.forms.whatIsInIt}</label>
           <input id="ph-alt" type="text" required maxLength={140}
-                 placeholder="Members serving dal bhat from steel trays at the cultural hall"
+                 placeholder={t.forms.altPlaceholder}
                  value={alt} onChange={(e) => setAlt(e.target.value)} />
           <p className="form-note">
             This is what somebody who cannot see the photograph gets instead, so
@@ -158,7 +160,7 @@ export function PhotoProposeForm({ memberId, slug }: { memberId: string; slug: s
         </div>
 
         <button className="btn btn--primary" type="submit" disabled={busy}>
-          {busy ? <Spinner /> : <Icon name="send" />}{busy ? 'Uploading…' : 'Send to the committee'}
+          {busy ? <Spinner /> : <Icon name="send" />}{busy ? t.common.uploading : t.forms.sendToCommittee}
         </button>
         {error && <p className="form-note form-note--error">{error}</p>}
         <p className="form-note">

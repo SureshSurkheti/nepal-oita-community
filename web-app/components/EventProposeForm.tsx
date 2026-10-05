@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 import { Spinner } from './Spinner'
+import { useI18n } from '@/lib/useI18n'
 
 const ACCENTS = ['crimson', 'indigo', 'moss', 'gold'] as const
 
@@ -21,6 +22,7 @@ const ACCENTS = ['crimson', 'indigo', 'moss', 'gold'] as const
  * for either is rejected by Postgres, not by this component.
  */
 export function EventProposeForm({ memberId }: { memberId: string }) {
+  const { t } = useI18n()
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
   const [start, setStart] = useState('')
@@ -42,8 +44,8 @@ export function EventProposeForm({ memberId }: { memberId: string }) {
     event.preventDefault()
     setError(null)
 
-    if (!title.trim()) { setError('Give it a name.'); return }
-    if (!date) { setError('When is it?'); return }
+    if (!title.trim()) { setError(t.forms.needTitle); return }
+    if (!date) { setError(t.forms.needDate); return }
 
     const lines = highlights.split('\n').map((l) => l.replace(/^[-•*\s]+/, '').trim())
                             .filter(Boolean)
@@ -74,7 +76,7 @@ export function EventProposeForm({ memberId }: { memberId: string }) {
     if (insertError || !data) {
       setBusy(false)
       setError(insertError?.message.includes('duplicate')
-        ? 'There is already an event with that name on that date.'
+        ? t.forms.duplicateEvent
         : `Could not save that. ${insertError?.message ?? 'No row came back.'}`)
       return
     }
@@ -100,7 +102,7 @@ export function EventProposeForm({ memberId }: { memberId: string }) {
   if (sent) {
     return (
       <div className="panel">
-        <h2 className="panel__title"><Icon name="check" /> Sent to the committee</h2>
+        <h2 className="panel__title"><Icon name="check" /> {t.forms.sentToCommittee}</h2>
         <p>
           It is saved but not on the site yet — a committee member publishes it.
           You cannot edit it from here, so if something is wrong, tell them before
@@ -112,70 +114,74 @@ export function EventProposeForm({ memberId }: { memberId: string }) {
 
   return (
     <div className="panel">
-      <h2 className="panel__title"><Icon name="calendar" /> Add an event</h2>
+      <h2 className="panel__title"><Icon name="calendar" /> {t.forms.addEvent}</h2>
       <form onSubmit={submit}>
         <div className="field">
-          <label htmlFor="e-title">What is it</label>
+          <label htmlFor="e-title">{t.forms.whatIsIt}</label>
           <input id="e-title" type="text" required maxLength={120}
-                 placeholder="Dashain Celebration"
+                 placeholder={t.forms.eventTitlePlaceholder}
                  value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div className="field-grid">
           <div className="field">
-            <label htmlFor="e-date">Date</label>
+            <label htmlFor="e-date">{t.forms.date}</label>
             <input id="e-date" type="date" required
                    value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <div className="field">
-            <label htmlFor="e-cat">Kind</label>
+            <label htmlFor="e-cat">{t.forms.kind}</label>
             <select id="e-cat" value={category} onChange={(e) => setCategory(e.target.value)}>
-              <option>Community</option>
-              <option>Festival</option>
-              <option>Sports</option>
-              <option>Cultural</option>
-              <option>Volunteering</option>
+              {/* English values, translated labels — the value is written to
+                  events.category, which drives the card colour and the filters
+                  on both sites. Translating it would file Nepali categories the
+                  English site cannot match. */}
+              <option value="Community">{t.forms.catCommunity}</option>
+              <option value="Festival">{t.forms.catFestival}</option>
+              <option value="Sports">{t.forms.catSports}</option>
+              <option value="Cultural">{t.forms.catCultural}</option>
+              <option value="Volunteering">{t.forms.catVolunteering}</option>
             </select>
           </div>
           <div className="field">
-            <label htmlFor="e-start">Starts <span className="muted">(optional)</span></label>
+            <label htmlFor="e-start">{t.forms.starts} <span className="muted">({t.common.optional})</span></label>
             <input id="e-start" type="time"
                    value={start} onChange={(e) => setStart(e.target.value)} />
           </div>
           <div className="field">
-            <label htmlFor="e-end">Ends <span className="muted">(optional)</span></label>
+            <label htmlFor="e-end">{t.forms.ends} <span className="muted">({t.common.optional})</span></label>
             <input id="e-end" type="time"
                    value={end} onChange={(e) => setEnd(e.target.value)} />
           </div>
         </div>
         <div className="field-grid">
           <div className="field">
-            <label htmlFor="e-place">Where</label>
-            <input id="e-place" type="text" maxLength={100} placeholder="Oita Cultural Hall"
+            <label htmlFor="e-place">{t.forms.where}</label>
+            <input id="e-place" type="text" maxLength={100} placeholder={t.forms.wherePlaceholder}
                    value={place} onChange={(e) => setPlace(e.target.value)} />
           </div>
           <div className="field">
-            <label htmlFor="e-cost">Cost <span className="muted">(optional)</span></label>
+            <label htmlFor="e-cost">{t.forms.cost} <span className="muted">({t.common.optional})</span></label>
             <input id="e-cost" type="text" maxLength={80}
-                   placeholder="Free for members · ¥500 for guests"
+                   placeholder={t.forms.costPlaceholder}
                    value={cost} onChange={(e) => setCost(e.target.value)} />
           </div>
         </div>
         <div className="field">
-          <label htmlFor="e-summary">One line about it</label>
+          <label htmlFor="e-summary">{t.forms.oneLine}</label>
           <input id="e-summary" type="text" maxLength={200}
-                 placeholder="Tika, jamara and the longest lunch of the year."
+                 placeholder={t.forms.summaryPlaceholder}
                  value={summary} onChange={(e) => setSummary(e.target.value)} />
         </div>
         <div className="field">
           <label htmlFor="e-highlights">
-            What happens — one per line <span className="muted">(optional)</span>
+            What happens — one per line <span className="muted">({t.common.optional})</span>
           </label>
           <textarea id="e-highlights" rows={5}
                     placeholder={'Tika and jamara from the elders\nFull Nepali lunch\nOpen to Japanese neighbours'}
                     value={highlights} onChange={(e) => setHighlights(e.target.value)} />
         </div>
         <button className="btn btn--primary" type="submit" disabled={busy}>
-          {busy ? <Spinner /> : <Icon name="send" />}{busy ? 'Sending…' : 'Send to the committee'}
+          {busy ? <Spinner /> : <Icon name="send" />}{busy ? t.common.sending : t.forms.sendToCommittee}
         </button>
         {error && <p className="form-note form-note--error">{error}</p>}
         <p className="form-note">

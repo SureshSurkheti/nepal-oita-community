@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { localeAlternates, toLocale } from '@/lib/i18n'
+import { getDictionary } from '@/lib/dictionaries'
 import { EventCard } from '@/components/EventCard'
 import { EventsRail } from '@/components/EventsRail'
 import { getEvents, getMyDraftEvents, longDate } from '@/lib/content'
@@ -22,14 +23,15 @@ export async function generateMetadata(
   const lang = toLocale((await params).lang)
   return {
     alternates: localeAlternates(lang, '/events'),
-    title: 'Events',
-    description:
-      'Festivals, meetups, sport and volunteering with the Nepali community of Oita '
-      + 'and Beppu — what is coming up, and everything we have run.',
+    title: getDictionary(lang).meta.eventsTitle,
+    description: getDictionary(lang).meta.eventsDesc,
   }
 }
 
-export default async function EventsPage() {
+export default async function EventsPage({ params }: { params: Promise<{ lang: string }> }) {
+  const lang = toLocale((await params).lang)
+  const t = getDictionary(lang)
+
   const [events, member] = await Promise.all([getEvents(), getCurrentMember()])
   const canAdd = member !== null && (member.can_contribute || member.is_admin)
 
@@ -44,10 +46,9 @@ export default async function EventsPage() {
 
   return (
     <>
-      <PageHead path="/events" icon="calendar" eyebrow="Events" title="Come to the next one"
-                back={{ href: '/#events', label: 'Back to home' }}
-                lede={'You do not need to know anyone. Turn up, and you will by the '
-                      + 'end of the day.'} />
+      <PageHead path="/events" icon="calendar" eyebrow={t.pages.events.eyebrow} title={t.pages.events.title}
+                back={{ href: '/#events', label: t.pages.events.back }}
+                lede={t.pages.events.lede} />
 
       <section className="section">
         <div className="container">

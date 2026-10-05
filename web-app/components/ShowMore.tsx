@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
+import { LocaleLink as Link } from './LocaleLink'
 import { Icon } from './Sprite'
 
 /* Shows part of a long grid and puts the rest behind a control.

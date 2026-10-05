@@ -243,3 +243,96 @@ the last admin, so this should not happen by accident.
   tested against a real PostgreSQL — but it has never talked to a live Supabase
   project. The first run against a real one may still turn something up,
   especially around the SMS provider.
+
+---
+
+## Tonight, at home
+
+A checklist, in order. The first item unblocks four of the others, so do it
+first. Everything here needs the Supabase dashboard or the committee pages —
+none of it is a code change, and none of it needs a developer.
+
+### 1. Run `supabase/RUN-IN-SQL-EDITOR.sql`
+
+**This is the one that matters.** Five migrations, 470 lines, none of them ever
+run on the live project. The site works without them, but it is quietly showing
+you the fallback for all five.
+
+Supabase dashboard → **SQL Editor** → **New query** → paste the whole file →
+**Run**. It is safe to run more than once: every statement fills in a blank,
+matches a key that is already there, or is an upsert. Nothing is deleted.
+
+What changes the moment it finishes:
+
+| | what you will see |
+|---|---|
+| 0020 | the six "What we do" cards in Nepali. Right now the heading above them translates and the cards do not, because the headings are in the code and the cards are rows in the database — `programmes.title_ne` does not exist yet |
+| 0021 | the Kabaddi film show and the Nepali Festival appear, with `movie.jpg` and `festival.jpg` as their posters |
+| 0022 | the other events take covers from the community's own photographs |
+| 0023 | gallery captions that describe the photograph they are under |
+| 0024 | Dashain moves into the past, so the hero ribbon stops announcing it |
+
+If anything goes red, copy the message out before closing the tab — the editor
+throws it away when you navigate.
+
+### 2. Run `supabase/verify.sql`
+
+Same editor, second query. It prints a row per check and flags anything wrong
+with **CHECK THIS** rather than `ok`. Two of them are the point:
+
+- **gallery files actually uploaded** will say `0 of 12`. That is item 3.
+- **the development sign-in bypass.** While `dev_sign_in_as` exists in the
+  database, anybody who can reach the site can sign in as any member and read
+  every stored phone number. If that row says CHECK THIS, run
+  `supabase/dev/dev_signin_remove.sql`, turn Anonymous sign-ins back off in
+  Authentication → Providers, and delete `NEXT_PUBLIC_DEV_SIGNIN` from the
+  Vercel environment. Do this one before telling anybody the address.
+
+### 3. Upload the gallery photographs
+
+`/admin/photos`, signed in as committee. There are twelve published photo
+*records* in the database and zero actual files behind them.
+
+Nothing is broken while they are missing — any cover that does not load falls
+back to one of the photographs that ship in `public/images`, so the cards show a
+real picture either way. But those are scenery. The community's own photographs
+are the point of the gallery, and eight events borrow their covers from it.
+
+### 4. Settle the telephone number
+
+The two disagree and both are published:
+
+- the Nepali Festival poster prints **090-4316-4111**
+- this site publishes **080-4316-4111**, in the contact section and in the
+  contact form
+
+The 2024 banner inside the poster's own artwork says 080, so the new poster may
+simply have a typo. Whichever is right, the other needs correcting — the poster
+tells people to come to this website, so the two have to agree. The site's copy
+is in `app/[lang]/page.tsx` and `components/ContactForm.tsx`; both link
+`tel:+818043164111`, which also has to change.
+
+---
+
+### When the committee has decided, not tonight
+
+Three dates are placeholders. Each is one row at `/admin/events`, and the site
+says so in its own words on every one of them — but a chip can only print a day.
+
+- **The Nepali Festival** sits on 1 April 2027. The poster says only "APRIL
+  2027" and prints DATE / TIME / VENUE COMING SOON in three languages.
+- **Dashain** was moved to 2 October 2026 to put it in the past, where the
+  committee says it belongs. If the real date is known, use it.
+- **The Kabaddi show** has no start times, no venue and no ticket price. The
+  poster leaves `1st SHOW` and `2nd SHOW` blank, so neither was invented.
+  Sunday 29 November is from the poster and is correct.
+
+### Still open, and needs a decision rather than an evening
+
+- No password reset. A member who forgets theirs has to be issued a new claim
+  code by the committee.
+- No admin fields for the `_ne` columns, so anything the committee adds from now
+  on is English-only until somebody writes the Nepali into the database by hand.
+- The Supabase project is on the free tier, with no backup of the database.
+- The sitemap has about thirty URLs and has never been submitted to Google
+  Search Console.

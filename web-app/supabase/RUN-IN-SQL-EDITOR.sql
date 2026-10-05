@@ -1,0 +1,403 @@
+-- ===========================================================================
+--  RUN THIS ONCE, IN THE SUPABASE SQL EDITOR
+--
+--  Dashboard -> SQL Editor -> New query -> paste all of this -> Run.
+--
+--  It is migrations 0020 to 0023 in order, which is everything the website is
+--  waiting for. Until it runs, the site still works but shows none of it:
+--
+--    0020  "What we do" in Nepali          — the section stays English
+--    0021  the Kabaddi show and the         — the two events do not exist,
+--          Nepali Festival, with posters      so no posters appear anywhere
+--    0022  photographs on the other events — the cards keep the drawn pattern
+--    0023  captions that match the pictures — "Dal bhat" on a photo of a hall
+--
+--  Safe to run more than once: every statement either fills in a blank, matches
+--  on a key that is already there, or is an upsert. Nothing is deleted.
+-- ===========================================================================
+
+
+-- =======================================================================
+--  0020_programmes_in_nepali.sql
+-- =======================================================================
+-- ===========================================================================
+--  "What we do", in Nepali
+--
+--  The chrome around this section was translated in the dictionaries, but the
+--  six programmes and their eighteen points are rows, not code — so a Nepali
+--  reader got a Nepali heading over an English list. No dictionary can reach
+--  them, because the committee writes them.
+--
+--  WHY COLUMNS RATHER THAN A SECOND TABLE
+--  A programme_translations table would be the textbook answer and the wrong
+--  one here. There are two languages, both decided, and a programme without a
+--  title in each is not a thing this site wants to represent. A side table buys
+--  a third language nobody has asked for, at the cost of a join on the single
+--  most-read query on the site and a class of bug where the translation row goes
+--  missing. Two columns, one row, one read.
+--
+--  NULL MEANS "NOT TRANSLATED YET", AND FALLS BACK TO ENGLISH
+--  Deliberately nullable, and the app treats null as "show the English". That is
+--  what makes this safe to ship: the committee can add a seventh programme in
+--  English this afternoon without the Nepali site showing a blank card, and
+--  translate it whenever they get to it. An empty string is NOT the same thing
+--  and is not used — '' would mean "deliberately blank", which no programme is.
+--
+--  THE TRANSLATIONS BELOW ARE A FIRST PASS and the committee should read them.
+--  They are written for a Nepali speaker living in Oita, so Japanese
+--  institutions keep the names people actually use locally (वडा कार्यालय for the
+--  ward office) rather than being rendered into unfamiliar formal Nepali.
+-- ===========================================================================
+
+alter table public.programmes
+  add column if not exists title_ne text,
+  add column if not exists body_ne  text;
+
+alter table public.programme_points
+  add column if not exists text_ne text;
+
+-- --------------------------------------------------------------- programmes
+-- Keyed on slug, not id: the ids are generated per environment, so an id here
+-- would make this migration apply cleanly and do nothing on a fresh database.
+update public.programmes set
+  title_ne = 'सांस्कृतिक चाडपर्व',
+  body_ne  = 'दशैं, तिहार, होली र नेपाली नयाँ वर्ष — राम्ररी मनाइन्छ, र सधैं ओइताको बृहत् समुदायका लागि खुला।'
+where slug = 'cultural-festivals';
+
+update public.programmes set
+  title_ne = 'व्यावहारिक सहयोग',
+  body_ne  = 'नदेखिने तर जरुरी काम: फारम, फोन सम्पर्क, अनुवाद, र कुन कार्यालयमा जाने भन्ने जानकारी।'
+where slug = 'practical-support';
+
+update public.programmes set
+  title_ne = 'जवाफ दिने सञ्जाल',
+  body_ne  = 'प्रदेशभर पाँच सय मानिस, र केही बिग्रिँदा बिहान २ बजे पनि जागा रहने समूह च्याट।'
+where slug = 'a-network-that-answers';
+
+update public.programmes set
+  title_ne = 'भाषा र सम्पदा',
+  body_ne  = 'जापानमा हुर्कँदै गरेका बालबालिकालाई नेपाली, र कामका लागि जापानी चाहिने वयस्कलाई सहयोग।'
+where slug = 'language-and-heritage';
+
+update public.programmes set
+  title_ne = 'खेलकुद र सप्ताहान्त',
+  body_ne  = 'न्यानो महिनाभर फुटबल र भलिबल — कसैलाई नचिनेको भए पनि समुदायमा घुलमिल हुने सबैभन्दा सजिलो बाटो।'
+where slug = 'sport-and-weekends';
+
+update public.programmes set
+  title_ne = 'ओइतामा आइपुग्दा',
+  body_ne  = 'पहिलो महिना सबैभन्दा गाह्रो हुन्छ। यो बाटो पहिले नै हिँडिसकेको कोहीले तपाईंलाई डोर्‍याउनेछ।'
+where slug = 'landing-in-oita';
+
+-- --------------------------------------------------------------- the points
+-- Matched on the English text. These are short, fixed phrases and there are
+-- eighteen of them; anything the committee has since reworded simply stays
+-- English, which is the designed fallback rather than a failure.
+update public.programme_points set text_ne = v.ne
+from (values
+  ('Traditional food and live music',          'परम्परागत खाना र प्रत्यक्ष सङ्गीत'),
+  ('Visa and residency paperwork',             'भिसा र बसोबासका कागजात'),
+  ('Facebook groups for your area',            'तपाईंको क्षेत्रका फेसबुक समूह'),
+  ('Nepali reading and writing for children',  'बालबालिकालाई नेपाली पढाइ र लेखाइ'),
+  ('Open teams, no trials, all levels',        'खुला टोली, छनोट छैन, सबै स्तर'),
+  ('Meeting new arrivals at the station',      'नयाँ आउनेहरूलाई स्टेशनमा भेट्ने'),
+  ('Ward office, bank and phone set-up',       'वडा कार्यालय, बैंक र फोन मिलाउने'),
+  ('Dance and cultural performances',          'नृत्य र सांस्कृतिक प्रस्तुति'),
+  ('Conversation practice before interviews',  'अन्तर्वार्ता अघि कुराकानीको अभ्यास'),
+  ('Matches in Oita City and Beppu',           'ओइता सहर र बेप्पुमा खेल'),
+  ('Job placement and interviews',             'रोजगारी र अन्तर्वार्ता'),
+  ('Monthly newsletter',                       'मासिक न्यूजलेटर'),
+  ('Housing and guarantor guidance',           'आवास र जमानीबारे सल्लाह'),
+  ('Emergency support chain',                  'आपत्कालीन सहयोग शृंखला'),
+  ('Where to buy Nepali groceries',            'नेपाली किराना कहाँ किन्ने'),
+  ('Help reading official letters',            'सरकारी पत्र पढ्न सहयोग'),
+  ('Family-friendly, all welcome',             'परिवारमैत्री, सबैलाई स्वागत'),
+  ('Families welcome to come and watch',       'परिवारहरू हेर्न आउन स्वागत छ')
+) as v(en, ne)
+where public.programme_points.text = v.en;
+
+
+-- =======================================================================
+--  0021_two_posters.sql
+-- =======================================================================
+-- ===========================================================================
+--  The Kabaddi film show and the Nepali Festival, with their posters
+--
+--  Both are real NOC events and neither was on the site. Their artwork was
+--  sitting in public/images as festival.jpg and movie.jpg, used only as two
+--  frames of the home page's hero rotation, where a poster competes with the
+--  headline printed over it and nobody can read either.
+--
+--  WHAT IS DELIBERATELY NOT HERE
+--  Neither poster states a venue, a start time or a ticket price, so neither is
+--  recorded. The film poster prints "1st SHOW ----" and "2nd SHOW ----" with the
+--  times left blank, and the festival poster says DATE / TIME / VENUE COMING
+--  SOON in three languages. Writing a plausible time into a community's own
+--  listing is how a family turns up at the wrong hour.
+--
+--  THE FESTIVAL'S DATE IS A PLACEHOLDER AND MUST BE CORRECTED.
+--  event_date is `not null`, and the poster says only "April 2027", so this uses
+--  2027-04-01 to sort it into the right month. The card will print APR 1, which
+--  is not a date anybody has announced — every piece of text on the event says
+--  so, but the chip cannot. Change it the day the committee fixes the date.
+--
+--  cover_path holds a site-relative path rather than a Supabase object key.
+--  assetUrl() passes anything starting with "/" through untouched; see the note
+--  there. These two posters ship with the release instead of being uploaded,
+--  because they are artwork for the site rather than a photograph of an event.
+-- ===========================================================================
+
+alter table public.events
+  add column if not exists title_ne   text,
+  add column if not exists summary_ne text,
+  add column if not exists body_ne    text;
+
+alter table public.event_highlights
+  add column if not exists text_ne text;
+
+-- ------------------------------------------------------- the Kabaddi show
+insert into public.events
+  (slug, title, summary, body, event_date, category, accent, cover_path,
+   is_published, title_ne, summary_ne, body_ne)
+values (
+  'kabaddi-5-oita-show',
+  'Kabaddi 5 — Oita Show',
+  'Ram Babu Gurung''s Kabaddi 5 comes to Oita for one day, with two screenings.',
+  E'Kabaddi 5 — After the Final Match, the newest film in Ram Babu Gurung''s Kabaddi series, screening in Oita for one day only.\n\n'
+  'There are two showings on Sunday 29 November. The start times, the venue and the ticket price are not fixed yet — they go up on our Facebook page and on this page as soon as they are.\n\n'
+  'Brought to Oita by the Nepal Oita Community, powered by YeheyRemit, in association with Vizonia. Japan rights: Mukti Raj Regmi.',
+  date '2026-11-29', 'Cultural', 'indigo',
+  '/images/event-kabaddi-oita-show.webp', true,
+  'कबड्डी ५ — ओइता शो',
+  'राम बाबु गुरुङको कबड्डी ५ एक दिनका लागि ओइतामा, दुई पटक प्रदर्शन।',
+  E'कबड्डी ५ — आफ्टर द फाइनल म्याच, राम बाबु गुरुङको कबड्डी शृंखलाको नयाँ फिल्म, ओइतामा एक दिन मात्र।\n\n'
+  'नोभेम्बर २९, आइतबार दुई पटक देखाइनेछ। सुरु हुने समय, स्थान र टिकटको मूल्य अझै तय भएको छैन — तय भएपछि हाम्रो फेसबुक पेज र यही पृष्ठमा राखिनेछ।\n\n'
+  'नेपाल ओइता समुदायद्वारा ओइतामा ल्याइएको, YeheyRemit को सहयोगमा, Vizonia सँगको सहकार्यमा। जापान अधिकार: मुक्ति राज रेग्मी।'
+)
+on conflict (slug) do update set
+  title = excluded.title, summary = excluded.summary, body = excluded.body,
+  event_date = excluded.event_date, category = excluded.category,
+  accent = excluded.accent, cover_path = excluded.cover_path,
+  title_ne = excluded.title_ne, summary_ne = excluded.summary_ne,
+  body_ne = excluded.body_ne;
+
+delete from public.event_highlights
+ where event_id = (select id from public.events where slug = 'kabaddi-5-oita-show');
+insert into public.event_highlights (event_id, text, text_ne, position)
+select e.id, v.en, v.ne, v.pos
+from public.events e, (values
+  ('A film by Ram Babu Gurung',             'राम बाबु गुरुङको फिल्म',                 0),
+  ('Two showings on the day',               'एकै दिन दुई पटक प्रदर्शन',               1),
+  ('Times, venue and tickets announced soon','समय, स्थान र टिकट चाँडै घोषणा हुनेछ',   2),
+  ('Organised by Nepal Oita Community',     'नेपाल ओइता समुदायद्वारा आयोजित',        3)
+) as v(en, ne, pos)
+where e.slug = 'kabaddi-5-oita-show';
+
+-- ---------------------------------------------------- the Nepali Festival
+insert into public.events
+  (slug, title, summary, body, event_date, category, accent, cover_path,
+   is_published, title_ne, summary_ne, body_ne)
+values (
+  'nepali-festival-2027',
+  'Nepali Festival 2027',
+  'The community''s biggest day of the year returns in April 2027. The date, time and venue are still to be announced.',
+  E'नेपाली महोत्सव — the Nepali Festival in Oita, held by this community every year since 2019.\n\n'
+  'A day of Nepali food, music and dance, open to the whole prefecture and to our Japanese neighbours. It is the one day in the year when the community is all in one place.\n\n'
+  'April 2027. The exact date, the time and the venue are not settled yet. They will be announced on our Facebook page and posted here — the date shown on this page until then is a placeholder for the month, not an announcement.',
+  date '2027-04-01', 'Festival', 'crimson',
+  '/images/event-nepali-festival-2027.webp', true,
+  'नेपाली महोत्सव २०२७',
+  'समुदायको वर्षकै ठूलो दिन अप्रिल २०२७ मा फेरि। मिति, समय र स्थान घोषणा हुन बाँकी छ।',
+  E'नेपाली महोत्सव — ओइतामा हुने नेपाली फेस्टिभल, यो समुदायले २०१९ देखि हरेक वर्ष आयोजना गर्दै आएको।\n\n'
+  'नेपाली खाना, सङ्गीत र नृत्यको एक दिन, पूरै प्रदेश र हाम्रा जापानी छिमेकीहरूका लागि खुला। वर्षमा यही एक दिन हो जब पूरा समुदाय एकै ठाउँमा हुन्छ।\n\n'
+  'अप्रिल २०२७। निश्चित मिति, समय र स्थान अझै तय भएको छैन। तय भएपछि हाम्रो फेसबुक पेज र यही पृष्ठमा राखिनेछ — त्यतिन्जेल यहाँ देखिने मिति महिना जनाउने प्लेसहोल्डर मात्र हो, घोषणा होइन।'
+)
+on conflict (slug) do update set
+  title = excluded.title, summary = excluded.summary, body = excluded.body,
+  event_date = excluded.event_date, category = excluded.category,
+  accent = excluded.accent, cover_path = excluded.cover_path,
+  title_ne = excluded.title_ne, summary_ne = excluded.summary_ne,
+  body_ne = excluded.body_ne;
+
+delete from public.event_highlights
+ where event_id = (select id from public.events where slug = 'nepali-festival-2027');
+insert into public.event_highlights (event_id, text, text_ne, position)
+select e.id, v.en, v.ne, v.pos
+from public.events e, (values
+  ('Nepali food, music and dance',          'नेपाली खाना, सङ्गीत र नृत्य',          0),
+  ('Open to everybody in Oita',             'ओइताका सबैका लागि खुला',               1),
+  ('Held every year since 2019',            '२०१९ देखि हरेक वर्ष आयोजना',           2),
+  ('Date, time and venue to be announced',  'मिति, समय र स्थान घोषणा हुन बाँकी',    3)
+) as v(en, ne, pos)
+where e.slug = 'nepali-festival-2027';
+
+
+-- =======================================================================
+--  0022_event_covers_from_gallery.sql
+-- =======================================================================
+-- ===========================================================================
+--  Covers for the ten seeded events, from the community's own photographs
+--
+--  Eight of the ten now carry a real photograph out of the gallery. Nothing was
+--  generated and nothing was downloaded: these are pictures this community took
+--  at its own events, already uploaded to the site-photos bucket, and they are
+--  better than any invented image for exactly the reason that matters — a
+--  visitor deciding whether to come wants to see what it is actually like.
+--
+--  MATCHED ON WHAT THE PHOTOGRAPH SHOWS, NOT ON ITS CAPTION.
+--  Several captions do not describe their picture, which is worth knowing
+--  separately from this migration:
+--    "Volunteer clean-up"  is a group under a Nepal Festival arch
+--    "Dal bhat"            is a large group indoors, no food in frame
+--    "Devanagari"          is a family portrait in Nepali dress
+--  Had these been matched by caption, the clean-up event would be illustrated
+--  with a festival gate and the food festival with a room of people.
+--
+--  TWO EVENTS ARE DELIBERATELY LEFT WITHOUT ONE.
+--  There is no photograph of a river clean-up and none of volleyball in the
+--  gallery. Both keep the drawn pattern the cards already fall back to, which
+--  reads as a design. Putting the nearest-looking picture on them would be
+--  telling members an event looked like something it did not.
+-- ===========================================================================
+
+update public.events set cover_path = v.path
+from (values
+  -- Women in traditional dress outdoors — the dress is the subject, which is
+  -- what a festival celebration looks like from the outside.
+  ('holi-festival-celebration',
+   '1787383757597-483664190-1001344595427360-1167711772888924714-n.jpg'),
+
+  -- A full lecture hall of seated students. The clearest match in the set.
+  ('new-student-orientation', 'committee/1790993145742.webp'),
+
+  -- Arriving under the festival arch. Captioned "Volunteer clean-up", which it
+  -- plainly is not.
+  ('nepali-food-festival',
+   '1787234354088-598025577-1217679317127219-1183812236048714047-n.jpg'),
+
+  -- A family with a child in Nepali dress. The class exists so children growing
+  -- up in Japan keep the language, so the family is the point of it.
+  ('nepali-language-class-open-day',
+   '1787235204368-483523606-1001344678760685-8065115099288787648-n.jpg'),
+
+  -- The group on a park bench. Row 9 is byte-identical to this one; the
+  -- duplicate is left alone here and should be deleted at /admin/photos.
+  ('monthly-community-meetup',
+   '1787234266226-762974453-1401833195378496-519796008339442084-n.jpg'),
+
+  -- The team on the pitch.
+  ('autumn-football-tournament',
+   '1787234640767-480781794-992468066315013-6967558951025335564-n.jpg'),
+
+  -- The red Lakhe mask mid-dance on a festival stage.
+  ('dashain-celebration',
+   '1787234583658-483793540-1001344622094024-3812862123925429947-n.jpg'),
+
+  -- The lit stage under bunting, which suits the festival of lights.
+  ('tihar-and-deepawali',
+   '1787234893420-484353831-1001344452094041-2767845548514239072-n.jpg')
+) as v(slug, path)
+where public.events.slug = v.slug
+  -- Never overwrite a cover the committee has chosen, including the two posters
+  -- 0021 set. This migration only fills in what is empty.
+  and public.events.cover_path is null;
+
+
+-- =======================================================================
+--  0023_gallery_captions.sql
+-- =======================================================================
+-- ===========================================================================
+--  Captions that describe their photograph
+--
+--  Several did not, and three were plainly about a different picture:
+--
+--    "Volunteer clean-up"  a group under the Nepal Festival Fukuoka 2025 arch
+--    "Dal bhat"            a hall full of families, no food anywhere in frame
+--    "Devanagari"          a child dressed as the Kumari, with her family
+--
+--  That matters more than it looks. The caption is what the gallery prints under
+--  the picture and what the lightbox reads out, so a visitor was being told the
+--  community ran a river clean-up it has no photograph of. It also made the
+--  pictures unusable for anything else: choosing covers for the events meant
+--  opening all twelve and looking, because the captions could not be trusted.
+--
+--  ALT TEXT IS NOW DIFFERENT FROM THE CAPTION. Every row had alt = caption,
+--  which is the one thing alt text should never be: a screen-reader user heard
+--  "Dal bhat" and learned nothing, while a sighted reader saw the caption AND
+--  the picture. The caption now names the occasion and the alt describes what is
+--  actually in the frame.
+--
+--  CATEGORIES WERE DOING NOTHING. Eleven of the twelve were "community", so the
+--  gallery's filter chips offered a choice between everything and one photograph.
+--  Split into festival / cultural / community / sport / students, which is how
+--  this community already describes itself on the home page.
+--
+--  THE DUPLICATE IS UNPUBLISHED, NOT DELETED. Two rows point at byte-identical
+--  uploads of the same park-bench photograph. Unpublishing takes it out of the
+--  gallery and leaves the row and the file alone, so it can be put back by
+--  anybody who disagrees; deleting would orphan the object in the bucket.
+-- ===========================================================================
+
+update public.photos set caption = v.caption, alt = v.alt, category = v.category
+from (values
+  ('1787234354088-598025577-1217679317127219-1183812236048714047-n.jpg',
+   'Nepal Festival in Fukuoka',
+   'Members standing together under the red Nepal Festival Fukuoka 2025 arch, with food stalls behind them',
+   'festival'),
+
+  ('1787234426571-515441026-1083353387226480-3080054806473810661-n.jpg',
+   'Families at the community day',
+   'A hall packed with Nepali and Japanese families and their children, posing together around the tables',
+   'community'),
+
+  ('1787234583658-483793540-1001344622094024-3812862123925429947-n.jpg',
+   'Lakhe dance on the festival stage',
+   'A dancer in the red Lakhe mask and costume performing with black fans on the Nepal Festival stage',
+   'cultural'),
+
+  ('1787234640767-480781794-992468066315013-6967558951025335564-n.jpg',
+   'The football tournament',
+   'Players in blue and grey kit with their medals, and supporters, on the indoor pitch after the tournament',
+   'sport'),
+
+  ('1787234893420-484353831-1001344452094041-2767845548514239072-n.jpg',
+   'The first Nepal Festival in Oita',
+   'The crowd watching a singer on stage beneath the banner for the first Nepal Festival in Oita, 2024',
+   'festival'),
+
+  ('1787235204368-483523606-1001344678760685-8065115099288787648-n.jpg',
+   'Dressed as the Kumari',
+   'A young girl in the red and gold dress and headdress of the Kumari, seated with her mother, father and brother',
+   'cultural'),
+
+  ('1787235243765-75369266-148599499861397-8633281442060697600-n.jpg',
+   'The committee in front of the members',
+   'Committee members in Nepal Oita Community shirts standing at the whiteboard while members watch from their seats',
+   'community'),
+
+  ('1787234266226-762974453-1401833195378496-519796008339442084-n.jpg',
+   'The monthly meet-up',
+   'Members sitting together on and around a park bench under the trees at the monthly meet-up',
+   'community'),
+
+  ('1787383757597-483664190-1001344595427360-1167711772888924714-n.jpg',
+   'Cultural dress show',
+   'Six women in the traditional dress of different parts of Nepal, standing together by the water',
+   'cultural'),
+
+  ('committee/1790993145742.webp',
+   'New student orientation',
+   'A hall of students seated in rows of chairs facing the stage at the new-student orientation',
+   'students'),
+
+  ('committee/1790993364135.webp',
+   'Senpai Kai',
+   'Three members reading through papers at the top table during a Senpai Kai session',
+   'students')
+) as v(path, caption, alt, category)
+where public.photos.storage_path = v.path;
+
+-- The second upload of the park-bench photograph. Same bytes, same picture.
+update public.photos set is_published = false
+ where storage_path = '1787234791585-762974453-1401833195378496-519796008339442084-n.jpg';
+

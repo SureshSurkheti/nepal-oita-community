@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 import { Spinner } from './Spinner'
@@ -29,7 +29,7 @@ export function SignInForm({ hasAccount = false, hasMemberCard = false }: {
   hasAccount?: boolean
   hasMemberCard?: boolean
 }) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [mode, setMode] = useState<Mode>('in')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -37,6 +37,41 @@ export function SignInForm({ hasAccount = false, hasMemberCard = false }: {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [signedIn, setSignedIn] = useState(hasAccount)
+  const [resetState, setResetState] = useState<'idle' | 'sending' | 'sent'>('idle')
+
+  /* An expired link lands back here with ?error=, so the page it came from can
+     explain itself rather than looking like an ordinary sign-in form that
+     mysteriously appeared. Read once, from the URL, with no router dependency. */
+  const [linkError, setLinkError] = useState<string | null>(null)
+  useEffect(() => {
+    const e = new URLSearchParams(window.location.search).get('error')
+    if (e === 'expired') setLinkError(t.auth.linkExpired)
+    else if (e === 'link') setLinkError(t.auth.linkBroken)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /* The password reset email.
+   *
+   * ALWAYS REPORTS THE SAME THING, whether or not the address has an account.
+   * "No account on that address" turns this form into a way of asking the site
+   * which of a list of email addresses belongs to a member of this community —
+   * and for a community of people who have moved countries, membership is not a
+   * fact to hand out. Supabase's own call behaves the same way, and the message
+   * is written so it is honest either way: it says what to do if an email
+   * arrives, not that one was sent to a known account.
+   *
+   * redirectTo keeps the locale, so somebody reading in Nepali is not dropped
+   * onto the English page by their own email. */
+  async function sendReset() {
+    if (!email.trim()) { setError(t.auth.resetNeedsEmail); return }
+    setError(null)
+    setResetState('sending')
+    const next = encodeURIComponent(`/${locale}/reset-password`)
+    await createClient().auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/${locale}/auth/callback?next=${next}`,
+    })
+    setResetState('sent')
+  }
 
   /* Step one: get a session. */
   async function account(event: React.FormEvent) {
@@ -126,6 +161,7 @@ export function SignInForm({ hasAccount = false, hasMemberCard = false }: {
 
       {!signedIn ? (
         <>
+          {linkError && <p className="form-note form-note--error">{linkError}</p>}
           <p className="u-mb-15">
             {mode === 'in'
               ? t.auth.signInIntro
@@ -150,6 +186,19 @@ export function SignInForm({ hasAccount = false, hasMemberCard = false }: {
             </button>
             {error && <p className="form-note form-note--error">{error}</p>}
           </form>
+          {/* Only when signing IN. Offering a password reset beside a form that
+              is making a brand-new account is an invitation to reset a password
+              that does not exist yet. */}
+          {mode === 'in' && (
+            <p className="form-note">
+              {resetState === 'sent' ? t.auth.resetSent : (
+                <button className="link-button" type="button" onClick={sendReset}
+                        disabled={resetState === 'sending'}>
+                  {resetState === 'sending' ? t.auth.resetSending : t.auth.forgot}
+                </button>
+              )}
+            </p>
+          )}
           <p className="form-note">
             {mode === 'in' ? `${t.auth.firstTime} ` : `${t.auth.haveAccount} `}
             <button className="link-button" type="button"

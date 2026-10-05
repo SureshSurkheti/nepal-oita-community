@@ -59,13 +59,6 @@ const HERO_PHOTOS = [
   '/images/place-sakura.jpg',
   '/images/place-amadablam.jpg',
   '/images/place-boudhanath.jpg',
-  /* The web-sized copies, not the originals the committee dropped in. The
-     festival poster arrived at 4961x7016 and 3.58 MB — on the home page's hero,
-     so every visitor downloaded it before seeing anything. The .webp beside it
-     is 306 KB and no reader can tell them apart at this size. The originals are
-     still in the folder; nothing references them. */
-  '/images/event-nepali-festival-2027.webp',
-  '/images/event-kabaddi-oita-show.webp',
 ]
 
 /* The hero numbers.

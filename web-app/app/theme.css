@@ -159,7 +159,31 @@ body {
   background: var(--paper);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* CLIP, NOT HIDDEN, AND THE DIFFERENCE IS A WHOLE SECOND SCROLLBAR.
+     
+     `overflow-x: hidden` on one axis forces the other axis from `visible` to
+     `auto` — that is in the spec, not a quirk. Measured on the live site:
+     body's computed overflow-y was `auto`, so the page had TWO scroll
+     containers, html and body, stacked on the same content. Which one a touch
+     drives is then up to the browser, and on iOS Safari in particular a gesture
+     can end up driving the one that has nothing left to scroll — the page does
+     not move, while the finger says it should. That is the shape of the
+     "feels like it scrolls but will not go up" report.
+     
+     `clip` clips the same overflow without making the element a scroll
+     container at all, so overflow-y stays `visible` and there is one scroller
+     again. `hidden` stays above it as the fallback for anything that does not
+     know `clip` (Safari before 16), where the old behaviour is still better
+     than a sideways scrollbar.
+     
+     HONEST NOTE: this is a real defect, measured, and it is NOT confirmed to be
+     the cause of the report. It could not be reproduced in emulation — scrolling
+     to the true bottom of the home page over a throttled 4G connection with the
+     CPU at a quarter speed, then swiping back up, moved 708px per swipe every
+     time with zero layout shifts. What emulation does not have is a real
+     browser's retracting address bar. */
   overflow-x: hidden;
+  overflow-x: clip;
   font-feature-settings: "kern", "liga", "calt";
 }
 
@@ -736,14 +760,46 @@ section[id], main[id] {
 /* Signed in there are two controls rather than one, and for the committee an
    eighth link, so the links run out of room earlier. Only the LINKS give way —
    the buttons stay, shrinking to icons at the width above. */
-/* 1120, measured: with the committee link present the member row is clean at
-   1121 and runs 15px past the edge at 1100. Down from 1300 — the auth buttons
-   shrinking to icons and the links tightening bought about 180px. Below this the
-   links move to the drawer; the buttons never do. */
-@media (max-width: 1120px) {
+/* 1240, AND THE ARITHMETIC IS WRITTEN OUT BECAUSE 1120 WAS WRONG.
+   
+   1120 was measured, and it was still wrong: it was taken against a row that did
+   not have all eight links in it at the time. With the committee link present
+   the signed-in row measures
+   
+       brand 148 + links 655 + actions 281 + two 20px gaps 40  =  1124px
+   
+   and `.nav__inner` lives inside `.container`, which is `min(1180px, viewport -
+   2 x gutter)` with the gutter at clamp(1.25rem, 4vw, 3rem). So the row needs a
+   viewport of 1124 + 96 = 1220 before it fits at all. Below that it overflows,
+   and flex resolves an overflow by pushing the LAST item out of view rather
+   than by complaining — and the last item is Sign out.
+   
+   MEASURED FAILURE, before this change: at 1280 the Sign out button's right
+   edge was 19px past the right edge of the screen, at 1180 it was 69px past,
+   at 1121 it was 63px past. Half a button, hanging off a laptop. Above 1366 the
+   row still overflowed its container by the same 69px, but the viewport was
+   wide enough that the overflow landed on screen, so it looked merely
+   misaligned — which is why this survived being looked at.
+   
+   1240 rather than 1220: twenty pixels of margin, because the number is a
+   consequence of eight link labels and two button labels, and those are
+   translated. A Nepali label one character longer must not put the row back
+   over the edge. Measure again if a link is added or a label lengthened. */
+@media (max-width: 1240px) {
   .nav--member .nav__links { display: none; }
   .nav--member .nav__burger { display: grid; }
 }
+
+/* Signed in, the switcher is always the two-character form.
+   
+   It is 123px with the full names and 62px without, and that 61px is most of
+   what makes the eight-link row fit at all. A member has already chosen their
+   language and the control is still unmistakable — EN and ने are what the
+   drawer and every phone already show, and the full names stay in the DOM for
+   crawlers and screen readers either way. */
+.nav--member .langsw__full  { display: none; }
+.nav--member .langsw__short { display: inline; }
+.nav--member .langsw__opt   { padding: 0.34rem 0.5rem; }
 
 /* Signed in, the links themselves get tighter.
    
@@ -753,8 +809,43 @@ section[id], main[id] {
    eight links plus both member controls need about 1,264px inside a 1,180px
    container. Nothing was going to make that fit; something had to get smaller,
    and 4px either side of each link costs far less than the site's own name. */
-.nav--member .nav__link { padding-inline: 0.55rem; }
-.nav--member .nav__link::after { left: 0.55rem; right: 0.55rem; }
+/* THE MEMBER ROW HAS A FIXED BUDGET, AND IT IS SMALLER THAN IT LOOKS.
+   
+   `.nav__inner` is max-width 1180 with 48px of gutter padding each side, so the
+   usable width is 1180 - 96 = 1084px — and because the max-width caps it, that
+   number does NOT grow on a wider screen. A 1920px monitor has exactly the same
+   1084px to spend as a 1280px laptop. That is the fact that made this bug
+   survive: it looked like a narrow-screen problem, so it was fixed with a
+   breakpoint, and breakpoints cannot help with a budget that never changes.
+   
+   Measured, signed in as committee, before this block:
+   
+       brand 148 + links 655 + actions 295 + two 20px gaps 40  =  1138px
+                                                      budget  =  1084px
+                                                            over by 54px
+   
+   Flex resolves that by pushing the last item out of view rather than by
+   complaining, and the last item is Sign out. Three savings bring it under,
+   and none of them is a breakpoint:
+   
+     switcher to EN/ने   -61px   (above; it is what the drawer already shows)
+     Profile to its icon -59px   (below; the label is in the drawer, in words)
+     links 0.55 -> 0.45  -26px   (below)
+                        ------
+                         1053px, with 31px to spare
+   
+   SIGN OUT KEEPS ITS LABEL, deliberately, and it is the reason the other two
+   gave theirs up. It is the one control that is NOT in the drawer — a member
+   who cannot find it is stuck signed in on a shared machine — so it is the last
+   thing in the row that should ever become a bare glyph. */
+.nav--member .nav__link { padding-inline: 0.45rem; }
+.nav--member .nav__link::after { left: 0.45rem; right: 0.45rem; }
+
+/* Profile as its icon alone, at every width rather than below a breakpoint,
+   because the budget above is the same at every width. It keeps aria-label and
+   title, it is in the drawer as "My profile" in words, and /me is reachable
+   from the member's own card besides. */
+.nav--member .nav__cta .nav__label { display: none; }
 
 /* Mobile drawer */
 .drawer {

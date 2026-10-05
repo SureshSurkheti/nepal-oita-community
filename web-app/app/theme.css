@@ -2843,7 +2843,7 @@ dialog::backdrop {
 }
 .roster li {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.9rem;
   padding: 0.75rem 0.9rem;
   border-radius: var(--r-sm);
@@ -2853,6 +2853,43 @@ dialog::backdrop {
 .roster .avatar { width: 38px; height: 38px; font-size: 0.85rem; }
 .roster__name { font-weight: 600; font-size: 0.93rem; }
 .roster__meta { font-size: 0.81rem; color: var(--ink-3); }
+
+/* The chip sits BESIDE the name, not inside the sentence.
+   It was written as `<span class="chip"> committee</span>` straight after the
+   name, so at 390px it ran into the last letter with no gap at all —
+   "Nepal-Oita Communitycommittee" — and its own text could wrap in the middle.
+   A roster chip is a label on a person, so it is smaller than a control, never
+   breaks, and keeps its distance. */
+.roster__name .chip {
+  display: inline-block;
+  margin-inline-start: 0.45rem;
+  padding: 0.12rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  vertical-align: 0.08em;
+}
+
+/* THE LIST IS NOT ITS OWN SCROLLING BOX ON A PHONE.
+   `max-height: 46vh` is a reasonable idea on a desktop, where it keeps the
+   controls under the list reachable. On a 780px phone it is a 359px letterbox
+   that the committee has to scroll through twenty-eight people inside, while
+   the page scrolls behind it — two scrollbars in the space of a postcard, and
+   the thing somebody actually came to do is in the smaller one. Below the
+   point where the layout goes to one column the list simply runs down the
+   page, which is what it should have done all along. */
+@media (max-width: 860px) {
+  .roster {
+    max-height: none;
+    overflow-y: visible;
+    padding-inline-end: 0;
+  }
+  /* The row's own buttons: full width and a proper target, instead of three
+     pills wrapping into a ragged block. */
+  .roster li .cluster { width: 100%; }
+  .roster li .cluster > .btn,
+  .roster li .cluster > form > .btn { flex: 1 1 100%; justify-content: center; min-height: 44px; }
+}
 .roster__empty { padding: 2rem; text-align: center; color: var(--ink-3); font-size: 0.92rem; }
 
 /* --------------------------------------------------------------------------

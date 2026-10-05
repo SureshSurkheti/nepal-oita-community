@@ -81,14 +81,16 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
                 : (member.initials ?? member.name.charAt(0))}
             </span>
             <span>
+              {/* Name and chip only. "not linked to an account" used to trail
+                  the chip on this same line, which at 390px broke as "not
+                  linked to an / account" with the chip jammed against the name.
+                  It is a fact about the account, so it sits with the other
+                  account facts on the line below. */}
               <span className="roster__name">
                 {member.name}
                 {member.is_admin
-                  ? <span className="chip"> committee</span>
-                  : member.can_contribute && <span className="chip"> can add</span>}
-                {member.user_id === null && (
-                  <span className="text-sm muted"> · not linked to an account</span>
-                )}
+                  ? <span className="chip">committee</span>
+                  : member.can_contribute && <span className="chip">can add</span>}
               </span>
               <br />
               <span className="roster__meta">
@@ -103,9 +105,12 @@ export function AdminMemberTable({ rows, currentId }: { rows: Row[]; currentId: 
               <span className="roster__meta">
                 {member.user_id
                   ? <>signed in · code {code?.used_at ? 'redeemed' : 'not needed'}</>
-                  : code && !code.used_at
-                    ? <>code issued, waiting for them to use it</>
-                    : <em>no code issued — they cannot claim their card yet</em>}
+                  : <>
+                      not linked to an account ·{' '}
+                      {code && !code.used_at
+                        ? <>code issued, waiting for them to use it</>
+                        : <em>no code issued yet</em>}
+                    </>}
               </span>
 
               {issued?.id === member.id && (

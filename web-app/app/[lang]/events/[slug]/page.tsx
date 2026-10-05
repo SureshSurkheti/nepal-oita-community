@@ -2,8 +2,8 @@ import { LocaleLink as Link } from '@/components/LocaleLink'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Icon } from '@/components/Sprite'
-import { getEvent, getEvents, longDate } from '@/lib/content'
-import { coverFor } from '@/lib/covers'
+import { coverFor, getEvent, getEvents, longDate } from '@/lib/content'
+import { fallbackCoverFor } from '@/lib/covers'
 import { localeAlternates, toLocale } from '@/lib/i18n'
 import { CoverImage } from '@/components/CoverImage'
 
@@ -98,7 +98,8 @@ export default async function EventPage(
               page they land on show the same picture. See lib/covers. */}
           <div className="event-hero reveal">
             <CoverImage src={coverFor(event.slug, event.cover_path)}
-                        alt={event.title} priority />
+                        alt={event.title} priority
+                        fallback={fallbackCoverFor(event.slug)} />
           </div>
 
           <div className="grid grid--2">

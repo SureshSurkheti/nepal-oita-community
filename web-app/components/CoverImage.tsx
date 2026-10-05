@@ -34,14 +34,24 @@ function isPoster(img: HTMLImageElement): boolean {
   return img.naturalWidth > 0 && img.naturalHeight / img.naturalWidth >= POSTER_RATIO
 }
 
-export function CoverImage({ src, alt, className = '', priority = false }: {
+export function CoverImage({ src, alt, className = '', priority = false, fallback, fit = 'auto' }: {
   src: string
   alt: string
   className?: string
   priority?: boolean
+  /** Shown if `src` does not load. See fallbackCoverFor() in lib/covers for why
+   *  this is not optional in practice. */
+  fallback?: string
+  /** 'auto' asks the image what it is and shows a poster whole; 'cover' always
+   *  crops. Use 'cover' only where a contained poster would be unreadable —
+   *  the hero ribbon's frame is barely wider than it is tall, so a film bill
+   *  shown whole there is an unreadable stamp between two bars. */
+  fit?: 'auto' | 'cover'
 }) {
   const [portrait, setPortrait] = useState(false)
+  const [failed, setFailed] = useState(false)
   const ref = useRef<HTMLImageElement>(null)
+  const shown = failed && fallback ? fallback : src
 
   /* onLoad ALONE IS NOT ENOUGH, and this is the whole reason there is an effect.
    *
@@ -55,22 +65,33 @@ export function CoverImage({ src, alt, className = '', priority = false }: {
    * So the element is asked directly on mount. `complete` is true for an image
    * that has already finished, and naturalWidth is 0 if it failed, which keeps a
    * broken image on the landscape path instead of flipping it to contain. */
+  /* A new source starts the questions again: it may be a different shape, and
+     the fact that the LAST one failed says nothing about this one. */
+  useEffect(() => { setFailed(false); setPortrait(false) }, [src])
+
   useEffect(() => {
     const img = ref.current
-    if (img?.complete && isPoster(img)) setPortrait(true)
-  }, [src])
+    if (!img?.complete) return
+    /* complete with no intrinsic width is how a FAILED image reports itself, and
+       it has to be checked here for the same reason the poster test does: a
+       server-rendered image often finishes — or fails — before React hydrates,
+       so the onError handler attached during hydration never runs and the
+       broken-image glyph stays on the card for ever. */
+    if (img.naturalWidth === 0) { if (fallback) setFailed(true); return }
+    if (fit === 'auto' && isPoster(img)) setPortrait(true)
+  }, [shown, fallback, fit])
 
   return (
     <>
       {portrait && (
         /* eslint-disable-next-line @next/next/no-img-element */
-        <img className="cover__wash" src={src} alt="" aria-hidden="true" />
+        <img className="cover__wash" src={shown} alt="" aria-hidden="true" />
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={ref}
         className={`${className} cover__img${portrait ? ' cover__img--portrait' : ''}`}
-        src={src}
+        src={shown}
         alt={alt}
         decoding="async"
         {...(priority ? { fetchPriority: 'high' as const } : { loading: 'lazy' as const })}
@@ -78,8 +99,9 @@ export function CoverImage({ src, alt, className = '', priority = false }: {
           const img = e.currentTarget
           /* Guard the zero case: a cached image can fire load with both at 0 in
              some browsers, and 0 > 0 is false, so it simply stays landscape. */
-          if (isPoster(img)) setPortrait(true)
+          if (fit === 'auto' && isPoster(img)) setPortrait(true)
         }}
+        onError={() => { if (fallback) setFailed(true) }}
       />
     </>
   )

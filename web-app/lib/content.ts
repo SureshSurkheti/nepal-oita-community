@@ -1,3 +1,4 @@
+import { fallbackCoverFor } from '@/lib/covers'
 import { unstable_cache } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createPublicClient } from '@/lib/supabase/public'
@@ -378,6 +379,14 @@ export function byMonth(meetings: Meeting[]): { key: string; label: string; meet
     else out.push({ key, label: monthYear(m.held_on), meetings: [m] })
   }
   return out
+}
+
+/** The URL for an event's cover: its own if it has one, otherwise one of the
+ *  site's own photographs. Here rather than in lib/covers because assetUrl is
+ *  here and lib/covers has to stay importable from a client component — see the
+ *  note at the top of that file. */
+export function coverFor(slug: string, coverPath?: string | null): string {
+  return assetUrl('site-photos', coverPath) ?? fallbackCoverFor(slug)
 }
 
 /** Whole days from today in Oita until an event's date. Negative once it is past.

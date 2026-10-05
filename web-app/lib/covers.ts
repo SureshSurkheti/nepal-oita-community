@@ -1,6 +1,13 @@
-import { assetUrl } from '@/lib/content'
-
-/* The photographs this site owns, and how an event gets one.
+/* The photographs this site owns, and which one a coverless event borrows.
+ *
+ * NOTHING IS IMPORTED HERE, AND THAT IS LOAD-BEARING. This module is used by
+ * client components — the hero ribbon and the full-screen showcase — and the
+ * obvious home for coverFor() was right here beside the list it picks from.
+ * But coverFor needs assetUrl from lib/content, lib/content reaches Supabase
+ * through next/headers, and next/headers cannot be imported into a client
+ * component: the build fails outright. So coverFor lives in lib/content with
+ * the function it depends on, and this file stays data plus arithmetic that
+ * runs anywhere.
  *
  * WHY THIS FILE EXISTS. `cover_path` is a column on the events table, and for a
  * long time nothing wrote to it: every event on the site rendered the drawn
@@ -87,9 +94,23 @@ const FALLBACK_COVERS = [
  * without the function knowing about the other events. Math.imul keeps the
  * multiply in 32-bit, which is the whole point of the algorithm — a plain `*`
  * overflows into floating point and the avalanche is lost. */
-export function coverFor(slug: string, coverPath?: string | null): string {
-  const own = assetUrl('site-photos', coverPath)
-  if (own) return own
+
+/* The borrowed photograph on its own, ignoring whatever the event claims to
+ * have.
+ *
+ * THIS IS ALSO THE REPAIR FOR A COVER THAT DOES NOT LOAD, which is not a
+ * hypothetical. Migration 0022 points eight events at gallery objects in
+ * Supabase storage, and those files have not been uploaded — so the moment that
+ * migration runs, cover_path becomes a non-null URL that 404s, coverFor hands it
+ * back because it is non-null, and eight cards that currently show a photograph
+ * would show a broken image instead. Worse after running the migration than
+ * before, which is the kind of regression nobody goes looking for.
+ *
+ * So every cover on the site is rendered with this as its onError fallback. It
+ * covers the uploaded-later case, a deleted file, and a mistyped path, and it
+ * means cover_path can be filled in confidently without first checking that
+ * every object really exists. */
+export function fallbackCoverFor(slug: string): string {
   let h = 0x811c9dc5
   for (let i = 0; i < slug.length; i++) {
     h ^= slug.charCodeAt(i)

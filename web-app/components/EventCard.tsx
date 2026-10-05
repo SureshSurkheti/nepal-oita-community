@@ -1,7 +1,8 @@
 import { LocaleLink as Link } from './LocaleLink'
 import { Icon } from './Sprite'
-import { chipDate, type EventRow } from '@/lib/content'
-import { coverFor } from '@/lib/covers'
+import { chipDate, coverFor, type EventRow } from '@/lib/content'
+import { fallbackCoverFor } from '@/lib/covers'
+import { CoverImage } from './CoverImage'
 import { getDictionary, categoryLabel } from '@/lib/dictionaries'
 import type { Locale } from '@/lib/i18n'
 
@@ -30,8 +31,13 @@ export function EventCard({ event, index = 0, lang }: {
         <span className={`event__art ${ART[index % 4]}`} aria-hidden="true" />
         {cover && (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="event__img" src={cover} alt="" loading="lazy" decoding="async" />
+            {/* CoverImage rather than a bare <img>, for two things it knows that
+                a plain tag does not: a printed poster is shown whole instead of
+                cropped to a strip of its sponsor logos, and a cover that fails
+                to load is replaced rather than leaving a broken-image glyph on
+                the card. See lib/covers. */}
+            <CoverImage className="event__img" src={cover} alt=""
+                        fallback={fallbackCoverFor(event.slug)} />
             {/* Only when there IS a photo. Without one the card keeps its
                 original layout, where the chip sits beside the title — moving it
                 onto an empty pattern would put a date on nothing. The chip in

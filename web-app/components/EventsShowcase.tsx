@@ -7,6 +7,7 @@ import { Icon } from './Sprite'
 import { useI18n } from '@/lib/useI18n'
 import { localeNum } from '@/lib/i18n'
 import { CoverImage } from './CoverImage'
+import { fallbackCoverFor } from '@/lib/covers'
 import { categoryLabel } from '@/lib/dictionaries'
 
 /* What the showcase needs. Deliberately NOT the whole EventRow.
@@ -125,7 +126,8 @@ export function EventsShowcase({ events, at, setAt }: {
           <div className={`evshow__media${e.cover ? ' evshow__media--photo' : ''}`}>
             <span className={`evshow__art ${ART[at % 4]}`} aria-hidden="true" />
             {e.cover && (
-              <CoverImage className="evshow__img" src={e.cover} alt={e.title} priority />
+              <CoverImage className="evshow__img" src={e.cover} alt={e.title} priority
+                          fallback={fallbackCoverFor(e.slug)} />
             )}
             <div className="evshow__chip">
               <span className="evshow__chip-m">{e.month}</span>

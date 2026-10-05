@@ -2,7 +2,8 @@ import { LocaleLink as Link } from '@/components/LocaleLink'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Icon } from '@/components/Sprite'
-import { assetUrl, getEvent, getEvents, longDate } from '@/lib/content'
+import { getEvent, getEvents, longDate } from '@/lib/content'
+import { coverFor } from '@/lib/covers'
 import { localeAlternates, toLocale } from '@/lib/i18n'
 import { CoverImage } from '@/components/CoverImage'
 
@@ -91,15 +92,14 @@ export default async function EventPage(
 
       <section className="section">
         <div className="container">
-          {/* The photograph, above everything else on the page. Rendered only
-              when the event has one — an empty banner would push the details
-              below the fold to show nothing. */}
-          {assetUrl('site-photos', event.cover_path) && (
-            <div className="event-hero reveal">
-              <CoverImage src={assetUrl('site-photos', event.cover_path)!}
-                          alt={event.title} priority />
-            </div>
-          )}
+          {/* The photograph, above everything else on the page. There is always
+              one now: an event with no cover of its own borrows the same site
+              photograph its card borrowed, so the card someone pressed and the
+              page they land on show the same picture. See lib/covers. */}
+          <div className="event-hero reveal">
+            <CoverImage src={coverFor(event.slug, event.cover_path)}
+                        alt={event.title} priority />
+          </div>
 
           <div className="grid grid--2">
             <div>

@@ -1,12 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { LocaleLink as Link } from './LocaleLink'
 import { Icon } from './Sprite'
 import { useI18n } from '@/lib/useI18n'
 import { localeNum } from '@/lib/i18n'
-import { categoryLabel } from '@/lib/dictionaries'
-import { CoverImage } from './CoverImage'
 import { EventsShowcase, type ShowcaseEvent } from './EventsShowcase'
 
 /* The same event the showcase shows, plus how far away it is.
@@ -15,141 +12,102 @@ import { EventsShowcase, type ShowcaseEvent } from './EventsShowcase'
  * not recomputed here on purpose — see daysUntil() in lib/content. */
 export type SpotlightEvent = ShowcaseEvent & { days: number }
 
-const ART = ['art-rays', 'art-wave', 'art-lattice', 'art-dots']
-
-/* WHAT IS ON NEXT, ON THE PAGE RATHER THAN OVER IT.
+/* WHAT IS ON NEXT, IN THE FIRST SCREEN, WITHOUT COVERING IT.
  *
- * This band replaced two things that both tried to do its job and both did it
- * badly: a notification badge in the header, and the popup-on-arrival that would
- * have been the obvious way to make an event unmissable.
+ * This is the third place this information has lived in a day, and the two it
+ * replaced are both worth recording so neither comes back.
  *
- * AGAINST THE POPUP, four reasons, in the order they cost something:
+ * NOT A POPUP ON ARRIVAL. Google demotes a mobile page that covers its own
+ * content on arrival — the "intrusive interstitial" rule — and being found by
+ * somebody typing "nepali community oita" is the one thing this site cannot
+ * trade for decoration. A popup is also seen once and dismissed, so the most
+ * useful fact on the page would be visible for four seconds and then never
+ * again; it cannot be linked to, shared or read by a crawler; and somebody
+ * arriving from a search for the festival itself would get a box between them
+ * and the thing they came for.
  *
- *   1. Google demotes a mobile page that covers its own content on arrival —
- *      the "intrusive interstitial" rule. This site exists to be found by
- *      somebody typing "nepali community oita". Ranking is the one thing it
- *      cannot trade for decoration.
- *   2. A popup is seen once and dismissed. The next festival is the most useful
- *      fact on the page, and the popup pattern guarantees it is visible for
- *      about four seconds and then never again.
- *   3. It cannot be linked to, shared, screenshotted or read by a crawler as
- *      part of the page. A band can: the date and the place are in the HTML.
- *   4. Somebody arriving from a search for the festival itself gets a box
- *      between them and the thing they came for, and has to dismiss it to read
- *      what they were already looking for.
+ * NOT A BADGE IN THE HEADER. It was a 40px icon competing for the tightest row
+ * on the site — it is what pushed the menu button off-screen on every phone
+ * between 361 and 429px — and it was a second route to a page the nav already
+ * links to.
  *
- * So the full-screen view the committee wanted is still here, in full, and it is
- * genuinely the best-looking thing on the site — it just opens when somebody
- * ASKS for it, from the button below. An invited popup is a feature; an
- * uninvited one is a toll gate.
+ * NOT A BAND BELOW THE HERO EITHER, which is where this started. It was the best
+ * looking of the three and nobody saw it: the hero is min-height 100svh, so the
+ * band began exactly one screen down and only existed for people who scrolled.
  *
- * AGAINST THE HEADER BADGE: it was a 40px icon competing for the tightest row on
- * the site — it is what pushed the menu button off-screen on every phone between
- * 361 and 429px — and it was a second route to a page the nav already links to.
- * This band is the same information at twenty times the size, in the place
- * somebody is already looking, and it costs the header nothing. */
+ * So it rides in the hero itself, in the strip above the statistics, where the
+ * eye already ends up. It is a RIBBON rather than a card because that strip has
+ * a height budget — the hero is one viewport and already carries a headline, a
+ * lede, two buttons and four figures — and because at this size it can state the
+ * date, the time and the place in one line each without pushing anything off a
+ * short laptop screen.
+ *
+ * The big view the committee asked for is still here, in full, behind the
+ * button. An invited popup is a feature; an uninvited one is a toll gate. */
 export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
   const { t, locale } = useI18n()
   const [at, setAt] = useState<number | null>(null)
 
   /* Rendered only when there is genuinely something to announce. An empty
-     "coming up" band is worse than no band: it says the community has stopped. */
+     "coming up" ribbon is worse than no ribbon: it says the community has
+     stopped, and it would cost the hero 90px to say it. */
   if (events.length === 0) return null
 
   const e = events[0]
-  const rest = events.slice(1)
+  const more = events.length - 1
 
   const countdown = e.days <= 0 ? t.spotlight.today
     : e.days === 1 ? t.spotlight.tomorrow
     : t.spotlight.inDays.replace('{n}', localeNum(e.days, locale))
 
   return (
-    <section className={`spot accent-${e.accent}`} id="next" aria-labelledby="spot-title">
-      <div className="container">
-        <div className="spot__card reveal">
-          {/* The poster, or the drawn pattern when the committee has not added
-              one yet. CoverImage is what makes a printed bill work here: a
-              1024x1536 poster cropped to this frame would keep the sponsor strip
-              and throw away the title and the date. */}
-          <div className={`spot__media${e.cover ? ' spot__media--photo' : ''}`}>
-            <span className={`spot__art ${ART[0]}`} aria-hidden="true" />
-            {e.cover && <CoverImage className="spot__img" src={e.cover} alt={e.title} priority />}
-            <div className="spot__chip">
-              <span className="spot__chip-m">{e.month}</span>
-              <span className="spot__chip-d">{e.day}</span>
-            </div>
-          </div>
-
-          <div className="spot__body">
-            <p className="spot__eyebrow">
-              <span className="spot__pulse" aria-hidden="true" />
-              {t.ui.comingUp}
-              <span className="spot__countdown">{countdown}</span>
-            </p>
-
-            <h2 className="spot__title" id="spot-title">{e.title}</h2>
-
-            <p className="spot__when">
-              <Icon name="calendar" /> {e.dateLabel}
-              {e.start_time && (
-                <>
-                  <span className="spot__dot" aria-hidden="true" />
-                  {/* Icon and time in one nowrap span. As two flex children they
-                      wrap apart on a phone, leaving a clock at the end of one
-                      line and its time at the start of the next. */}
-                  <span className="spot__time">
-                    <Icon name="clock" />
-                    {e.start_time}{e.end_time ? ` – ${e.end_time}` : ''}
-                  </span>
-                </>
-              )}
-            </p>
-            {e.place && <p className="spot__where"><Icon name="pin" /> {e.place}</p>}
-            {e.summary && <p className="spot__sum">{e.summary}</p>}
-
-            <div className="spot__actions">
-              <button className="btn btn--primary" type="button" onClick={() => setAt(0)}>
-                <Icon name="expand" /> {t.spotlight.open}
-              </button>
-              <Link className="btn btn--ghost" href={`/events/${e.slug}`}>
-                {t.ui.details} <Icon name="arrow-right" />
-              </Link>
-              {e.category && <span className="tag">{categoryLabel(t, e.category)}</span>}
-            </div>
-          </div>
+    <>
+      <div className={`spot accent-${e.accent}`}>
+        {/* The chip is the same object as the one on every event card and in the
+            showcase, at the same proportions — somebody who has seen one here
+            recognises it there. */}
+        <div className="spot__chip">
+          <span className="spot__chip-m">{e.month}</span>
+          <span className="spot__chip-d">{e.day}</span>
         </div>
 
-        {/* The rest of what is booked, each opening the showcase ON ITSELF
-            rather than at the top of the list — pressing "Nepali Festival"
-            and landing on the Kabaddi would read as a broken button. */}
-        {rest.length > 0 && (
-          <div className="spot__more">
-            <p className="spot__more-label">{t.spotlight.also}</p>
-            <div className="spot__more-row">
-              {rest.map((o, i) => (
-                <button className="spot__pill" type="button" key={o.slug}
-                        onClick={() => setAt(i + 1)}>
-                  <span className="spot__pill-date">
-                    <span>{o.month}</span><strong>{o.day}</strong>
-                  </span>
-                  <span className="spot__pill-text">
-                    <span className="spot__pill-title">{o.title}</span>
-                    {o.place && <span className="spot__pill-meta">{o.place}</span>}
-                  </span>
-                </button>
-              ))}
-              <Link className="spot__pill spot__pill--all" href="/events">
-                <span className="spot__pill-text">
-                  <span className="spot__pill-title">{t.spotlight.allEvents}</span>
-                </span>
-                <Icon name="arrow-right" />
-              </Link>
-            </div>
-          </div>
-        )}
+        <div className="spot__text">
+          <p className="spot__eyebrow">
+            <span className="spot__pulse" aria-hidden="true" />
+            {t.ui.comingUp}
+            <span className="spot__countdown">{countdown}</span>
+            {more > 0 && (
+              <span className="spot__more">
+                {t.spotlight.more.replace('{n}', localeNum(more, locale))}
+              </span>
+            )}
+          </p>
+          <h2 className="spot__title">{e.title}</h2>
+          {/* Date, time and place on ONE line, each with its own icon. Three
+              stacked lines is what a card does; the hero has a height budget and
+              this has to survive a 1366x650 laptop with the statistics still
+              below it. They wrap as whole units on a narrow screen. */}
+          <p className="spot__meta">
+            <span><Icon name="calendar" />{e.dateLabel}</span>
+            {e.start_time && (
+              <span>
+                <Icon name="clock" />
+                {e.start_time}{e.end_time ? ` – ${e.end_time}` : ''}
+              </span>
+            )}
+            {e.place && <span><Icon name="pin" />{e.place}</span>}
+          </p>
+        </div>
+
+        {/* One control, not two. "Details" belonged on a card with room for it;
+            here a second button would make the ribbon a toolbar, and the
+            showcase it opens carries its own Details link to the same page. */}
+        <button className="btn btn--primary spot__go" type="button" onClick={() => setAt(0)}>
+          <Icon name="expand" /> {t.spotlight.open}
+        </button>
       </div>
 
       <EventsShowcase events={events} at={at} setAt={setAt} />
-    </section>
+    </>
   )
 }

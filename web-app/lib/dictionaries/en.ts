@@ -311,8 +311,9 @@ export const en = {
        AFTER it — "13 days away" and "१३ दिनमा" are not the same shape. */
     inDays: 'In {n} days',
     open: 'See it full screen',
-    also: 'Also coming up',
-    allEvents: 'Every event',
+    /* Shown only when there is more than one booked. {n} is the count of the
+       OTHERS, so it never reads "and 0 more". */
+    more: 'and {n} more',
   },
   /* --------------------------------------------------------------- contact */
   contactForm: {

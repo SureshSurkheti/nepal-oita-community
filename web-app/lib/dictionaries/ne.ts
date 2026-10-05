@@ -314,8 +314,7 @@ export const ne: Dictionary = {
     tomorrow: 'भोलि',
     inDays: '{n} दिनमा',
     open: 'पूरा स्क्रिनमा हेर्नुहोस्',
-    also: 'यी पनि आउँदै',
-    allEvents: 'सबै कार्यक्रम',
+    more: 'थप {n} वटा',
   },
   /* --------------------------------------------------------------- contact */
   contactForm: {

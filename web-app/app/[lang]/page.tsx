@@ -12,6 +12,7 @@ import { ContactForm } from '@/components/ContactForm'
 import { HeroBody } from '@/components/HeroBody'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { EventSpotlight, type SpotlightEvent } from '@/components/EventSpotlight'
+import { HERO_PHOTOS, coverFor } from '@/lib/covers'
 import { PhotoTiles } from '@/components/PhotoTiles'
 import { getCurrentMember, getMembers } from '@/lib/members'
 import { assetUrl, chipDate, daysUntil, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos, todayInJapan } from '@/lib/content'
@@ -26,41 +27,6 @@ import { getDictionary } from '@/lib/dictionaries'
    prerender it, and stops a future edit quietly making it cacheable. */
 export const dynamic = 'force-dynamic'
 
-/* The hero rotation. First one first: it is the only one in the server's HTML.
- *
- * WHAT IS NOT IN HERE, AND WHY
- * Every scenic photograph in public/images is now in this list. Four files are
- * left out, each for a reason worth writing down so nobody adds them back:
- *
- *   oita_city.png       Carries a DREAMSTIME WATERMARK across the middle. It is
- *                       unlicensed stock and cannot go on the site at all — not
- *                       here, not anywhere. It should be deleted.
- *   logo-mark-1.png     The flags emblem: 320x320, on white, and a logo rather
- *                       than a photograph. Cropped square-to-widescreen it loses
- *                       both flags, and dark hero type on white is unreadable.
- *   og-cover.jpg        The same Everest/Nuptse view as place-everest.jpg, so it
- *                       would show the same mountain twice in one rotation — and
- *                       at 1200px wide it softens on a desktop.
- *   place-usajingu.jpg  Measured 1.96 contrast for the title against the dark
- *                       tree canopy that sits directly behind it. The floor for
- *                       type that size is 3.0. Two thirds of the frame is also
- *                       empty gravel, so it reads as a snapshot rather than a
- *                       header.
- *
- * Five of the seven below (everest, umijigoku, sakura, amadablam, boudhanath) are
- * the Creative Commons files in PHOTO-CREDITS.md, and attribution is a condition
- * of those licences. The hero makes them the first thing anybody sees, which is a
- * reason to settle it. Photographs the community took itself would be better here
- * on both counts. Swapping any line is all it takes. */
-const HERO_PHOTOS = [
-  '/images/best.webp',
-  '/images/city-view.webp',
-  '/images/place-umijigoku.jpg',
-  '/images/place-everest.jpg',
-  '/images/place-sakura.jpg',
-  '/images/place-amadablam.jpg',
-  '/images/place-boudhanath.jpg',
-]
 
 /* The hero numbers.
  *
@@ -242,7 +208,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       dateLabel: longDate(e.event_date), month, day,
       start_time: e.start_time, end_time: e.end_time,
       place: e.place, category: e.category, accent: e.accent,
-      cover: assetUrl('site-photos', e.cover_path) ?? null,
+      cover: coverFor(e.slug, e.cover_path),
       highlights: e.highlights, past: e.past,
       days: daysUntil(e.event_date),
     }
@@ -339,6 +305,13 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
         </div>
 
         <div className="container hero__stats">
+          {/* ABOVE THE STATISTICS, INSIDE THE FIRST SCREEN.
+              This sat below the hero until it was pointed out that nobody saw
+              it: the hero is min-height 100svh, so a band underneath begins
+              exactly one screen down and only exists for people who scroll. The
+              figures say who the community is; this says what it is doing next,
+              and that is the more perishable of the two. */}
+          <EventSpotlight events={spotlight} />
           <a className="hero__scroll" href="#about">
             <span className="hero__scroll-txt">{t.home.hero.scroll}</span>
             <Icon name="chevron-down" className="icon hero__scroll-chev" />
@@ -360,12 +333,6 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
           </div>
         </div>
       </section>
-
-      {/* ------------------------------------------------------------ what's on */}
-      {/* Straight after the hero, before anything else. Somebody who comes to a
-          community's website wants two things in this order: is this the right
-          group, and is anything happening. The hero answers the first. */}
-      <EventSpotlight events={spotlight} />
 
       {/* --------------------------------------------------------------- about */}
       <section className="section" id="about">

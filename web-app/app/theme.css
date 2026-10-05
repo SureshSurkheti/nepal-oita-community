@@ -5162,322 +5162,184 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
 
 
 /* ===================================================================== *
-   WHAT IS ON NEXT — the band under the hero
+   WHAT IS ON NEXT — the ribbon in the hero
    ===================================================================== */
 
-/* It sits on the tinted ground rather than on --paper, so it reads as its own
-   announcement between two white sections instead of as the top of About. Its
-   vertical rhythm is the section rhythm, not a bespoke value: a band with its
-   own spacing is the thing that makes a long page feel assembled rather than
-   designed. */
+/* It rides in .hero__stats, directly above the statistics, and it is built to
+   the same recipe as the bar below it on purpose: translucent surface, blurred
+   backdrop, one border, one radius. Two different panel treatments 12px apart
+   would read as two unrelated things bolted to the bottom of the photograph. */
 .spot {
-  padding-block: var(--section-y);
-  /* The nav is fixed, so a link to #next would otherwise park the band's top
-     edge underneath it. Every other section on the site carries the same
-     allowance; without it this one would be the odd one out. */
-  scroll-margin-top: calc(var(--nav-h) + 1rem);
-  background: var(--surface-2);
-  border-block: 1px solid var(--line);
-}
-.spot.accent-crimson { --accent: var(--crimson); --event-wash: var(--crimson-wash); }
-.spot.accent-indigo  { --accent: var(--indigo);  --event-wash: var(--indigo-wash); }
-.spot.accent-moss    { --accent: var(--moss);    --event-wash: var(--moss-wash); }
-.spot.accent-gold    { --accent: var(--gold);    --event-wash: var(--gold-wash); }
-
-/* Poster beside words, and the poster is the narrower column.
-   
-   The ratio is deliberate and was measured against the two real bills. At an
-   even split the 1024x1536 Kabaddi poster drove the whole card to 700px tall and
-   pushed the buttons below the fold on a laptop; at 0.8fr the words set the
-   height and the poster fits inside it. `align-items: stretch` is what lets the
-   media fill whatever the text column turns out to need, with no fixed height
-   here to go stale when somebody writes a longer summary. */
-.spot__card {
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  align-items: stretch;
-  gap: 0;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
-.spot__media {
   position: relative;
-  min-height: 260px;
-  overflow: hidden;
-  background: var(--event-wash, var(--surface-2));
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+  margin-block-end: 0.75rem;
+  padding: clamp(0.7rem, 1.4vw, 1rem) clamp(0.85rem, 1.6vw, 1.25rem);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
-.spot__art { position: absolute; inset: 0; }
-/* The .art-* rules supply only a background-image, so the fallback needs its own
-   painted box or an event with no cover shows an empty panel. */
-.spot__art::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-color: var(--event-wash, var(--surface-2));
-}
-/* Absolute, not relative. CoverImage switches a portrait poster to
-   object-fit: contain over a blurred copy of itself, and both layers are
-   positioned against this box — a relatively-positioned image would collapse the
-   frame to nothing and take the wash with it. */
-.spot__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.spot__media--photo .spot__art { display: none; }
+.spot.accent-crimson { --accent: var(--crimson); }
+.spot.accent-indigo  { --accent: var(--indigo); }
+.spot.accent-moss    { --accent: var(--moss); }
+.spot.accent-gold    { --accent: var(--gold); }
 
+/* The same object as the chip on every event card and in the showcase, at the
+   same proportions — somebody who has seen one here recognises it there. */
 .spot__chip {
-  position: absolute;
-  inset-block-start: 1rem;
-  inset-inline-start: 1rem;
-  width: 62px;
-  border-radius: 14px;
+  flex: none;
+  width: 56px;
+  border-radius: 12px;
   overflow: hidden;
   text-align: center;
   background: var(--accent, var(--crimson));
   color: #fff;
-  box-shadow: var(--shadow);
 }
 .spot__chip-m {
   display: block;
-  padding: 0.3rem 0 0.1rem;
-  font-size: 0.64rem;
+  padding: 0.25rem 0 0.08rem;
+  font-size: 0.6rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   border-bottom: 1px solid rgba(255, 255, 255, 0.28);
 }
 .spot__chip-d {
   display: block;
-  padding: 0.15rem 0 0.35rem;
+  padding: 0.1rem 0 0.3rem;
   font-family: var(--font-display);
-  font-size: 1.45rem;
+  font-size: 1.3rem;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
-.spot__body {
-  padding: clamp(1.4rem, 3vw, 2.4rem);
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  justify-content: center;
-  min-width: 0;
-}
+.spot__text { min-width: 0; }
 
 .spot__eyebrow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   flex-wrap: wrap;
-  margin: 0;
-  font-size: 0.7rem;
+  margin: 0 0 0.15rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--accent, var(--crimson));
 }
 /* A slow pulse, not a blink. It says "live" at a glance and then stops asking
-   for attention — and it is a decoration with no information in it, so it goes
-   entirely for anybody who has asked for less motion. */
+   for attention — and it carries no information at all, so it goes entirely for
+   anybody who has asked for less motion. */
 .spot__pulse {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: var(--r-pill);
   background: var(--accent, var(--crimson));
   box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent, var(--crimson)) 55%, transparent);
   animation: spot-pulse 2.4s var(--ease) infinite;
 }
 @keyframes spot-pulse {
-  70%  { box-shadow: 0 0 0 9px color-mix(in srgb, var(--accent, var(--crimson)) 0%, transparent); }
-  100% { box-shadow: 0 0 0 0  color-mix(in srgb, var(--accent, var(--crimson)) 0%, transparent); }
+  70%  { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent, var(--crimson)) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent, var(--crimson)) 0%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
   .spot__pulse { animation: none; }
 }
 
-/* "In 13 days" — the one number on the band that changes by itself, so it is
+/* "In 13 days" — the one thing on the ribbon that changes by itself, so it is
    given the weight of a fact rather than of a label. */
 .spot__countdown {
-  padding: 0.2rem 0.6rem;
+  padding: 0.16rem 0.5rem;
   border-radius: var(--r-pill);
   background: var(--accent, var(--crimson));
   color: #fff;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
 }
+.spot__more { color: var(--ink-3); letter-spacing: 0.1em; }
 
 .spot__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 3.4vw, 2.5rem);
-  line-height: 1.1;
+  font-size: clamp(1.15rem, 2vw, 1.6rem);
+  line-height: 1.15;
   color: var(--ink);
-  /* The title can be a long Nepali festival name with no spaces to break at. */
-  overflow-wrap: anywhere;
+  /* One line, with an ellipsis. The ribbon has a fixed height budget inside a
+     one-viewport hero, and a festival name long enough to wrap would push the
+     statistics off a short laptop screen. The whole title is in the showcase a
+     tap away, and in the page title. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.spot__when,
-.spot__where {
+/* Date, time and place on ONE line, each with its own icon, wrapping as whole
+   units. Three stacked lines is what a card does; this has to survive a
+   1366x650 laptop with the statistics still below it. */
+.spot__meta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0;
-  color: var(--ink-2);
+  gap: 0.2rem 0.9rem;
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
   font-weight: 600;
+  color: var(--ink-2);
 }
-.spot__when .icon,
-.spot__where .icon { color: var(--accent, var(--crimson)); flex: none; }
-/* Icon and time in ONE nowrap span. As two flex children they wrap apart on a
-   phone, leaving a clock at the end of one line and its time at the start of
-   the next. */
-.spot__time {
+.spot__meta > span {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
+  /* Whole units: an icon must never be left at the end of one line with its
+     value at the start of the next. */
   white-space: nowrap;
+  min-width: 0;
 }
-.spot__dot {
-  width: 4px;
-  height: 4px;
-  border-radius: var(--r-pill);
-  background: var(--line-strong);
-}
-.spot__sum {
-  margin: 0.2rem 0 0;
-  color: var(--ink-2);
-  max-width: 54ch;
-}
+.spot__meta .icon { width: 15px; height: 15px; color: var(--accent, var(--crimson)); flex: none; }
+/* The place is the one part that can be arbitrarily long, so it is the one part
+   allowed to truncate rather than to widen the row. */
+.spot__meta > span:last-child { overflow: hidden; text-overflow: ellipsis; }
 
-.spot__actions {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-block-start: 0.6rem;
-}
-
-/* ------------------------------------------------------- the rest of the list */
-
-.spot__more { margin-block-start: 1.25rem; }
-.spot__more-label {
-  margin: 0 0 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-.spot__more-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-/* Wrap rather than scroll sideways. There are rarely more than three of these,
-   and a horizontal scroller with two items in it hides nothing while costing a
-   gesture people have to discover. */
-.spot__pill {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.55rem 0.9rem 0.55rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  background: var(--surface);
-  color: var(--ink);
-  text-align: start;
-  /* 44px is the floor for something a thumb has to hit. */
-  min-height: 44px;
-  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease),
-              transform 0.2s var(--ease);
-}
-.spot__pill:hover {
-  border-color: var(--accent, var(--crimson));
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-1px);
-}
-.spot__pill-date {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 42px;
-  padding: 0.2rem 0;
-  border-radius: var(--r-pill);
-  background: var(--surface-2);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  line-height: 1.15;
-}
-.spot__pill-date strong {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  letter-spacing: 0;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.spot__pill-text { display: grid; min-width: 0; }
-.spot__pill-title {
-  font-weight: 650;
-  font-size: 0.92rem;
-  /* One line. A pill that grows to three lines stops being a pill and starts
-     re-flowing the row every time somebody adds a long title. */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 22ch;
-}
-.spot__pill-meta {
-  font-size: 0.76rem;
-  color: var(--ink-3);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 22ch;
-}
-.spot__pill--all {
-  padding-inline-start: 1rem;
-  color: var(--accent, var(--crimson));
-  font-weight: 650;
-}
-.spot__pill--all .icon { width: 17px; height: 17px; }
+.spot__go { flex: none; white-space: nowrap; }
 
 /* ----------------------------------------------------------------- narrow */
 
-/* One column below 820px — the point where the poster column gets too narrow to
-   read a printed bill in, not a round number. Stacked, the poster becomes a
-   banner across the top: capped by aspect-ratio so a tall poster cannot push the
-   title a full screen down the page, with CoverImage still showing the whole
-   bill inside it rather than cropping the title off. */
+/* Below 820px the button drops to its own full-width row under the text, and
+   the chip stays beside the words. Shrinking a 44px control to fit a row is the
+   wrong trade on the device where it is pressed with a thumb. */
 @media (max-width: 820px) {
-  .spot__card { grid-template-columns: 1fr; }
-  .spot__media {
-    min-height: 0;
-    aspect-ratio: 16 / 10;
+  .spot {
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: 0.7rem;
+    /* TOP, not centre. Stacked, the text column is four lines tall and a
+       vertically centred chip drifted down beside the title, leaving the two
+       lines above it hanging over an empty square. Aligned to the top it sits
+       level with "COMING UP", which is where the eye starts. */
+    align-items: start;
   }
+  .spot__go { grid-column: 1 / -1; justify-content: center; }
 }
 
 @media (max-width: 560px) {
-  .spot__media { aspect-ratio: 4 / 3; }
-  /* Date and time on separate lines, and the separator between them gone.
-     Flex-wrap already broke them apart at this width, which left the dot
-     stranded at the end of the date line — a punctuation mark separating
-     something from nothing. Stacking them deliberately means the break is the
-     same every time rather than depending on the length of the weekday. */
-  .spot__when { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
-  .spot__dot { display: none; }
-  /* Full-width and stacked: these two are the whole point of the band, and on a
-     phone a row of two buttons leaves each one too narrow to read. */
-  .spot__actions .btn { flex: 1 1 100%; justify-content: center; }
-  .spot__pill { flex: 1 1 100%; }
-  .spot__pill-title,
-  .spot__pill-meta { max-width: none; }
+  /* "and 1 more" is the first thing to go when the eyebrow runs out of room:
+     it wrapped onto a line of its own, which made a three-word aside as tall as
+     the headline beside it. The showcase it opens counts itself — "1 / 2" under
+     the card — so nothing is lost. */
+  .spot__more { display: none; }
+}
+
+/* A short viewport is the case this ribbon has to be careful about: the hero is
+   one screen and already carries a headline, a lede, two buttons and four
+   figures. On a 1366x650 laptop, or any phone held sideways, the scroll hint is
+   the first thing that can go — it points at content the ribbon is already
+   sitting on top of. */
+@media (max-height: 760px) and (min-width: 821px) {
+  .hero__scroll { display: none; }
+  .spot { padding-block: 0.55rem; }
+  .spot__meta { font-size: 0.82rem; }
 }

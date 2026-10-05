@@ -5,7 +5,8 @@ import { EventCard } from '@/components/EventCard'
 import { EventsRail } from '@/components/EventsRail'
 import { EventsShowcaseButton } from '@/components/EventsShowcase'
 import type { ShowcaseEvent } from '@/components/EventsShowcase'
-import { assetUrl, chipDate, getEvents, getMyDraftEvents, longDate, type EventRow } from '@/lib/content'
+import { chipDate, getEvents, getMyDraftEvents, longDate, type EventRow } from '@/lib/content'
+import { coverFor } from '@/lib/covers'
 import { getCurrentMember } from '@/lib/members'
 import { EventProposeForm } from '@/components/EventProposeForm'
 import { Icon } from '@/components/Sprite'
@@ -39,7 +40,7 @@ function showcaseEvent(e: EventRow): ShowcaseEvent {
     dateLabel: longDate(e.event_date), month, day,
     start_time: e.start_time, end_time: e.end_time,
     place: e.place, category: e.category, accent: e.accent,
-    cover: assetUrl('site-photos', e.cover_path) ?? null,
+    cover: coverFor(e.slug, e.cover_path),
     highlights: e.highlights, past: e.past,
   }
 }

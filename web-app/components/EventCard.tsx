@@ -1,6 +1,7 @@
 import { LocaleLink as Link } from './LocaleLink'
 import { Icon } from './Sprite'
-import { assetUrl, chipDate, type EventRow } from '@/lib/content'
+import { chipDate, type EventRow } from '@/lib/content'
+import { coverFor } from '@/lib/covers'
 import { getDictionary, categoryLabel } from '@/lib/dictionaries'
 import type { Locale } from '@/lib/i18n'
 
@@ -11,7 +12,10 @@ export function EventCard({ event, index = 0, lang }: {
 }) {
   const { month, day } = chipDate(event.event_date)
   const t = getDictionary(lang)
-  const cover = assetUrl('site-photos', event.cover_path)
+  /* Never null now: an event with no cover of its own borrows one of the
+     site's own photographs rather than falling back to a drawn pattern.
+     See lib/covers. */
+  const cover = coverFor(event.slug, event.cover_path)
   return (
     <article
       className={`card card--feature accent-${event.accent} event reveal${event.past ? ' event--past' : ''}`}

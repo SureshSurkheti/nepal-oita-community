@@ -2663,6 +2663,13 @@ where public.programme_points.text = v.en;
 --  assetUrl() passes anything starting with "/" through untouched; see the note
 --  there. These two posters ship with the release instead of being uploaded,
 --  because they are artwork for the site rather than a photograph of an event.
+--
+--  The files are public/images/movie.jpg and public/images/festival.jpg, under
+--  the names the committee gave them. festival.jpg was re-encoded in place from
+--  4961x7016 and 3.58 MB down to 1400x1980 and 460 KB — same picture, same name,
+--  and nobody downloads three and a half megabytes to look at one card. The
+--  untouched original is in git at 374c395 if the print resolution is ever
+--  wanted back.
 -- ===========================================================================
 
 alter table public.events
@@ -2685,7 +2692,7 @@ values (
   'There are two showings on Sunday 29 November. The start times, the venue and the ticket price are not fixed yet — they go up on our Facebook page and on this page as soon as they are.\n\n'
   'Brought to Oita by the Nepal Oita Community, powered by YeheyRemit, in association with Vizonia. Japan rights: Mukti Raj Regmi.',
   date '2026-11-29', 'Cultural', 'indigo',
-  '/images/event-kabaddi-oita-show.webp', true,
+  '/images/movie.jpg', true,
   'कबड्डी ५ — ओइता शो',
   'राम बाबु गुरुङको कबड्डी ५ एक दिनका लागि ओइतामा, दुई पटक प्रदर्शन।',
   E'कबड्डी ५ — आफ्टर द फाइनल म्याच, राम बाबु गुरुङको कबड्डी शृंखलाको नयाँ फिल्म, ओइतामा एक दिन मात्र।\n\n'
@@ -2723,7 +2730,7 @@ values (
   'A day of Nepali food, music and dance, open to the whole prefecture and to our Japanese neighbours. It is the one day in the year when the community is all in one place.\n\n'
   'April 2027. The exact date, the time and the venue are not settled yet. They will be announced on our Facebook page and posted here — the date shown on this page until then is a placeholder for the month, not an announcement.',
   date '2027-04-01', 'Festival', 'crimson',
-  '/images/event-nepali-festival-2027.webp', true,
+  '/images/festival.jpg', true,
   'नेपाली महोत्सव २०२७',
   'समुदायको वर्षकै ठूलो दिन अप्रिल २०२७ मा फेरि। मिति, समय र स्थान घोषणा हुन बाँकी छ।',
   E'नेपाली महोत्सव — ओइतामा हुने नेपाली फेस्टिभल, यो समुदायले २०१९ देखि हरेक वर्ष आयोजना गर्दै आएको।\n\n'

@@ -14,14 +14,16 @@ export function ToTop() {
       data-to-top
       type="button"
       aria-label={t.nav.backToTop}
-      onClick={() =>
-        window.scrollTo({
-          top: 0,
-          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-            ? 'auto'
-            : 'smooth',
-        })
-      }
+      /* Smooth only when there is little to travel. From the foot of the home
+         page this is a 13,000px animation that the browser owns until it
+         finishes — touch cannot cancel it, so the reader watches instead of
+         scrolling, and anybody who swipes mid-flight thinks the page is stuck.
+         Same two-screen rule as the in-page links in SiteMotion. */
+      onClick={() => {
+        const far = window.scrollY > window.innerHeight * 2
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        window.scrollTo({ top: 0, behavior: far || reduce ? 'auto' : 'smooth' })
+      }}
     >
       <Icon name="arrow-up" />
     </button>

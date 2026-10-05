@@ -184,5 +184,69 @@ export function SiteMotion() {
     }
   }, [])
 
+  /* A LONG SMOOTH SCROLL CANNOT BE INTERRUPTED, so it must not be started.
+   *
+   * `html { scroll-behavior: smooth }` animates every in-page jump. On the home
+   * page "Contact" is 12,091px down, and while that animation runs the browser
+   * owns the scroll position: swiping does nothing, or drags briefly and snaps
+   * back. Measured on the live site — after tapping Contact, three upward swipes
+   * in a row moved the page the WRONG way (-8778, -2926, -323) before control
+   * came back. It reads exactly as "stuck at the contact section", because that
+   * is where the animation was still heading.
+   *
+   * Neither Chrome nor Safari cancels a CSS smooth scroll on touch, and there is
+   * no API to ask. So the distance decides: within two screens it animates,
+   * which is the case the smoothness was for — a reader following a link to the
+   * next section and wanting to see the page move. Beyond that it jumps, which
+   * is what the browser did before `scroll-behavior` existed and what no one has
+   * ever described as stuck.
+   *
+   * Done by flipping the property for one frame rather than by calling
+   * scrollTo() here: the browser's own hash handling already deals with
+   * scroll-margin-top on every section, and reimplementing that is how the
+   * headings end up under the fixed header. */
+  useEffect(() => {
+    const TWO_SCREENS = () => window.innerHeight * 2
+
+    let restore: ReturnType<typeof setTimeout> | null = null
+
+    /* CAPTURE, and a timer rather than a frame — both for the same reason.
+     *
+     * These links are next/link, so the anchor's own handler calls
+     * preventDefault() and the App Router performs the navigation and the scroll
+     * itself, asynchronously. A listener on document in the bubble phase runs
+     * AFTER that preventDefault (so an `if (e.defaultPrevented) return` guard
+     * skips every one of them — measured: the fix did nothing until this moved
+     * to capture), and a one-frame restore lands long before the router has got
+     * round to scrolling. Capture runs first; the window is held open while the
+     * router does its work. Anything the reader scrolls inside that window is
+     * instant too, which is the behaviour being asked for anyway. */
+    const onClick = (e: MouseEvent) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      const link = (e.target as Element | null)?.closest?.('a[href*="#"]')
+      if (!(link instanceof HTMLAnchorElement)) return
+
+      let url: URL
+      try { url = new URL(link.href, window.location.href) } catch { return }
+      if (url.origin !== window.location.origin) return
+      if (url.pathname !== window.location.pathname) return  // another page starts at the top
+      const id = decodeURIComponent(url.hash.slice(1))
+      const target = id ? document.getElementById(id) : null
+      if (!target) return
+      if (Math.abs(target.getBoundingClientRect().top) <= TWO_SCREENS()) return
+
+      const html = document.documentElement
+      html.style.scrollBehavior = 'auto'
+      if (restore) clearTimeout(restore)
+      restore = setTimeout(() => { html.style.scrollBehavior = ''; restore = null }, 700)
+    }
+
+    document.addEventListener('click', onClick, true)
+    return () => {
+      document.removeEventListener('click', onClick, true)
+      if (restore) clearTimeout(restore)
+    }
+  }, [])
+
   return null
 }

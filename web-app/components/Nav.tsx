@@ -8,7 +8,6 @@ import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 import { SignOutButton } from './SignOutButton'
 import { Drawer } from './Drawer'
-import { EventsAlert, type ShowcaseEvent } from './EventsAlert'
 
 type NavMember = { name: string; isAdmin: boolean } | null
 
@@ -54,7 +53,7 @@ type NavMember = { name: string; isAdmin: boolean } | null
  * session resolves, which needs a real network round trip and cannot be
  * predicted from the cached HTML.
  */
-export function Nav({ upcoming }: { upcoming: ShowcaseEvent[] }) {
+export function Nav() {
   const { t } = useI18n()
   const [member, setMember] = useState<NavMember>(null)
   const [hasSession, setHasSession] = useState(false)
@@ -130,10 +129,6 @@ export function Nav({ upcoming }: { upcoming: ShowcaseEvent[] }) {
             labels collapse to icons on a narrow screen rather than the buttons
             disappearing — the control is the thing worth keeping, not its text. */}
         <div className={`nav__actions${ready ? '' : ' nav__actions--waiting'}`}>
-          {/* Outside the session-dependent block on purpose: what is coming up
-              is the same for a visitor and a member, so it must not be inside
-              the part that waits for the session or it would pop in late. */}
-          <EventsAlert upcoming={upcoming} />
           <LanguageSwitcher />
           {member ? (
             <>

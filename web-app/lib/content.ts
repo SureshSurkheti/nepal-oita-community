@@ -380,6 +380,20 @@ export function byMonth(meetings: Meeting[]): { key: string; label: string; meet
   return out
 }
 
+/** Whole days from today in Oita until an event's date. Negative once it is past.
+ *
+ *  COMPUTED ON THE SERVER AND PASSED DOWN AS A NUMBER, never recomputed in the
+ *  browser. A countdown worked out during render would be read from the viewer's
+ *  own clock, which is neither the server's nor Japan's — so a phone set an hour
+ *  ahead would hydrate "In 13 days" over "In 12 days" and React would tear the
+ *  text. Both ends are taken at UTC midnight, so the subtraction is exact whole
+ *  days with no daylight-saving remainder to round away. */
+export function daysUntil(iso: string): number {
+  const [y, m, d] = iso.split('-').map(Number)
+  const [ty, tm, td] = todayInJapan().split('-').map(Number)
+  return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(ty, tm - 1, td)) / 86400000)
+}
+
 /** { month: 'Oct', day: '18' } for the date chip. */
 export function chipDate(iso: string): { month: string; day: string } {
   const [y, m, d] = iso.split('-').map(Number)

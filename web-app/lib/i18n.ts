@@ -85,3 +85,23 @@ export function localeAlternates(lang: Locale, path: string) {
   languages['x-default'] = at(DEFAULT_LOCALE)
   return { canonical: at(lang), languages }
 }
+
+/* Devanagari digits, mapped by hand rather than by Intl.
+ *
+ * Intl.NumberFormat CANNOT be used for this. Node resolves ne-NP to the `deva`
+ * numbering system and renders २; Chrome resolves the same tag to `latn` and
+ * renders 2 — and ignores an explicit -u-nu-deva as well. Server and client
+ * therefore disagree, which is a hydration mismatch on a string that is visible
+ * in the corner of the header on every page.
+ *
+ * Ten characters, one lookup, identical in both runtimes. Measured, not assumed:
+ * the first version of this shipped २ from the server and 2 in the browser.
+ *
+ * It lives HERE rather than beside its first caller because the spotlight on the
+ * home page is a second one, and a counting-in-Nepali rule that exists twice is
+ * a rule that will eventually be true in one place only. */
+const DEVA = '०१२३४५६७८९'
+export function localeNum(n: number, locale: string): string {
+  const s = String(n)
+  return locale === 'ne' ? s.replace(/[0-9]/g, (d) => DEVA[Number(d)]) : s
+}

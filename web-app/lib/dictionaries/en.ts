@@ -299,6 +299,21 @@ export const en = {
     previousEvent: 'Previous event',
     nextEvent: 'Next event',
   },
+
+  /* The "what is on next" band under the hero on the home page.
+     `eyebrow` is deliberately absent: the band reuses ui.comingUp, which is the
+     same words on the same photograph inside the showcase it opens. */
+  spotlight: {
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    /* {n} is replaced with the count. Written as a placeholder rather than
+       concatenated around the number because Nepali puts the postposition
+       AFTER it — "13 days away" and "१३ दिनमा" are not the same shape. */
+    inDays: 'In {n} days',
+    open: 'See it full screen',
+    also: 'Also coming up',
+    allEvents: 'Every event',
+  },
   /* --------------------------------------------------------------- contact */
   contactForm: {
     sent: 'Message sent',

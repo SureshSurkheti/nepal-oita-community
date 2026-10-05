@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { LocaleLink as Link } from './LocaleLink'
 import { Icon } from './Sprite'
 import { useI18n } from '@/lib/useI18n'
+import { localeNum } from '@/lib/i18n'
 import { CoverImage } from './CoverImage'
 import { categoryLabel } from '@/lib/dictionaries'
 
@@ -32,22 +33,6 @@ export type ShowcaseEvent = {
 }
 
 const ART = ['art-rays', 'art-wave', 'art-lattice', 'art-dots']
-
-/* Devanagari digits, mapped by hand rather than by Intl.
- *
- * Intl.NumberFormat CANNOT be used here. Node resolves ne-NP to the `deva`
- * numbering system and renders २; this Chrome resolves the same tag to `latn`
- * and renders 2 — and ignores an explicit -u-nu-deva as well. Server and client
- * therefore disagree, which is a hydration mismatch on a string that is visible
- * in the corner of the header on every page.
- *
- * Ten characters, one lookup, identical in both runtimes. Measured, not assumed:
- * the first version of this shipped २ from the server and 2 in the browser. */
-const DEVA = '०१२३४५६७८९'
-function localeNum(n: number, locale: string): string {
-  const s = String(n)
-  return locale === 'ne' ? s.replace(/[0-9]/g, (d) => DEVA[Number(d)]) : s
-}
 
 /* ------------------------------------------------------------------ modal */
 
@@ -191,39 +176,6 @@ export function EventsShowcase({ events, at, setAt }: {
       </div>
     </div>,
     document.body,
-  )
-}
-
-/* ------------------------------------------------- the header's own button */
-
-/* WHY A CALENDAR AND NOT A BELL
- * A bell promises alerts — things that happened, that you read once and clear.
- * This is a standing answer to "is anything on?", still true on your fifth
- * visit, so there is nothing to clear. The badge is a COUNT rather than a dot
- * for the same reason: "2" tells you something a dot cannot.
- *
- * It renders nothing at all when nothing is coming up. A notification control
- * that is permanently empty teaches people to ignore it, and the header is
- * already tight between 950 and 1150px (see Nav). */
-export function EventsAlert({ upcoming }: { upcoming: ShowcaseEvent[] }) {
-  const { t, locale } = useI18n()
-  const [at, setAt] = useState<number | null>(null)
-  const num = (n: number) => localeNum(n, locale)
-
-  if (upcoming.length === 0) return null
-
-  const label = `${num(upcoming.length)} `
-    + (upcoming.length === 1 ? t.ui.upcomingOne : t.ui.upcomingMany)
-
-  return (
-    <>
-      <button className="evbell" type="button" onClick={() => setAt(0)}
-              aria-label={`${t.ui.openShowcase} — ${label}`} title={t.ui.openShowcase}>
-        <Icon name="calendar" />
-        <span className="evbell__count" aria-hidden="true">{num(upcoming.length)}</span>
-      </button>
-      <EventsShowcase events={upcoming} at={at} setAt={setAt} />
-    </>
   )
 }
 

@@ -11,9 +11,10 @@ import { PersonCard } from '@/components/PersonCard'
 import { ContactForm } from '@/components/ContactForm'
 import { HeroBody } from '@/components/HeroBody'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
+import { EventSpotlight, type SpotlightEvent } from '@/components/EventSpotlight'
 import { PhotoTiles } from '@/components/PhotoTiles'
 import { getCurrentMember, getMembers } from '@/lib/members'
-import { assetUrl, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos, todayInJapan } from '@/lib/content'
+import { assetUrl, chipDate, daysUntil, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos, todayInJapan } from '@/lib/content'
 import { localeAlternates, toLocale } from '@/lib/i18n'
 import { getDictionary } from '@/lib/dictionaries'
 
@@ -225,6 +226,28 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   const upcoming = events.filter((e) => !e.past)
   const orderedEvents = [...past, ...upcoming]
 
+  /* What the band under the hero announces, and what its full-screen view walks
+     through. Trimmed to the fields that view uses — `body`, the long write-up on
+     the event's own page, is deliberately dropped: this list is serialised into
+     the home page's HTML, and carrying a write-up nobody has opened yet would be
+     the largest thing in it.
+
+     `days` is computed HERE, on the server, against the date in Oita. Working it
+     out inside the component would read the viewer's own clock and tear the text
+     on hydration for anybody whose phone disagrees by an hour. */
+  const spotlight: SpotlightEvent[] = upcoming.map((e) => {
+    const { month, day } = chipDate(e.event_date)
+    return {
+      slug: e.slug, title: e.title, summary: e.summary,
+      dateLabel: longDate(e.event_date), month, day,
+      start_time: e.start_time, end_time: e.end_time,
+      place: e.place, category: e.category, accent: e.accent,
+      cover: assetUrl('site-photos', e.cover_path) ?? null,
+      highlights: e.highlights, past: e.past,
+      days: daysUntil(e.event_date),
+    }
+  })
+
   /* Live write-ups only. A taken-down one comes back from getMeetings() as well
      for the leadership team, and the front page is not where they should find it.
      
@@ -337,6 +360,12 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
           </div>
         </div>
       </section>
+
+      {/* ------------------------------------------------------------ what's on */}
+      {/* Straight after the hero, before anything else. Somebody who comes to a
+          community's website wants two things in this order: is this the right
+          group, and is anything happening. The hero answers the first. */}
+      <EventSpotlight events={spotlight} />
 
       {/* --------------------------------------------------------------- about */}
       <section className="section" id="about">

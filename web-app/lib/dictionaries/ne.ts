@@ -308,6 +308,15 @@ export const ne: Dictionary = {
     previousEvent: 'अघिल्लो कार्यक्रम',
     nextEvent: 'अर्को कार्यक्रम',
   },
+
+  spotlight: {
+    today: 'आज',
+    tomorrow: 'भोलि',
+    inDays: '{n} दिनमा',
+    open: 'पूरा स्क्रिनमा हेर्नुहोस्',
+    also: 'यी पनि आउँदै',
+    allEvents: 'सबै कार्यक्रम',
+  },
   /* --------------------------------------------------------------- contact */
   contactForm: {
     sent: 'सन्देश पठाइयो',

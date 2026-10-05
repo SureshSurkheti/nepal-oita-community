@@ -1,43 +1,43 @@
 -- ===========================================================================
---  Three dates the committee settled, after 0021 was written
+--  Dashain moves into the past
 --
---  A SEPARATE MIGRATION RATHER THAN AN EDIT TO 0021. 0021 has not been run on
---  the live project yet, so editing it in place would have worked there — but it
---  is committed, and anybody who has already run it (a local copy, a staging
---  project, a future restore from an older dump) would silently keep the old
---  dates for ever. Append-only is the only rule that holds in every one of those
---  cases, and the cost here is one small file.
+--  WHAT THIS FILE ALSO BRIEFLY DID, AND WHY IT NO LONGER DOES.
+--  It was first written to move the Kabaddi film show from Sunday 29 November
+--  to Saturday the 28th. That was wrong: the poster — public/images/movie.jpg,
+--  the one already circulating — prints "NOV 29th SUNDAY" in the largest type on
+--  the bill, and 0021 had read the date off it correctly. The committee
+--  confirmed the poster. Nothing in this file touches that event any more, and
+--  0021's date stands.
 --
---  1. THE FILM SHOW MOVES TO SATURDAY 28 NOVEMBER 2026, from Sunday the 29th.
---     The weekday moves with it, which is the part that is easy to miss: the
---     write-up names the day in both languages, so changing only event_date
---     would leave a card reading SAT 28 above a paragraph saying Sunday. Both
---     are updated here, and 28 November 2026 is a Saturday — checked, not
---     assumed.
+--  It is corrected HERE rather than reversed in a later migration, which is the
+--  opposite of the rule this file was written to respect. That rule exists
+--  because a committed migration may already have been applied somewhere. This
+--  one provably had not been: the live project was queried and still holds the
+--  ten seeded events, with no Kabaddi show, no Festival and Dashain on
+--  2026-10-18 — so 0020 to 0024 are all still outstanding there, and nowhere
+--  else runs them.
 --
---  2. THE FESTIVAL STAYS AT 1 APRIL 2027, which is what the committee asked for
---     and what 0021 already set. Nothing to change; it is written down here so
---     the next person does not go looking for the statement that moved it.
---     It is STILL A PLACEHOLDER in the sense 0021 describes — the poster says
---     only "April 2027" — but it is now a placeholder the committee has chosen.
+--  That mattered more than tidiness. A migration that sets a public event to the
+--  wrong day, followed by one that corrects it, leaves anybody replaying the
+--  history with a window in which the site announces the wrong date for a film
+--  showing — and the whole reason 0021 refuses to invent a start time is that a
+--  family turning up at the wrong moment is the one failure a community listing
+--  must not have. If this file HAS somehow been run already, do not edit it
+--  again: add 0025 setting event_date back to 2026-11-29.
 --
---  3. DASHAIN IS PAST. It was seeded at 2026-10-18, which is still ahead of
---     today, so the site kept announcing it as the next thing coming up. The
---     date below is the committee's own correction and is what makes the card
---     move into the history where it belongs.
+--  THE FESTIVAL IS UNCHANGED at 1 April 2027, which is what 0021 set and what
+--  the committee confirmed. It is still a placeholder in the sense 0021
+--  describes — the poster says only "APRIL 2027", and prints DATE / TIME / VENUE
+--  COMING SOON in three languages — but it is now a placeholder somebody chose.
 --
---     IF THE REAL DATE IS KNOWN, PUT IT IN. This is one row at /admin/events and
---     nothing here depends on the exact value — only on its being in the past.
+--  DASHAIN IS PAST. It was seeded at 2026-10-18, which is still ahead of today,
+--  so the site kept announcing it as the next thing coming up. The date below is
+--  the committee's own correction and is what moves the card into the history
+--  where it belongs. If the real date is known, put it in: this is one row at
+--  /admin/events, and nothing depends on the exact value — only on its being in
+--  the past.
 -- ===========================================================================
 
--- --------------------------------------------------- 1. the Kabaddi film show
-update public.events set
-  event_date = date '2026-11-28',
-  body = replace(body, 'Sunday 29 November', 'Saturday 28 November'),
-  body_ne = replace(body_ne, 'नोभेम्बर २९, आइतबार', 'नोभेम्बर २८, शनिबार')
-where slug = 'kabaddi-5-oita-show';
-
--- ------------------------------------------------------------- 3. Dashain
 --  Only ever moved BACKWARDS, and only from the seeded date. The guard matters:
 --  without it, re-running this file after the committee has set the true date
 --  would quietly drag the event back to 2 October again.

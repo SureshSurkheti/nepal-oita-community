@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { localeAlternates, toLocale } from '@/lib/i18n'
 import { Icon } from '@/components/Sprite'
 import { PageHead } from '@/components/PageHead'
 import { MeetingForm } from '@/components/MeetingForm'
@@ -19,10 +20,15 @@ export const dynamic = 'force-dynamic'
    sign-in prompt — and a page indexed under "what the community decided" that
    turns out to be a locked door is worse than no result at all. The description
    goes with it for the same reason. */
-export const metadata: Metadata = {
-  alternates: { canonical: '/decisions' },
-  title: 'Meeting decisions',
-  robots: { index: false },
+export async function generateMetadata(
+  { params }: { params: Promise<{ lang: string }> },
+): Promise<Metadata> {
+  const lang = toLocale((await params).lang)
+  return {
+    alternates: localeAlternates(lang, '/decisions'),
+    title: 'Meeting decisions',
+    robots: { index: false },
+  }
 }
 
 export default async function DecisionsPage() {

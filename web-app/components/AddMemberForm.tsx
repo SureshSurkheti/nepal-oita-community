@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { addMember, type ActionResult } from '@/app/admin/members/actions'
+import { addMember, type ActionResult } from '@/app/[lang]/admin/members/actions'
 import { Icon } from './Sprite'
 
 export function AddMemberForm() {

@@ -6,6 +6,7 @@ import { PageHead } from '@/components/PageHead'
 import { StoryForm, type OwnStory } from '@/components/StoryForm'
 import { getCurrentMember } from '@/lib/members'
 import { createClient } from '@/lib/supabase/server'
+import { localeAlternates, toLocale } from '@/lib/i18n'
 
 /* Depends on who is asking, so it can never be cached or prerendered.
    This used to be inherited from the root layout's force-dynamic; the layout
@@ -15,12 +16,17 @@ import { createClient } from '@/lib/supabase/server'
    prerender it, and stops a future edit quietly making it cacheable. */
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/stories' },
-  title: 'Community stories',
-  description:
-    'Members of the Nepali community in Oita and Beppu on arriving, settling in and '
-    + 'finding people — in their own words.',
+export async function generateMetadata(
+  { params }: { params: Promise<{ lang: string }> },
+): Promise<Metadata> {
+  const lang = toLocale((await params).lang)
+  return {
+    alternates: localeAlternates(lang, '/stories'),
+    title: 'Community stories',
+    description:
+      'Members of the Nepali community in Oita and Beppu on arriving, settling in and '
+      + 'finding people — in their own words.',
+  }
 }
 
 const ACCENTS = ['crimson', 'indigo', 'moss', 'gold'] as const

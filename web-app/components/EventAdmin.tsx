@@ -1,8 +1,19 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { saveEvent, deleteEvent, togglePublished, type Result } from '@/app/admin/events/actions'
+import { compressImage, describeSaving } from '@/lib/image'
+import { createClient } from '@/lib/supabase/client'
+import { saveEvent, deleteEvent, togglePublished, type Result } from '@/app/[lang]/admin/events/actions'
+import { supabaseEnv } from '@/lib/env'
 import { Icon } from './Sprite'
+
+/* Not imported from lib/content: that module pulls in the server Supabase
+   client, which reaches for next/headers and cannot exist in a client bundle.
+   Three lines here beats splitting that module. */
+function coverUrl(path: string | null | undefined): string | null {
+  if (!path) return null
+  return `${supabaseEnv().url}/storage/v1/object/public/site-photos/${path}`
+}
 
 export type AdminEvent = {
   id: string; slug: string; title: string
@@ -10,6 +21,7 @@ export type AdminEvent = {
   event_date: string; start_time: string | null; end_time: string | null
   place: string | null; category: string | null; cost: string | null
   accent: string; register_email: string | null; is_published: boolean
+  cover_path: string | null
   highlights: string[]
 }
 
@@ -18,21 +30,57 @@ const ACCENTS = ['crimson', 'indigo', 'moss', 'gold']
 
 export function EventAdmin({ events, today }: { events: AdminEvent[]; today: string }) {
   const [pending, startTransition] = useTransition()
+  /* The cover photograph. Uploaded to storage the moment it is picked, so by the
+     time Save runs the form only has to carry the key — the same two-step the
+     gallery uploader uses. Doing it the other way round (save the row, then the
+     file) leaves a row pointing at a photograph that does not exist if the
+     upload fails, which renders as a broken card nobody can explain. */
+  const [coverPath, setCoverPath] = useState('')
+  const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [coverBusy, setCoverBusy] = useState(false)
   const [result, setResult] = useState<Result | null>(null)
   const [editing, setEditing] = useState<AdminEvent | 'new' | null>(null)
+
+  async function pickCover(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+      setResult({ ok: false, message: 'A JPEG, PNG or WebP, please.' })
+      e.target.value = ''
+      return
+    }
+    setCoverBusy(true); setResult(null)
+    try {
+      /* 1600px, the same as a gallery photograph — an event cover is shown at
+         about 400px on a card and full width on the detail page, so there is
+         nothing to gain above that and a camera file is 20x the size. */
+      const out = await compressImage(file, { maxEdge: 1600 })
+      const key = `events/${Date.now()}.${out.ext}`
+      const { error } = await createClient().storage.from('site-photos')
+        .upload(key, out.blob, { contentType: out.contentType, upsert: false })
+      if (error) throw new Error(error.message)
+      setCoverPath(key)
+      setCoverPreview(URL.createObjectURL(out.blob))
+      setResult({ ok: true, message: `Photograph uploaded — ${describeSaving(out)}. Now press Save.` })
+    } catch (err) {
+      setResult({ ok: false, message: `Could not upload that: ${err instanceof Error ? err.message : 'unknown error'}` })
+    } finally {
+      setCoverBusy(false)
+    }
+  }
 
   const run = (fn: (fd: FormData) => Promise<Result>) => (formData: FormData) =>
     startTransition(async () => {
       const r = await fn(formData)
       setResult(r)
-      if (r.ok) setEditing(null)
+      if (r.ok) { setEditing(null); setCoverPath(''); setCoverPreview(null) }
     })
 
   const blank: AdminEvent = {
     id: '', slug: '', title: '', summary: '', body: '', event_date: today,
     start_time: '', end_time: '', place: '', category: 'Community', cost: '',
     accent: 'crimson', register_email: 'nepaloitacommunity11@gmail.com',
-    is_published: true, highlights: [],
+    is_published: true, cover_path: null, highlights: [],
   }
   const form = editing === 'new' ? blank : editing
 
@@ -98,6 +146,41 @@ export function EventAdmin({ events, today }: { events: AdminEvent[]; today: str
           </div>
 
           <div className="field">
+            <label htmlFor="e-cover">
+              Cover photograph <span className="muted">(optional)</span>
+            </label>
+            {/* The key travels in the form; the file is already in storage. An
+                edit with no new file re-submits whatever the event had, so
+                saving a changed time does not silently drop the picture. */}
+            <input type="hidden" name="cover_path" value={coverPath || form.cover_path || ''} />
+            <div className="cover-pick">
+              {(coverPreview || form.cover_path) && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img className="cover-pick__preview"
+                     src={coverPreview ?? coverUrl(form.cover_path)!} alt="" />
+              )}
+              <div>
+                <input id="e-cover" type="file" accept="image/jpeg,image/png,image/webp"
+                       onChange={pickCover} disabled={coverBusy} />
+                <p className="form-note">
+                  {coverBusy
+                    ? 'Shrinking and uploading…'
+                    : coverPath
+                      ? 'Uploaded. Press Save to attach it to this event.'
+                      : 'Straight off a phone is fine — it is shrunk here first. '
+                        + 'Shown across the top of the card and the event page.'}
+                </p>
+                {(coverPath || form.cover_path) && (
+                  <button className="btn btn--sm btn--ghost" type="button"
+                          onClick={() => { setCoverPath(''); setCoverPreview(null) }}>
+                    Remove the photograph
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="field">
             <label htmlFor="e-summary">One line for the card</label>
             <input id="e-summary" name="summary" defaultValue={form.summary ?? ''} maxLength={160}
                    placeholder="Tika, jamara and the longest lunch of the year." />
@@ -127,7 +210,8 @@ export function EventAdmin({ events, today }: { events: AdminEvent[]; today: str
             <button className="btn btn--primary" type="submit" disabled={pending}>
               <Icon name="check" />{pending ? 'Saving…' : 'Save event'}
             </button>
-            <button className="btn btn--ghost" type="button" onClick={() => setEditing(null)}>
+            <button className="btn btn--ghost" type="button"
+                    onClick={() => { setEditing(null); setCoverPath(''); setCoverPreview(null) }}>
               Cancel
             </button>
           </div>

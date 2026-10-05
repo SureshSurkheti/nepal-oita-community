@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { setMemberProfile, type ActionResult } from '@/app/admin/members/actions'
+import { setMemberProfile, type ActionResult } from '@/app/[lang]/admin/members/actions'
 import { compressImage, describeSaving } from '@/lib/image'
 import { supabaseEnv } from '@/lib/env'
 import { createClient } from '@/lib/supabase/client'

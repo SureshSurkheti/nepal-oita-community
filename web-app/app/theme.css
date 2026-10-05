@@ -1304,7 +1304,8 @@ section[id], main[id] {
    .art-* rules below only supply a background-image, so without this they have
    no box to paint into and draw nothing at all. */
 .tile__art::before,
-.ptile__art::before {
+.ptile__art::before,
+.event__art::before {
   content: "";
   position: absolute;
   inset: -10%;
@@ -4505,4 +4506,214 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
   .spinner { animation: none; border-top-color: currentColor; opacity: 0.55; }
   .skel    { animation: none; background: var(--surface-2); }
   .skeleton { animation-duration: 1ms; }
+}
+
+/* ---------------------------------------------------------------------------
+   The language switcher
+
+   Both options visible at once, the current one filled. A segmented control
+   rather than a dropdown: there are two choices, and a <select> would hide half
+   the answer behind a tap while taking the same room.
+   --------------------------------------------------------------------------- */
+.langsw {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  overflow: hidden;
+  flex: none;
+}
+.langsw__opt {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.34rem 0.66rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink-3);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--t, 0.18s) var(--ease), color var(--t, 0.18s) var(--ease);
+}
+.langsw__opt + .langsw__opt { border-left: 1px solid var(--line); }
+.langsw__opt:hover { background: var(--surface-2); color: var(--ink); }
+.langsw__opt.is-current {
+  background: var(--crimson);
+  color: #fff;
+}
+/* Devanagari sits on a different baseline from Latin at the same size, so the
+   two labels look mismatched side by side without a nudge. */
+.langsw__opt[hreflang="ne"] { font-size: 0.82rem; }
+
+/* The full name needs room the header does not always have. Below the nav's
+   collapse point only the two-character form is shown — ने and EN are both
+   unambiguous, and the full names stay in the DOM for crawlers and screen
+   readers either way. */
+.langsw__short { display: none; }
+@media (max-width: 1150px) {
+  .langsw__full  { display: none; }
+  .langsw__short { display: inline; }
+  .langsw__opt   { padding: 0.34rem 0.5rem; }
+}
+
+/* The switcher inside the mobile drawer. The header keeps one too, but below
+   the collapse point it shows only ने / EN — this is where somebody goes
+   looking deliberately, so it gets a label and the full language names. */
+.drawer__lang {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 0 0.2rem;
+  border-top: 1px solid var(--line);
+  margin-top: 0.6rem;
+}
+.drawer__lang .langsw__full  { display: inline; }
+.drawer__lang .langsw__short { display: none; }
+
+/* ---------------------------------------------------------------------------
+   Event cards with a photograph
+
+   `cover_path` has been on the events table since 0004 and was never written or
+   read, so every event rendered as a block of text with a coloured edge. These
+   rules are the display half; the upload is in EventAdmin and EventProposeForm.
+
+   The card keeps working with no photo: `.event__art` is the same drawn pattern
+   the gallery tiles use, and it sits UNDER the image rather than instead of it,
+   so a photo that fails to load leaves a patterned panel rather than a hole.
+   --------------------------------------------------------------------------- */
+.event__media {
+  position: relative;
+  display: block;
+  /* Wider than the gallery's 4/3: an event cover is usually a group photograph
+     or a hall, and a letterbox crop keeps the card from being mostly picture. */
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  background: var(--surface-2);
+  /* Pull it out to the card's edges. Three things have to be mirrored or the
+     photograph does not line up: .card's padding, the extra 4px .card--feature
+     adds on top for its accent stripe, and the card's own 1px border — which
+     getBoundingClientRect counts but padding does not, so leaving it out left a
+     1px seam down both sides.
+
+     Restated in the 620px media query below, because .card's padding changes
+     there. Measured, not assumed: without the override the media overflowed the
+     card by 4.6px a side on a 390px screen, since the clamp floor (24px) is
+     wider than the mobile padding (18.4px). The file already restates values
+     this way for .card--feature, for exactly the same reason. */
+  margin-inline: calc((clamp(1.5rem, 2.6vw, 2rem) + 1px) * -1);
+  margin-top: calc((clamp(1.5rem, 2.6vw, 2rem) + 4px + 1px) * -1);
+  margin-bottom: clamp(1rem, 1.6vw, 1.3rem);
+  /* Square the top corners back off against the card's own radius. */
+  border-radius: calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0;
+}
+.event__art {
+  position: absolute;
+  inset: 0;
+  /* The pale ground the pattern sits on. `.art-*` supplies only a
+     background-IMAGE, and `.event__art::before` above supplies the box — so
+     without a colour here the panel painted nothing at all and looked like a
+     load that had stalled.
+
+     Keyed to the accent the committee already chooses for each event, so the
+     fallback matches the card's own hairline rather than introducing a fifth
+     colour. The default covers an accent value the palette does not know. */
+  background-color: var(--event-wash, var(--crimson-wash));
+}
+.accent-crimson .event__art { --event-wash: var(--crimson-wash); }
+.accent-indigo  .event__art { --event-wash: var(--indigo-wash); }
+.accent-moss    .event__art { --event-wash: var(--moss-wash); }
+.accent-gold    .event__art { --event-wash: var(--gold-wash); }
+
+/* Hidden once a photograph loads — it is a fallback, not a backdrop, and
+   leaving it underneath would show through a PNG with transparency. */
+.event__media--photo .event__art { display: none; }
+.event__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Top-anchored, the same rule every other picture on this site follows: a
+     group photograph loses its feet before it loses anybody's head. */
+  object-position: 50% 0;
+}
+
+/* The date, over the photograph. White on a dark scrim rather than the card's
+   own chip colour, because it now sits on an unpredictable background. */
+.datechip--on-media {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 1;
+  background: rgba(27, 23, 20, 0.78);
+  color: #fff;
+  border: 0;
+  /* Readable over a bright sky as well as a dark hall. */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.datechip--on-media .datechip__m,
+.datechip--on-media .datechip__d { color: #fff; }
+
+/* One chip, never two: when the media carries the date, the one beside the
+   title goes. :has() keeps this to cards that actually have a photograph. */
+.event__media--photo ~ .event__top .datechip { display: none; }
+.event__media--photo ~ .event__top { align-items: flex-start; }
+
+/* A past event is already dimmed; dim its photograph to match rather than
+   leaving a bright picture over faded text. */
+.event--past .event__img { filter: grayscale(0.45); opacity: 0.75; }
+
+/* The cover picker in the committee's event form. Preview beside the control,
+   not above it: at 96px the thumbnail is enough to confirm the right photograph
+   was chosen without pushing the rest of a long form down the page. */
+.cover-pick {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+.cover-pick__preview {
+  width: 140px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: 50% 0;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  flex: none;
+}
+.cover-pick > div { flex: 1 1 16rem; min-width: 0; }
+
+/* The event page's own banner. Wider and taller than the card's crop because it
+   is the first thing on the page and has the full column to fill. */
+.event-hero {
+  position: relative;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border-radius: var(--r);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  margin-bottom: clamp(1.2rem, 2.4vw, 1.8rem);
+}
+.event-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
+}
+@media (max-width: 620px) {
+  /* 21/9 is a letterbox slit on a phone. 3/2 gives the photograph room without
+     pushing the title below the fold. */
+  .event-hero { aspect-ratio: 3 / 2; }
+
+  /* .card drops to `padding: 1.1rem 1.15rem 1.25rem` here and .card--feature to
+     `calc(1.1rem + 4px)`, so the pull-out has to follow. */
+  .event__media {
+    margin-inline: calc((1.15rem + 1px) * -1);
+    margin-top: calc((1.1rem + 4px + 1px) * -1);
+    border-radius: calc(var(--r-sm) - 1px) calc(var(--r-sm) - 1px) 0 0;
+  }
 }

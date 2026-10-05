@@ -4,6 +4,7 @@ import { Icon } from '@/components/Sprite'
 import { PersonCard } from '@/components/PersonCard'
 import { getCurrentMember, getMembers } from '@/lib/members'
 import { PageHead } from '@/components/PageHead'
+import { localeAlternates, toLocale } from '@/lib/i18n'
 
 /* Depends on who is asking, so it can never be cached or prerendered.
    This used to be inherited from the root layout's force-dynamic; the layout
@@ -13,15 +14,20 @@ import { PageHead } from '@/components/PageHead'
    prerender it, and stops a future edit quietly making it cacheable. */
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/members' },
-  title: 'Members',
-  description:
-    'The leadership team and general members of the Nepal–Oita Community. '
-    + 'Contact details are returned only to verified members.',
-  // Everyone here is a named private individual, and a page that is nothing but
-  // a list of them should not become the top result for somebody's name.
-  robots: { index: false, follow: true },
+export async function generateMetadata(
+  { params }: { params: Promise<{ lang: string }> },
+): Promise<Metadata> {
+  const lang = toLocale((await params).lang)
+  return {
+    alternates: localeAlternates(lang, '/members'),
+    title: 'Members',
+    description:
+      'The leadership team and general members of the Nepal–Oita Community. '
+      + 'Contact details are returned only to verified members.',
+    // Everyone here is a named private individual, and a page that is nothing but
+    // a list of them should not become the top result for somebody's name.
+    robots: { index: false, follow: true },
+  }
 }
 
 

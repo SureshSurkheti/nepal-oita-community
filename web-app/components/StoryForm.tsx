@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { refreshStories } from '@/app/stories/actions'
+import { refreshStories } from '@/app/[lang]/stories/actions'
 import { Icon } from './Sprite'
 import { Spinner } from './Spinner'
 

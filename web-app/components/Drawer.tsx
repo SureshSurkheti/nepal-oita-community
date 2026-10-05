@@ -1,21 +1,25 @@
 'use client'
 
-import Link from 'next/link'
+import { LocaleLink as Link } from './LocaleLink'
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { useI18n } from '@/lib/useI18n'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Icon } from './Sprite'
 
+/* Keys, not words. This array is module-level so it cannot call useI18n(); the
+   label is looked up inside the component where the hook is available. */
 const LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/#about', label: 'About' },
-  { href: '/programmes', label: 'Programmes' },
-  { href: '/events', label: 'Events' },
-  { href: '/gallery', label: 'Gallery' },
-  { href: '/stories', label: 'Stories' },
-  { href: '/decisions', label: 'Decisions' },
-  { href: '/members', label: 'Members' },
-  { href: '/#contact', label: 'Contact' },
-]
+  { href: '/', key: 'home' },
+  { href: '/#about', key: 'about' },
+  { href: '/programmes', key: 'programmes' },
+  { href: '/events', key: 'events' },
+  { href: '/gallery', key: 'gallery' },
+  { href: '/stories', key: 'stories' },
+  { href: '/decisions', key: 'decisions' },
+  { href: '/members', key: 'members' },
+  { href: '/#contact', key: 'contact' },
+] as const
 
 /* The drawer takes the member's identity because the header's own collapse
    point moved: signed in, the desktop links give way to this menu earlier, so
@@ -25,6 +29,7 @@ const LINKS = [
 export function Drawer({ member = null }: {
   member?: { name: string; isAdmin: boolean } | null
 }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
@@ -62,17 +67,17 @@ export function Drawer({ member = null }: {
 
   return (
     <>
-      <button className="icon-btn nav__burger" type="button" aria-label="Open menu"
+      <button className="icon-btn nav__burger" type="button" aria-label={t.nav.openMenu}
               aria-expanded={open} aria-controls="drawer" onClick={() => setOpen(true)}>
         <Icon name="menu" />
       </button>
 
       <div className={`drawer${open ? ' is-open' : ''}`} id="drawer" inert={!open || undefined}>
         <div className="drawer__scrim" onClick={close} />
-        <div className="drawer__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+        <div className="drawer__panel" role="dialog" aria-modal="true" aria-label={t.nav.menu}>
           <div className="drawer__top">
-            <span className="brand__sub">Menu</span>
-            <button className="icon-btn" type="button" aria-label="Close menu"
+            <span className="brand__sub">{t.nav.menu}</span>
+            <button className="icon-btn" type="button" aria-label={t.nav.closeMenu}
                     onClick={() => setOpen(false)}>
               <Icon name="close" />
             </button>
@@ -80,7 +85,7 @@ export function Drawer({ member = null }: {
           <nav className="drawer__links" aria-label="Mobile">
             {LINKS.map((l, i) => (
               <Link key={l.href} className="drawer__link" href={l.href} onClick={close}>
-                {l.label} <small>{String(i + 1).padStart(2, '0')}</small>
+                {t.nav[l.key]} <small>{String(i + 1).padStart(2, '0')}</small>
               </Link>
             ))}
           </nav>
@@ -88,24 +93,29 @@ export function Drawer({ member = null }: {
               every width now, so it is deliberately absent here: a destructive
               action does not belong in a list of links, where it sits one thumb
               away from "Members". */}
+          <div className="drawer__lang">
+            <span className="text-sm muted">{t.lang.label}</span>
+            <LanguageSwitcher />
+          </div>
+
           <div className="drawer__foot">
             {member ? (
               <>
                 <p className="text-sm muted u-mb-1">
-                  Signed in as <strong>{member.name}</strong>
+                  {t.nav.signedInAs} <strong>{member.name}</strong>
                 </p>
                 {member.isAdmin && (
                   <Link className="btn btn--ghost btn--block u-mb-1" href="/admin" onClick={close}>
-                    <Icon name="shield" /> Committee
+                    <Icon name="shield" /> {t.nav.committee}
                   </Link>
                 )}
                 <Link className="btn btn--primary btn--block" href="/me" onClick={close}>
-                  <Icon name="user" /> My profile
+                  <Icon name="user" /> {t.nav.myProfile}
                 </Link>
               </>
             ) : (
               <Link className="btn btn--primary btn--block" href="/#join" onClick={close}>
-                <Icon name="user-plus" /> Join the community
+                <Icon name="user-plus" /> {t.nav.joinCommunity}
               </Link>
             )}
           </div>

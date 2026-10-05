@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { compressImage, describeSaving } from '@/lib/image'
 import { createClient } from '@/lib/supabase/client'
-import { savePhoto, deletePhoto, type Result } from '@/app/admin/photos/actions'
+import { savePhoto, deletePhoto, type Result } from '@/app/[lang]/admin/photos/actions'
 import { Icon } from './Sprite'
 import type { Photo } from '@/lib/content'
 

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getEvents } from '@/lib/content'
 import { SITE_URL } from '@/lib/site'
+import { LOCALES, DEFAULT_LOCALE } from '@/lib/i18n'
 
 /* Generated per request, not at build time.
  *
@@ -23,12 +24,38 @@ const PAGES: { path: string; changeFrequency: MetadataRoute.Sitemap[0]['changeFr
   { path: '/stories',    changeFrequency: 'monthly', priority: 0.6 },
 ]
 
+/* Every URL is listed once per language, and each entry declares the whole set
+   through `alternates.languages`.
+   
+   Both halves are needed and they do different jobs. The separate entries are
+   what gets the Nepali pages CRAWLED at all — a URL absent from the sitemap and
+   linked only from a switcher may wait a long time for discovery. The alternates
+   are what stops Google treating /en/events and /ne/events as duplicates of each
+   other, and what lets it serve the Nepali one to somebody searching in Nepali.
+   
+   x-default points at English: it is the fallback for a reader whose language
+   matches neither, and it has to be one of the real URLs, not the bare domain —
+   the bare domain redirects, and a redirect is not a valid x-default target. */
+function alternatesFor(path: string) {
+  const languages: Record<string, string> = {}
+  for (const l of LOCALES) languages[l] = `${SITE_URL}/${l}${path === '/' ? '' : path}`
+  languages['x-default'] = `${SITE_URL}/${DEFAULT_LOCALE}${path === '/' ? '' : path}`
+  return { languages }
+}
+
+function localeUrl(locale: string, path: string) {
+  return `${SITE_URL}/${locale}${path === '/' ? '' : path}`
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const routes: MetadataRoute.Sitemap = PAGES.map((p) => ({
-    url: `${SITE_URL}${p.path}`,
-    changeFrequency: p.changeFrequency,
-    priority: p.priority,
-  }))
+  const routes: MetadataRoute.Sitemap = PAGES.flatMap((p) =>
+    LOCALES.map((l) => ({
+      url: localeUrl(l, p.path),
+      changeFrequency: p.changeFrequency,
+      priority: p.priority,
+      alternates: alternatesFor(p.path),
+    })),
+  )
 
   /* One event page per row. Wrapped, because a sitemap is the one route where
      failing loudly is the wrong trade: if Supabase is unreachable, a sitemap
@@ -37,11 +64,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const events = await getEvents()
     for (const e of events) {
-      routes.push({
-        url: `${SITE_URL}/events/${e.slug}`,
-        changeFrequency: 'yearly',
-        priority: 0.5,
-      })
+      for (const l of LOCALES) {
+        routes.push({
+          url: localeUrl(l, `/events/${e.slug}`),
+          changeFrequency: 'yearly',
+          priority: 0.5,
+          alternates: alternatesFor(`/events/${e.slug}`),
+        })
+      }
     }
   } catch {
     // The fixed pages above still go out.

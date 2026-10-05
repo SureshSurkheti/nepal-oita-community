@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import './theme.css'
+import '../theme.css'
 import { Sprite } from '@/components/Sprite'
 import { SiteMotion } from '@/components/SiteMotion'
 import { Nav } from '@/components/Nav'
@@ -8,6 +8,7 @@ import { Footer } from '@/components/Footer'
 import { DecisionsNoticeGate } from '@/components/DecisionsNoticeGate'
 import { BackButton } from '@/components/BackButton'
 import { SITE_URL, SITE_NAME, SITE_ALT_NAMES, SITE_EMAIL, SITE_SOCIALS, abs } from '@/lib/site'
+import { LOCALES, LOCALE_TAGS, toLocale } from '@/lib/i18n'
 
 export const metadata: Metadata = {
   title: {
@@ -118,13 +119,27 @@ const ORG_JSONLD = {
  * succeed and will now fail in lib/env.ts — which is the correct trade, because
  * the alternative is shipping a site that cannot be cached. */
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+/* Both languages are prerendered at build time. Without this Next has no list
+   of locales to build, so /en and /ne would each be rendered on demand on their
+   first visit — and the whole point of the previous change was that the public
+   pages come off a CDN. */
+export function generateStaticParams() {
+  return LOCALES.map((lang) => ({ lang }))
+}
+
+export default async function RootLayout({
+  children, params,
+}: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
+  const lang = toLocale((await params).lang)
   return (
     /* `js` is set here rather than by a script, the way the static site had to.
        In this app there is no no-JavaScript render to fall back to, so the class
        is simply always true — and setting it in the markup means the theme's
        `.js` rules apply on the very first paint, with no flash. */
-    <html lang="en" className="js" data-scroll-behavior="smooth">
+    /* The real language, not a hard-coded "en". A screen reader picks its voice
+       from this, and Google reads it as a signal alongside hreflang — an entire
+       page of Devanagari announced as English is worse than no declaration. */
+    <html lang={LOCALE_TAGS[lang]} className="js" data-scroll-behavior="smooth">
       <body>
         <script type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }} />

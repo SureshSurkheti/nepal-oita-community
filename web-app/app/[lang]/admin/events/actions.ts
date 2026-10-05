@@ -27,6 +27,11 @@ function fields(f: FormData) {
     cost: String(f.get('cost') ?? '').trim() || null,
     accent: String(f.get('accent') ?? 'crimson'),
     register_email: String(f.get('register_email') ?? '').trim() || null,
+    /* The cover photograph's key in the site-photos bucket. The column has
+       existed since 0004 and was never written to or read — so every event has
+       been a block of text with a coloured edge. The file itself is uploaded
+       from the browser before this runs; all that arrives here is the key. */
+    cover_path: String(f.get('cover_path') ?? '').trim() || null,
     is_published: f.get('is_published') !== 'false',
   }
 }

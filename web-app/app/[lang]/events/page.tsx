@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { localeAlternates, toLocale } from '@/lib/i18n'
 import { EventCard } from '@/components/EventCard'
 import { EventsRail } from '@/components/EventsRail'
 import { getEvents, getMyDraftEvents, longDate } from '@/lib/content'
@@ -15,12 +16,17 @@ import { PageHead } from '@/components/PageHead'
    prerender it, and stops a future edit quietly making it cacheable. */
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/events' },
-  title: 'Events',
-  description:
-    'Festivals, meetups, sport and volunteering with the Nepali community of Oita '
-    + 'and Beppu — what is coming up, and everything we have run.',
+export async function generateMetadata(
+  { params }: { params: Promise<{ lang: string }> },
+): Promise<Metadata> {
+  const lang = toLocale((await params).lang)
+  return {
+    alternates: localeAlternates(lang, '/events'),
+    title: 'Events',
+    description:
+      'Festivals, meetups, sport and volunteering with the Nepali community of Oita '
+      + 'and Beppu — what is coming up, and everything we have run.',
+  }
 }
 
 export default async function EventsPage() {
@@ -84,7 +90,7 @@ export default async function EventsPage() {
               )}
               <EventsRail pastCount={past.length}
                           upcomingIndex={upcoming.length > 0 ? past.length : -1}>
-                {ordered.map((e) => <EventCard key={e.id} event={e} />)}
+                {ordered.map((e, i) => <EventCard key={e.id} event={e} index={i} />)}
               </EventsRail>
             </>
           )}

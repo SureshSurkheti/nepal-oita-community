@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { setPhone, setAdmin, removeMember, issueClaimCode, setContributor,
-         type ActionResult } from '@/app/admin/members/actions'
+         type ActionResult } from '@/app/[lang]/admin/members/actions'
 import { AdminMemberProfile } from './AdminMemberProfile'
 import { ClaimCodePanel } from './ClaimCodePanel'
 import { formatJP } from '@/lib/phone'

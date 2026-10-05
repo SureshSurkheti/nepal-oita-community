@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { localeAlternates, toLocale } from '@/lib/i18n'
 import { Gallery } from '@/components/Gallery'
 import { PageHead } from '@/components/PageHead'
 import { getPhotos, getMyDraftPhotos, tilePhotos } from '@/lib/content'
@@ -14,12 +15,17 @@ import { Icon } from '@/components/Sprite'
    prerender it, and stops a future edit quietly making it cacheable. */
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/gallery' },
-  title: 'Photo gallery',
-  description:
-    'Photographs from years of Nepali community life in Oita Prefecture — Dashain '
-    + 'and Tihar, Holi in the park, food festivals, student welcomes, football and volunteering.',
+export async function generateMetadata(
+  { params }: { params: Promise<{ lang: string }> },
+): Promise<Metadata> {
+  const lang = toLocale((await params).lang)
+  return {
+    alternates: localeAlternates(lang, '/gallery'),
+    title: 'Photo gallery',
+    description:
+      'Photographs from years of Nepali community life in Oita Prefecture — Dashain '
+      + 'and Tihar, Holi in the park, food festivals, student welcomes, football and volunteering.',
+  }
 }
 
 export default async function GalleryPage() {

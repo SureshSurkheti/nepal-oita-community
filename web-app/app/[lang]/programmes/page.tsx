@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Icon, type IconName } from '@/components/Sprite'
 import { getProgrammes } from '@/lib/content'
 import { PageHead } from '@/components/PageHead'
+import { localeAlternates, toLocale } from '@/lib/i18n'
 
 /* FULLY PUBLIC — no session is read anywhere on this page, so it is prerendered
    and served from the CDN edge. Every visitor gets identical bytes with zero
@@ -12,12 +13,17 @@ import { PageHead } from '@/components/PageHead'
    updateTag, which refreshes it at once. See lib/content.ts. */
 export const revalidate = 300
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/programmes' },
-  title: 'What we do',
-  description:
-    'Everything the Nepal–Oita Community runs: festivals, newcomer support, Nepali '
-    + 'language classes, sport, volunteering and help when something goes wrong.',
+export async function generateMetadata(
+  { params }: { params: Promise<{ lang: string }> },
+): Promise<Metadata> {
+  const lang = toLocale((await params).lang)
+  return {
+    alternates: localeAlternates(lang, '/programmes'),
+    title: 'What we do',
+    description:
+      'Everything the Nepal–Oita Community runs: festivals, newcomer support, Nepali '
+      + 'language classes, sport, volunteering and help when something goes wrong.',
+  }
 }
 
 export default async function ProgrammesPage() {

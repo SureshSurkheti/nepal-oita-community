@@ -14,6 +14,7 @@ import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { PhotoTiles } from '@/components/PhotoTiles'
 import { getCurrentMember, getMembers } from '@/lib/members'
 import { assetUrl, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos, todayInJapan } from '@/lib/content'
+import { localeAlternates, toLocale } from '@/lib/i18n'
 
 /* Depends on who is asking, so it can never be cached or prerendered.
    This used to be inherited from the root layout's force-dynamic; the layout
@@ -201,9 +202,14 @@ const SOCIALS: { modifier: string; icon: IconName; href: string; label: string; 
    through the `%s | Nepal–Oita Community` template — it would repeat the name.
    Written for what people type: "nepali community oita" and "nepali in beppu"
    are the searches this page has to answer. */
-export const metadata: Metadata = {
-  title: { absolute: 'Nepal–Oita Community — Nepali community in Oita and Beppu, Japan' },
-  alternates: { canonical: '/' },
+export async function generateMetadata(
+  { params }: { params: Promise<{ lang: string }> },
+): Promise<Metadata> {
+  const lang = toLocale((await params).lang)
+  return {
+    alternates: localeAlternates(lang, '/'),
+    title: { absolute: 'Nepal–Oita Community — Nepali community in Oita and Beppu, Japan' },
+  }
 }
 
 export default async function Home() {
@@ -457,7 +463,7 @@ export default async function Home() {
           ) : (
             <EventsRail pastCount={past.length}
                         upcomingIndex={upcoming.length > 0 ? past.length : -1}>
-              {orderedEvents.map((e) => <EventCard key={e.id} event={e} />)}
+              {orderedEvents.map((e, i) => <EventCard key={e.id} event={e} index={i} />)}
             </EventsRail>
           )}
         </div>

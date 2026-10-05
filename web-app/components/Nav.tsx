@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { LocaleLink as Link } from './LocaleLink'
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { useI18n } from '@/lib/useI18n'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
 import { SignOutButton } from './SignOutButton'
@@ -52,6 +54,7 @@ type NavMember = { name: string; isAdmin: boolean } | null
  * predicted from the cached HTML.
  */
 export function Nav() {
+  const { t } = useI18n()
   const [member, setMember] = useState<NavMember>(null)
   const [hasSession, setHasSession] = useState(false)
   const [ready, setReady] = useState(false)
@@ -98,7 +101,7 @@ export function Nav() {
        lines and stretching the header. */
     <header className={`nav${hasSession ? ' nav--member' : ''}`} data-nav>
       <div className="nav__inner">
-        <Link className="brand" href="/" aria-label="Nepal–Oita Community, home">
+        <Link className="brand" href="/" aria-label={t.nav.homeAria}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="brand__mark" src="/images/logo-mark.jpg" alt="" width={320} height={320} />
           <span className="brand__text">
@@ -108,14 +111,14 @@ export function Nav() {
         </Link>
 
         <nav className="nav__links" aria-label="Primary">
-          <Link className="nav__link" href="/#about">About</Link>
-          <Link className="nav__link" href="/programmes">Programmes</Link>
-          <Link className="nav__link" href="/events">Events</Link>
-          <Link className="nav__link" href="/gallery">Gallery</Link>
-          <Link className="nav__link" href="/decisions">Decisions</Link>
-          <Link className="nav__link" href="/members">Members</Link>
-          <Link className="nav__link" href="/#contact">Contact</Link>
-          {member?.isAdmin && <Link className="nav__link" href="/admin">Committee</Link>}
+          <Link className="nav__link" href="/#about">{t.nav.about}</Link>
+          <Link className="nav__link" href="/programmes">{t.nav.programmes}</Link>
+          <Link className="nav__link" href="/events">{t.nav.events}</Link>
+          <Link className="nav__link" href="/gallery">{t.nav.gallery}</Link>
+          <Link className="nav__link" href="/decisions">{t.nav.decisions}</Link>
+          <Link className="nav__link" href="/members">{t.nav.members}</Link>
+          <Link className="nav__link" href="/#contact">{t.nav.contact}</Link>
+          {member?.isAdmin && <Link className="nav__link" href="/admin">{t.nav.committee}</Link>}
         </nav>
 
         {/* Signing in and out stays in the header at EVERY width.
@@ -126,26 +129,27 @@ export function Nav() {
             labels collapse to icons on a narrow screen rather than the buttons
             disappearing — the control is the thing worth keeping, not its text. */}
         <div className={`nav__actions${ready ? '' : ' nav__actions--waiting'}`}>
+          <LanguageSwitcher />
           {member ? (
             <>
               <Link className="btn btn--ghost nav__cta" href="/me"
-                    aria-label="My profile" title="My profile">
-                <Icon name="user" /><span className="nav__label">Profile</span>
+                    aria-label={t.nav.myProfile} title={t.nav.myProfile}>
+                <Icon name="user" /><span className="nav__label">{t.nav.profile}</span>
               </Link>
               <SignOutButton />
             </>
           ) : hasSession ? (
             <>
               <Link className="btn btn--primary nav__cta" href="/sign-in"
-                    aria-label="Enter your membership code" title="Enter your membership code">
-                <Icon name="shield" /><span className="nav__label">Enter your code</span>
+                    aria-label={t.nav.enterCode} title={t.nav.enterCode}>
+                <Icon name="shield" /><span className="nav__label">{t.nav.enterCode}</span>
               </Link>
               <SignOutButton />
             </>
           ) : (
             <Link className="btn btn--primary nav__cta" href="/sign-in"
-                  aria-label="Sign in" title="Sign in">
-              <Icon name="shield" /><span className="nav__label">Sign in</span>
+                  aria-label={t.nav.signIn} title={t.nav.signIn}>
+              <Icon name="shield" /><span className="nav__label">{t.nav.signIn}</span>
             </Link>
           )}
           <Drawer member={member} />

@@ -226,23 +226,50 @@ the last admin, so this should not happen by accident.
 
 ## What is not done yet
 
-- The homepage, gallery, events, programmes and stories pages. Their tables are
-  in `0004_content.sql` and unused so far.
-- Committee editing for events, stories and photos — the tables and policies are
-  ready, the UI is not.
-- Only `logo-mark.png` is in `public/`. The rest of `../images/` was not copied;
-  the gallery will read from Supabase Storage when it moves.
-- Story submission by members. The database allows it (pending, awaiting
-  approval); there is no form yet.
-- The static site's own members gate (`../static-site/data/members.json` and
-  `../static-site/tools/member-hash.html`) is superseded by this and should be
-  deleted — but
-  not yet. It is what the live `members.html` still uses, so removing it before
-  this app is deployed would break the site that is currently up.
-- This app has been typechecked, built and rendered, and its database layer is
-  tested against a real PostgreSQL — but it has never talked to a live Supabase
-  project. The first run against a real one may still turn something up,
-  especially around the SMS provider.
+Everything below was checked against the code and against the live project, not
+remembered. The previous version of this list was not: it still said the
+homepage, gallery, events, programmes and stories pages were unbuilt, that only
+`logo-mark.png` was in `public/`, and that the app had never talked to a real
+Supabase project — all of which had been done long before anybody read it
+again. A list of gaps that names things which are finished is worse than no list,
+because it is the one thing in a README nobody thinks to doubt.
+
+**No password reset.** `SignInForm` signs up and signs in; there is no
+`resetPasswordForEmail` anywhere. A member who forgets their password has to be
+given a new claim code by the committee, which works but is a phone call every
+time. This is the biggest gap for members.
+
+**The committee forms cannot write Nepali.** `0020` and `0021` add `title_ne`,
+`body_ne` and `text_ne`, and the pages read them — but nothing under `/admin`
+offers a field for them. So every event, programme and story added from now on
+is English-only on both halves of the site until somebody writes the Nepali
+straight into the database. The dictionaries do not help here: that is the
+chrome, and this is the content.
+
+**Editing a block by pressing it.** Asked for, and deliberately not started. It
+needs three decisions first — which blocks become editable, what the public page
+shows while somebody is mid-edit, and whether a leadership member gets the same
+reach as the committee.
+
+**No backup of the database.** The Supabase project is on the free tier, so
+there is no point-in-time recovery and no scheduled dump. Everything the
+committee has typed in — members, minutes, events, stories — exists in exactly
+one place.
+
+**The sitemap has never been submitted.** Thirty URLs, generated at
+`/sitemap.xml`, never given to Google Search Console. The site is indexable and
+has hreflang on all eight public pages; nobody has told Google it is there.
+
+**`0020` to `0024` have never been run.** Five migrations, sitting in
+`supabase/RUN-IN-SQL-EDITOR.sql`. This is the one with the most visible effect
+and the least work — see the checklist at the end of this file.
+
+**The old static site can go.** `../static-site/` is no longer in the repository
+(`static-site/data/` is gitignored, and nothing under it is tracked), and
+`nepaloitacommunity.com` serves this app. Its `data/members.json` still exists on
+disk and holds a PBKDF2 hash of every member's phone number against a shared
+salt, so it is worth deleting rather than leaving in a folder.
+
 
 ---
 

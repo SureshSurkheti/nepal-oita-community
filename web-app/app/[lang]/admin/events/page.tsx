@@ -24,17 +24,30 @@ export default async function AdminEventsPage() {
     supabase.from('event_highlights').select('*').order('position'),
   ])
 
-  const byEvent = new Map<string, string[]>()
-  for (const h of (highlights ?? []) as { event_id: string; text: string }[]) {
-    const list = byEvent.get(h.event_id) ?? []
-    list.push(h.text)
-    byEvent.set(h.event_id, list)
+  /* Both languages, kept in step by position. The two textareas in the form are
+     paired line for line, so the lists handed to it have to line up the same way
+     — `text_ne ?? ''` rather than dropping the row, or an untranslated
+     highlight in the middle would shift every later translation up by one.
+     
+     `text_ne` is simply absent before migration 0021 has been run (select('*')
+     returns what exists), which lands here as an empty string and renders as an
+     empty line. That is exactly right: nothing to show yet. */
+  const byEvent = new Map<string, { en: string[]; ne: string[] }>()
+  for (const h of (highlights ?? []) as { event_id: string; text: string; text_ne?: string | null }[]) {
+    const lists = byEvent.get(h.event_id) ?? { en: [], ne: [] }
+    lists.en.push(h.text)
+    lists.ne.push(h.text_ne ?? '')
+    byEvent.set(h.event_id, lists)
   }
 
-  const rows = (events ?? []).map((e) => ({
-    ...(e as Record<string, unknown>),
-    highlights: byEvent.get((e as { id: string }).id) ?? [],
-  })) as Parameters<typeof EventAdmin>[0]['events']
+  const rows = (events ?? []).map((e) => {
+    const lists = byEvent.get((e as { id: string }).id)
+    return {
+      ...(e as Record<string, unknown>),
+      highlights: lists?.en ?? [],
+      highlights_ne: lists?.ne ?? [],
+    }
+  }) as Parameters<typeof EventAdmin>[0]['events']
 
   return (
     <section className="section">

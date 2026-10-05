@@ -19,6 +19,11 @@ function coverUrl(path: string | null | undefined): string | null {
 export type AdminEvent = {
   id: string; slug: string; title: string
   summary: string | null; body: string | null
+  /* The Nepali half. Optional on the type, because the columns arrive with
+     migration 0020/0021 and the admin page has to keep working on a database
+     that has not had it run — see nepaliFields in the action. */
+  title_ne?: string | null; summary_ne?: string | null; body_ne?: string | null
+  highlights_ne?: string[]
   event_date: string; start_time: string | null; end_time: string | null
   place: string | null; category: string | null; cost: string | null
   accent: string; register_email: string | null; is_published: boolean
@@ -82,6 +87,7 @@ export function EventAdmin({ events, today }: { events: AdminEvent[]; today: str
     start_time: '', end_time: '', place: '', category: 'Community', cost: '',
     accent: 'crimson', register_email: 'nepaloitacommunity11@gmail.com',
     is_published: true, cover_path: null, highlights: [],
+    title_ne: null, summary_ne: null, body_ne: null, highlights_ne: [],
   }
   const form = editing === 'new' ? blank : editing
 
@@ -191,6 +197,45 @@ export function EventAdmin({ events, today }: { events: AdminEvent[]; today: str
               <textarea id="e-high" name="highlights" rows={5}
                         defaultValue={form.highlights.join('\n')}
                         placeholder={'Tika and jamara from the elders\nFull Nepali lunch'} />
+            </div>
+          </AdminSection>
+
+          {/* WHY THIS SECTION EXISTS AT ALL.
+              Half this community reads Nepali more comfortably than English, and
+              the site has been translated down to the last button — but the
+              events, programmes and stories are rows, not code, and until now
+              nothing here could write the Nepali ones. So every event added
+              after the translation shipped was English on both halves of the
+              site, and the Nepali page slowly filled up with English again.
+              Worse for being invisible: the page falls back rather than showing
+              a blank, so nobody notices.
+
+              Optional, every field. An event with an English title and no
+              Nepali one is normal and shows the English on both; the fallback is
+              in lib/content and has always worked that way. */}
+          <AdminSection title="The same thing in Nepali"
+                        hint="Optional. Anything left empty shows the English on the Nepali pages, which is what happens today.">
+            <div className="field">
+              <label htmlFor="e-title-ne">Title</label>
+              <input id="e-title-ne" name="title_ne" defaultValue={form.title_ne ?? ''}
+                     lang="ne" placeholder="दशैं उत्सव" />
+            </div>
+            <div className="field">
+              <label htmlFor="e-summary-ne">One line for the card</label>
+              <input id="e-summary-ne" name="summary_ne" defaultValue={form.summary_ne ?? ''}
+                     lang="ne" maxLength={160} />
+            </div>
+            <div className="field">
+              <label htmlFor="e-body-ne">The longer description</label>
+              <textarea id="e-body-ne" name="body_ne" defaultValue={form.body_ne ?? ''}
+                        lang="ne" rows={3} />
+            </div>
+            <div className="field">
+              <label htmlFor="e-high-ne">
+                What happens <span className="muted">(one per line, in the same order as the English)</span>
+              </label>
+              <textarea id="e-high-ne" name="highlights_ne" rows={5} lang="ne"
+                        defaultValue={(form.highlights_ne ?? []).join('\n')} />
             </div>
           </AdminSection>
 

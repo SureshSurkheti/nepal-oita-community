@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Icon } from './Sprite'
 import { useI18n } from '@/lib/useI18n'
 import { localeNum } from '@/lib/i18n'
-import { fallbackCoverFor } from '@/lib/covers'
 import { EventsShowcase, type ShowcaseEvent } from './EventsShowcase'
 import Image from 'next/image'
 
@@ -159,15 +158,24 @@ export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
               fill
               sizes="(max-width: 820px) 92px, 150px"
               priority
-              onError={(ev) => {
-                /* The cover can be a storage object that was never uploaded.
-                   Unlike the server-rendered case CoverImage documents, this one
-                   is safe to handle here: next/image renders on the client, so
-                   the handler is attached before the request is made. */
-                const el = ev.currentTarget
-                const fb = fallbackCoverFor(e.slug)
-                if (!el.src.includes(encodeURIComponent(fb)) && el.src !== fb) el.src = fb
-              }}
+              /* NO onError HANDLER, AND THAT IS DELIBERATE — it was here and it
+                 cost 257KB a page view.
+                 
+                 A srcset gives the browser several candidates; it starts one,
+                 picks another, and ABORTS the first. That abort fires `error`.
+                 Measured: twelve net::ERR_ABORTED in eight seconds on this page,
+                 every one of them normal, and each made the handler swap a
+                 perfectly good optimised image for the raw fallback file. The
+                 ribbon also remounts its media every six seconds as it rotates,
+                 which guarantees more of them.
+                 
+                 There is nothing to recover anyway: the frame already carries
+                 the event's accent wash, so a cover that genuinely fails leaves
+                 a tinted panel rather than a hole. The cards, the showcase and
+                 the event page keep their fallback — CoverImage decides by
+                 asking the element whether it actually failed, rather than by
+                 trusting an event that fires for a request that was merely
+                 replaced. */
             />
           )}
           <span className="spot__shade" aria-hidden="true" />

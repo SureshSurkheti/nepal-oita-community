@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import NextImage from 'next/image'
 
 /* The homepage hero, as photographs that cross-fade into one another.
  *
@@ -27,6 +28,19 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * one, and the other four are never fetched. That also serves as the "pause"
  * mechanism a continuously changing element is expected to offer, which is how
  * the drift animation already on this photograph is handled.
+ *
+ * EVERY SLIDE GOES THROUGH next/image, AND THAT IS A SIZE DECISION
+ * The sources are 1536x1024 and 1920x1279 — right for a full-bleed hero on a
+ * desktop, and four times what a 393px phone can use. Measured on the live home
+ * page over Slow 4G: best.webp alone was 257KB and the first slide is
+ * fetchPriority high, so it competed directly with the thing the page is judged
+ * on. `sizes="100vw"` is honest here — the hero really is the full width — so
+ * the browser is handed a srcset and takes a phone-sized copy on a phone and the
+ * big one on a desktop.
+ *
+ * The staging survives the change: slide one still renders with `priority`
+ * (which emits a preload link, better than fetchPriority alone), and the rest
+ * are not rendered AT ALL until `armed`, so no request is made for them.
  *
  * LOAD IS BOTH LISTENED FOR AND CHECKED
  * A cached photograph can finish decoding before React has attached its onLoad
@@ -75,7 +89,9 @@ export function HeroSlideshow({ images, interval = 7000 }: {
   useEffect(() => {
     const el = cell.current
     if (!el) return
-    el.querySelectorAll<HTMLImageElement>('img').forEach((img, n) => {
+    el.querySelectorAll<HTMLImageElement>('img[data-slide]').forEach((img) => {
+      const n = Number(img.dataset.slide)
+      if (!Number.isInteger(n)) return
       if (img.getAttribute('src') && img.complete) {
         if (img.naturalWidth > 0) markReady(n)
         else markBroken(n)
@@ -108,22 +124,35 @@ export function HeroSlideshow({ images, interval = 7000 }: {
     <div className="hero__grid">
       <div className="hero__cell" ref={cell}>
         {images.map((src, n) => {
-          /* Absent, not empty. `src=""` makes the browser re-request the current
-             page URL; omitting the attribute makes no request at all. */
           const load = n === 0 || armed
           const cls = ['hero__slide']
           if (ready.includes(n)) cls.push('is-loaded')
           if (n === current) cls.push('is-active')
+
+          /* NOT RENDERED AT ALL until it is armed. The old version kept the
+             <img> and left `src` off, because `src=""` makes a browser
+             re-request the current page. next/image requires a src, and simply
+             leaving the element out is cleaner than either: no element, no
+             request, and nothing to reason about. */
+          if (!load) return <span key={src} className={cls.join(' ')} aria-hidden="true" />
+
           return (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img key={src}
-                 className={cls.join(' ')}
-                 src={load ? src : undefined}
-                 alt=""
-                 fetchPriority={n === 0 ? 'high' : 'low'}
-                 decoding="async"
-                 onLoad={() => markReady(n)}
-                 onError={() => markBroken(n)} />
+            <NextImage key={src}
+                       /* Indexed by attribute, NOT by position in the NodeList.
+                          The sweep below used querySelectorAll('img') and the
+                          element's index — which was correct only while every
+                          slide was always an <img>. Now the unarmed ones are
+                          spans, so the indices would silently shift and the
+                          wrong slide would be marked ready. */
+                       data-slide={n}
+                       className={cls.join(' ')}
+                       src={src}
+                       alt=""
+                       fill
+                       sizes="100vw"
+                       priority={n === 0}
+                       onLoad={() => markReady(n)}
+                       onError={() => markBroken(n)} />
           )
         })}
       </div>

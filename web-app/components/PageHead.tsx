@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { LocaleLink as Link } from './LocaleLink'
 import { Icon, type IconName } from './Sprite'
 import { SITE_NAME, abs } from '@/lib/site'
@@ -68,8 +69,24 @@ export function PageHead({ icon, eyebrow, title, lede, back, path, crumb, lang =
       <div className="hero__art" aria-hidden="true">
         <div className="hero__grid">
           <div className="hero__cell">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/best.webp" alt="" fetchPriority="high" decoding="async" />
+            {/* next/image, for two reasons that are easy to miss.
+                
+                It is the LARGEST CONTENTFUL PAINT of every page that uses
+                PageHead — gallery, programmes, events, stories, members,
+                decisions — and the source is 1536x1024, four times what a phone
+                draws it at. `sizes="100vw"` is honest: the hero really is full
+                width.
+                
+                AND IT WAS COSTING THE HOME PAGE 257KB WITHOUT APPEARING ON IT.
+                As a raw <img fetchPriority="high">, React 19 hoists it into a
+                <link rel="preload" as="image">. Next prefetches the sub-pages
+                linked from the home page, so that preload was being injected
+                into a page this component never renders on — traced from the
+                request's initiator, which was a script rather than the parser,
+                and confirmed by there being no <img> on the page using it.
+                Through next/image the preload carries the srcset instead, so a
+                phone prefetches a phone-sized copy. */}
+            <Image src="/images/best.webp" alt="" fill sizes="100vw" priority />
           </div>
         </div>
       </div>

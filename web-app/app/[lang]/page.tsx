@@ -11,21 +11,23 @@ import { PersonCard } from '@/components/PersonCard'
 import { ContactForm } from '@/components/ContactForm'
 import { HeroBody } from '@/components/HeroBody'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
+import { HomeMinutes } from '@/components/HomeMinutes'
 import { EventSpotlight, type SpotlightEvent } from '@/components/EventSpotlight'
 import { HERO_PHOTOS } from '@/lib/covers'
 import { PhotoTiles } from '@/components/PhotoTiles'
-import { getCurrentMember, getMembers } from '@/lib/members'
-import { assetUrl, chipDate, coverFor, daysUntil, getEvents, getProgrammes, getPhotos, getStories, getMeetings, longDate, tilePhotos, todayInJapan } from '@/lib/content'
+import { getPublicMembers } from '@/lib/members'
+import { assetUrl, chipDate, coverFor, daysUntil, getEvents, getProgrammes, getPhotos, getStories, longDate, tilePhotos, todayInJapan } from '@/lib/content'
 import { localeAlternates, toLocale } from '@/lib/i18n'
 import { getDictionary } from '@/lib/dictionaries'
 
-/* Depends on who is asking, so it can never be cached or prerendered.
-   This used to be inherited from the root layout's force-dynamic; the layout
-   dropped it so the public pages could be served from a CDN, which means the
-   viewer-specific routes have to declare it themselves. Reading cookies would
-   make it dynamic anyway — saying so explicitly stops a build trying to
-   prerender it, and stops a future edit quietly making it cacheable. */
-export const dynamic = 'force-dynamic'
+/* PRERENDERED, and kept that way on purpose.
+   
+   `revalidate` is the backstop; publishing an event or a photograph calls
+   updateTag, which refreshes this at once. If a future edit makes this page read
+   the request again — getCurrentMember(), cookies(), headers() — Next will turn
+   it back into a per-request render silently, and the only visible symptom is
+   `x-vercel-cache: MISS`. Check that header after touching this file. */
+export const revalidate = 300
 
 
 /* The hero numbers.
@@ -175,17 +177,22 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   const lang = toLocale((await params).lang)
   const t = getDictionary(lang)
 
-  /* Two waves, not one, and only because of the minutes. Since 0016 they are
-     readable by members only — `anon` has no SELECT grant on the tables at all —
-     so getMeetings() has to be told whether there is a member before it decides
-     whether to send a query. That answer comes from getCurrentMember(), so it
-     cannot be in the same Promise.all as the call that needs it. One extra round
-     trip, and the alternative was to fire a query that fails for every visitor
-     and swallow the error. */
-  const member = await getCurrentMember()
-  const [members, events, programmes, stories, photos, meetings] = await Promise.all([
-    getMembers(), getEvents(lang), getProgrammes(lang), getStories(), getPhotos(),
-    getMeetings(member !== null),
+  /* NOTHING HERE READS THE REQUEST, and that is what makes this page fast.
+     
+     It used to call getCurrentMember() and then getMembers() — both of which
+     read cookies — so the whole route was dynamic: `x-vercel-cache: MISS` on
+     every request, seven database queries per view, and 2.6s to first byte on a
+     cold start, while /programmes answered HIT in 0.45s. Two things were
+     responsible and both have moved:
+     
+       the minutes   -> components/HomeMinutes, fetched in the browser
+       the register  -> getPublicMembers(), which has no cookie jar and never
+                        asks for a phone number
+     
+     All five fetchers below go through createPublicClient() and unstable_cache,
+     so this page is prerendered and served from the edge. */
+  const [members, events, programmes, stories, photos] = await Promise.all([
+    getPublicMembers(), getEvents(lang), getProgrammes(lang), getStories(), getPhotos(),
   ])
 
   const past = events.filter((e) => e.past)
@@ -213,25 +220,6 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       days: daysUntil(e.event_date),
     }
   })
-
-  /* Live write-ups only. A taken-down one comes back from getMeetings() as well
-     for the leadership team, and the front page is not where they should find it.
-     
-     For a visitor this list is empty by construction — getMeetings() was handed
-     `false` above and sent no query — so the whole section disappears rather
-     than showing an empty band. 0016 took the minutes off the public web: they
-     are the community talking to itself about its own money and arrangements.
-     
-     No slice: only one is on screen at a time, so the length of the list costs
-     nothing and there is no argument for holding any of them back. Reversed,
-     because the pager opens on the last one and steps backwards in time — which
-     puts the newest first without the arrows working the wrong way round. */
-  const decisions = meetings.filter((m) => m.status === 'approved').reverse()
-  const latest = decisions.length - 1
-
-  /* Whether to put Edit and Delete on the card. The database refuses the write
-     either way, so this only decides whether to offer controls that would fail. */
-  const canEditMinutes = member?.can_contribute === true || member?.is_admin === true
 
   /* Counted here, where the data already is. `todayInJapan()` rather than the
      server's own clock: the site's year is Oita's year, and a box in another
@@ -263,7 +251,6 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
 
   const leadership = members.filter((m) => m.category === 'leadership')
   const general = members.filter((m) => m.category === 'general')
-  const signedIn = member !== null
 
   return (
     <>
@@ -548,98 +535,10 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       )}
 
       {/* ----------------------------------------------------------- decisions */}
-      {decisions.length > 0 && (
-        <section className="section" id="decisions">
-          <div className="container">
-            {/* Centred, unlike Events or Gallery next door. Those have a
-                left-aligned head because a full-width grid follows it, so the
-                heading never sits beside empty space. This section is one card
-                narrower than the container — nothing fills the rest of the row,
-                so a left-aligned block left half the width looking unused. The
-                whole thing is one centred column instead, which is what the
-                site already does for "In their words" and "Our people". */}
-            <div className="section-head section-head--center reveal">
-              <p className="eyebrow eyebrow--center">
-                <span className="eyebrow__badge"><Icon name="check" /></span>
-                {t.home.decisions.eyebrow}
-              </p>
-              <h2 className="display-2">{t.home.decisions.title}</h2>
-              <p className="lede">
-                {t.home.decisions.lede}
-              </p>
-            </div>
-
-            {/* `reveal` on the wrapper, never on the cards inside it. Only one
-                card is mounted at a time and it appears mid-scroll when an arrow
-                is pressed, long after the IntersectionObserver has finished its
-                pass — so a card carrying `.reveal` itself would arrive at
-                opacity 0 and stay there. */}
-            {/* One column for all three parts. The card was capped at a readable
-                measure while the arrows above it and the button below it were
-                laid out on the full container, so on a wide screen they lined up
-                with three different right-hand edges and left a hole beside the
-                card. The panel now carries the measure and everything inside it
-                inherits it — heading, arrows, card and button share one edge. */}
-            <div className="decisions-panel reveal">
-              <DecisionsPager label={t.home.decisions.pager}>
-                {decisions.map((m, i) => (
-                  <article key={m.id}
-                           className={`decision${i === latest ? ' decision--latest' : ''}`}>
-                    {i === latest && (
-                      <p className="decision__flag"><Icon name="star" /> {t.home.decisions.latest}</p>
-                    )}
-                    <p className="decision__date">
-                      <Icon name="calendar" /> {longDate(m.held_on)}
-                      {m.place && <span className="decision__place">{m.place}</span>}
-                    </p>
-                    <h3 className="decision__title">{m.title}</h3>
-                    {/* Room for it now that one card has the whole measure. It
-                        was left off the strip of narrow cards because a sentence
-                        in a 250px column pushed the decisions out of the box. */}
-                    {m.summary && <p className="decision__summary">{m.summary}</p>}
-                    {/* All the decisions, not the first four. The box has a
-                        ceiling and scrolls past it, so a meeting that decided
-                        fifteen things does not run down the page. */}
-                    {m.points.length > 0 && (
-                      <div className="decision__points">
-                        <ul className="checklist">
-                          {m.points.map((p) => (
-                            <li key={p.id}><Icon name="check" /><span>{p.text}</span></li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {/* Inside the card, not down in the button row with "Every
-                        meeting". Two reasons. It is unambiguous about which
-                        write-up it acts on — and the pager renders only the card
-                        on screen, so the controls that come with it are always
-                        the right ones, with no index to keep in step.
-                        
-                        Edit only. Delete is deliberately not offered here: the
-                        front page is where people come to read what was decided,
-                        and a control with no undo does not belong one mis-tap
-                        away from it. It is on /decisions, behind "Every meeting,
-                        and add one" — a page you have chosen to open. */}
-                    {canEditMinutes && (
-                      <MeetingEditor allowDelete={false} draft={{
-                        id: m.id, held_on: m.held_on, title: m.title,
-                        place: m.place, summary: m.summary,
-                        points: m.points.map((p) => ({ text: p.text })),
-                      }} />
-                    )}
-                  </article>
-                ))}
-              </DecisionsPager>
-
-              <div className="cluster cluster--center mt-lg">
-                <Link className="btn btn--ghost" href="/decisions">
-                  <Icon name="check" /> Every meeting, and add one
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* The committee's write-ups, fetched in the BROWSER rather than here.
+          It is the members-only section that used to make this whole route
+          dynamic — see the note at the top of components/HomeMinutes. */}
+      <HomeMinutes />
 
       {/* ------------------------------------------------------------- members */}
       <section className="section section--tinted" id="members">
@@ -676,7 +575,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
               <h3 className="display-3 center mt-lg u-mb-2">{t.home.members.leadership}</h3>
               <ShowMore className="people-flow reveal" id="leadership-preview" href="/members" cap={999}>
                 {leadership.map((m, i) => (
-                  <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
+                  <PersonCard key={m.id} member={m} index={i} />
                 ))}
               </ShowMore>
             </>
@@ -697,7 +596,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
               <ShowMore className="people-flow reveal" id="members-preview"
                         href="/members" cap={4}>
                 {general.map((m, i) => (
-                  <PersonCard key={m.id} member={m} index={i} showContact={signedIn} />
+                  <PersonCard key={m.id} member={m} index={i} />
                 ))}
               </ShowMore>
             </>
@@ -744,7 +643,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
             <Link className="btn btn--ghost" href="/members">
               <Icon name="users" /> {t.home.members.registerLink}
             </Link>
-            <Link className="btn btn--ghost" href={signedIn ? '/me' : '/sign-in'}>
+            <Link className="btn btn--ghost" href="/me">
               <Icon name="user-plus" /> {t.home.members.addPhoto}
             </Link>
           </div>

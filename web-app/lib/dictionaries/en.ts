@@ -169,6 +169,9 @@ export const en = {
       lede: 'The committee and the members meet most months. Nobody has to remember what was agreed, or take somebody’s word for it.',
       latest: 'Latest',
       pager: 'Meeting decisions',
+    /* Was hardcoded English in page.tsx, so it stayed English on the Nepali
+       page. Moving the section into a component is what surfaced it. */
+    everyMeeting: 'Every meeting, and add one',
     },
     members: {
       eyebrow: 'Our people',

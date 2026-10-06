@@ -3,19 +3,16 @@ import type { Metadata } from 'next'
 import { Icon } from '@/components/Sprite'
 import { assetUrl, getStories } from '@/lib/content'
 import { PageHead } from '@/components/PageHead'
-import { StoryForm, type OwnStory } from '@/components/StoryForm'
-import { getCurrentMember } from '@/lib/members'
-import { createClient } from '@/lib/supabase/server'
+import { ContributeGate } from '@/components/ContributeGate'
 import { localeAlternates, toLocale } from '@/lib/i18n'
 import { getDictionary } from '@/lib/dictionaries'
 
-/* Depends on who is asking, so it can never be cached or prerendered.
-   This used to be inherited from the root layout's force-dynamic; the layout
-   dropped it so the public pages could be served from a CDN, which means the
-   viewer-specific routes have to declare it themselves. Reading cookies would
-   make it dynamic anyway — saying so explicitly stops a build trying to
-   prerender it, and stops a future edit quietly making it cacheable. */
-export const dynamic = 'force-dynamic'
+/* PRERENDERED. It used to be force-dynamic because of one members-only panel
+   at the foot of the page; that panel is now components/ContributeGate, which
+   resolves the session in the browser. See the long note in that file — this
+   page was `x-vercel-cache: MISS` for every visitor to decide whether to draw a
+   form almost none of them may use. */
+export const revalidate = 300
 
 export async function generateMetadata(
   { params }: { params: Promise<{ lang: string }> },
@@ -34,22 +31,8 @@ export default async function StoriesPage({ params }: { params: Promise<{ lang: 
   const lang = toLocale((await params).lang)
   const t = getDictionary(lang)
 
-  const [stories, member] = await Promise.all([getStories(lang), getCurrentMember()])
+  const stories = await getStories(lang)
 
-  /* Their own submissions, whatever state those are in. stories_read_own exists
-     precisely so this query returns a pending row: without it a member submits
-     a story, it vanishes, and they submit it again. Not wrapped in unwrap() —
-     for a visitor this is expected to come back empty, and an empty list is the
-     correct answer rather than an error. */
-  let own: OwnStory[] = []
-  if (member) {
-    const supabase = await createClient()
-    const { data } = await supabase.from('stories')
-      .select('id, quote, author_role, quote_ne, author_role_ne, status')
-      .eq('member_id', member.id)
-      .order('created_at', { ascending: false })
-    own = (data ?? []) as OwnStory[]
-  }
 
   return (
     <>
@@ -91,15 +74,7 @@ export default async function StoriesPage({ params }: { params: Promise<{ lang: 
           {/* Was a button pointing at the contact form, which meant a member's
               story arrived as an ordinary message and somebody had to retype it.
               It is a real submission now, and the committee approves it. */}
-          <div className="mt-lg u-measure-center">
-            <StoryForm
-              member={member && {
-                id: member.id, name: member.name,
-                role: member.role, photo_path: member.photo_path,
-              }}
-              own={own}
-            />
-          </div>
+          <ContributeGate kind="story" />
 
           <div className="cluster cluster--center mt-lg">
             <Link className="btn btn--ghost" href="/#join">

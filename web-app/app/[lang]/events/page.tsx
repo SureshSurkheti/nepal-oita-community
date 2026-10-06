@@ -5,20 +5,18 @@ import { EventCard } from '@/components/EventCard'
 import { EventsRail } from '@/components/EventsRail'
 import { EventsShowcaseButton } from '@/components/EventsShowcase'
 import type { ShowcaseEvent } from '@/components/EventsShowcase'
-import { chipDate, coverFor, getEvents, getMyDraftEvents, longDate, type EventRow } from '@/lib/content'
+import { chipDate, coverFor, getEvents, longDate, type EventRow } from '@/lib/content'
 
-import { getCurrentMember } from '@/lib/members'
-import { EventProposeForm } from '@/components/EventProposeForm'
+import { ContributeGate } from '@/components/ContributeGate'
 import { Icon } from '@/components/Sprite'
 import { PageHead } from '@/components/PageHead'
 
-/* Depends on who is asking, so it can never be cached or prerendered.
-   This used to be inherited from the root layout's force-dynamic; the layout
-   dropped it so the public pages could be served from a CDN, which means the
-   viewer-specific routes have to declare it themselves. Reading cookies would
-   make it dynamic anyway — saying so explicitly stops a build trying to
-   prerender it, and stops a future edit quietly making it cacheable. */
-export const dynamic = 'force-dynamic'
+/* PRERENDERED. It used to be force-dynamic because of one members-only panel
+   at the foot of the page; that panel is now components/ContributeGate, which
+   resolves the session in the browser. See the long note in that file — this
+   page was `x-vercel-cache: MISS` for every visitor to decide whether to draw a
+   form almost none of them may use. */
+export const revalidate = 300
 
 export async function generateMetadata(
   { params }: { params: Promise<{ lang: string }> },
@@ -49,11 +47,8 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: s
   const lang = toLocale((await params).lang)
   const t = getDictionary(lang)
 
-  const [events, member] = await Promise.all([getEvents(lang), getCurrentMember()])
-  const canAdd = member !== null && (member.can_contribute || member.is_admin)
+  const events = await getEvents(lang)
 
-  // Their own drafts, so a submission does not appear to vanish while it waits.
-  const drafts = canAdd ? await getMyDraftEvents() : []
 
   /* Oldest first, so the rail reads left to right as one timeline. The rail
      component then parks itself on the first event still to come. */
@@ -69,31 +64,7 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: s
 
       <section className="section">
         <div className="container">
-          {canAdd && (
-            <div className="u-measure-center u-mb-2">
-              {drafts.length > 0 && (
-                <div className="panel u-mb-15">
-                  <h2 className="panel__title">
-                    <Icon name="clock" /> Waiting to be published
-                  </h2>
-                  <ul className="roster">
-                    {drafts.map((d) => (
-                      <li key={d.id}>
-                        <span className="avatar" aria-hidden="true"><Icon name="clock" /></span>
-                        <span>
-                          <span className="roster__name">{d.title}</span><br />
-                          <span className="roster__meta">
-                            {longDate(d.event_date)}{d.place ? ` · ${d.place}` : ''}
-                          </span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <EventProposeForm memberId={member.id} />
-            </div>
-          )}
+          <ContributeGate kind="event" />
 
           {ordered.length === 0 ? (
             <p className="muted">

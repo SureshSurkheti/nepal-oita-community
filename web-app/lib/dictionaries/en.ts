@@ -524,17 +524,17 @@ export const en = {
      shows a Nepali speaker who searched in Nepali, so leaving them English
      would waste the whole reason /ne exists. */
   meta: {
-    storiesTitle: 'Community stories',
+    storiesTitle: 'Stories — Nepali people in Oita, in their own words',
     storiesDesc: 'Members of the Nepali community in Oita and Beppu on arriving, settling in and finding people — in their own words.',
-    membersTitle: 'Members',
+    membersTitle: 'Members of the Nepali community in Oita',
     membersDesc: 'The leadership team and general members of the Nepal–Oita Community. Contact details are returned only to verified members.',
-    eventsTitle: 'Events',
+    eventsTitle: 'Events — Nepali festivals and meetups in Oita',
     eventsDesc: 'Festivals, meetups, sport and volunteering with the Nepali community of Oita and Beppu — what is coming up, and everything we have run.',
-    galleryTitle: 'Photo gallery',
+    galleryTitle: 'Photos — Nepali community life in Oita and Beppu',
     galleryDesc: 'Photographs from years of Nepali community life in Oita Prefecture — Dashain and Tihar, Holi in the park, food festivals, student welcomes, football and volunteering.',
-    programmesTitle: 'What we do',
+    programmesTitle: 'What we do — support for Nepali people in Oita',
     programmesDesc: 'Everything the Nepal–Oita Community runs: festivals, newcomer support, Nepali language classes, sport, volunteering and help when something goes wrong.',
-    decisionsTitle: 'Meeting decisions',
+    decisionsTitle: 'Meeting decisions — Nepal–Oita Community',
     arrivingTitle: 'New in Oita — the first two weeks',
     arrivingDesc: 'Arriving in Oita Prefecture from Nepal, or moving from another city in Japan: registering your address within 14 days, health insurance, pension, My Number, a bank account — and a Nepali community that will come to the city hall with you.',
     signInTitle: 'Member sign in',

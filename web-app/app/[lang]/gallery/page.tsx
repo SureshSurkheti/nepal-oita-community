@@ -3,18 +3,16 @@ import { localeAlternates, toLocale } from '@/lib/i18n'
 import { getDictionary } from '@/lib/dictionaries'
 import { Gallery } from '@/components/Gallery'
 import { PageHead } from '@/components/PageHead'
-import { getPhotos, getMyDraftPhotos, tilePhotos } from '@/lib/content'
-import { getCurrentMember } from '@/lib/members'
-import { PhotoProposeForm } from '@/components/PhotoProposeForm'
+import { getPhotos, tilePhotos } from '@/lib/content'
+import { ContributeGate } from '@/components/ContributeGate'
 import { Icon } from '@/components/Sprite'
 
-/* Depends on who is asking, so it can never be cached or prerendered.
-   This used to be inherited from the root layout's force-dynamic; the layout
-   dropped it so the public pages could be served from a CDN, which means the
-   viewer-specific routes have to declare it themselves. Reading cookies would
-   make it dynamic anyway — saying so explicitly stops a build trying to
-   prerender it, and stops a future edit quietly making it cacheable. */
-export const dynamic = 'force-dynamic'
+/* PRERENDERED. It used to be force-dynamic because of one members-only panel
+   at the foot of the page; that panel is now components/ContributeGate, which
+   resolves the session in the browser. See the long note in that file — this
+   page was `x-vercel-cache: MISS` for every visitor to decide whether to draw a
+   form almost none of them may use. */
+export const revalidate = 300
 
 export async function generateMetadata(
   { params }: { params: Promise<{ lang: string }> },
@@ -31,9 +29,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ lang: 
   const lang = toLocale((await params).lang)
   const t = getDictionary(lang)
 
-  const [photos, member] = await Promise.all([getPhotos(lang), getCurrentMember()])
-  const canAdd = member !== null && (member.can_contribute || member.is_admin)
-  const drafts = canAdd ? await getMyDraftPhotos() : []
+  const photos = await getPhotos(lang)
 
   return (
     <>
@@ -47,29 +43,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ lang: 
             ? <p className="muted">{t.pages.gallery.empty}</p>
             : <Gallery photos={tilePhotos(photos)} />}
 
-          {canAdd && (
-            <div className="u-measure-center mt-lg">
-              {drafts.length > 0 && (
-                <div className="panel u-mb-15">
-                  <h2 className="panel__title">
-                    <Icon name="clock" /> {drafts.length} waiting to be published
-                  </h2>
-                  <ul className="roster">
-                    {drafts.map((d) => (
-                      <li key={d.id}>
-                        <span className="avatar" aria-hidden="true"><Icon name="images" /></span>
-                        <span>
-                          <span className="roster__name">{d.caption ?? 'Untitled'}</span><br />
-                          <span className="roster__meta">{d.category ?? 'no category'}</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <PhotoProposeForm memberId={member.id} slug={member.slug} />
-            </div>
-          )}
+          <ContributeGate kind="photo" />
         </div>
       </section>
 

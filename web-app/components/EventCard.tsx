@@ -37,9 +37,18 @@ export function EventCard({ event, index = 0, lang }: {
                 to load is replaced rather than leaving a broken-image glyph on
                 the card. See lib/covers. */}
             <CoverImage className="event__img" src={cover} alt=""
-                        /* The rail shows one card per screen on a phone and
-                           three across the 1180px container above 900px. */
-                        sizes="(max-width: 900px) 92vw, 380px"
+                        /* THE DECLARED WIDTH CAPS THE EFFECTIVE PIXEL RATIO AT
+                           ABOUT 2, AND THAT IS THE POINT. The card is drawn 361
+                           CSS px wide on a phone. Declared honestly, a DPR-3
+                           screen asks for 1083 and the browser takes the 1200
+                           step: measured, 231KB for ONE card, and the rail is
+                           horizontal so every cover loads without scrolling —
+                           958KB of photographs before anybody has moved.
+                           Declaring 62vw lands on 750 instead, which is 101KB
+                           and still 2.08x the drawn size. Three times is a
+                           ceiling worth paying for text and line art; for a
+                           photograph in a small card nobody can see it. */
+                        sizes="(max-width: 900px) 62vw, 380px"
                         fallback={fallbackCoverFor(event.slug)} />
             {/* Only when there IS a photo. Without one the card keeps its
                 original layout, where the chip sits beside the title — moving it

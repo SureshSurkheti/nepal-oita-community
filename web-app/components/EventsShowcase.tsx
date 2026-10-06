@@ -128,8 +128,9 @@ export function EventsShowcase({ events, at, setAt }: {
             {e.cover && (
               <CoverImage className="evshow__img" src={e.cover} alt={e.title} priority
                           /* Half of a card that caps near 1100px, full width
-                             once the card stacks on a phone. */
-                          sizes="(max-width: 820px) 100vw, 560px"
+                             once it stacks on a phone — declared at two thirds
+                             for the reason written out in EventCard. */
+                          sizes="(max-width: 820px) 66vw, 560px"
                           fallback={fallbackCoverFor(e.slug)} />
             )}
             <div className="evshow__chip">

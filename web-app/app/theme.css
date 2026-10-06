@@ -42,22 +42,32 @@
      missed the text completely (it landed on empty sky) while paling the far
      peaks — which is why the left side read as "white blur". An edgeless halo
      under the headline seats the type on the photograph without a visible box. */
+  /* A TOP BAND, NOT A CENTRED HALO — and that is a layout decision, not a
+     colour one.
+     
+     The halo was centred at 48% 39% because the hero copy used to sit in the
+     middle of the photograph. It meant the brightest part of the veil landed
+     exactly on the most interesting part of every picture: the people. A
+     visitor could not see the photograph, and only one photograph in the whole
+     gallery could be used, because any other put faces where the headline goes.
+     
+     The copy is now a compact block at the top, so the veil is too. The
+     photograph's upper band is sky, or a ceiling, or a wall — the part nobody
+     needs to see — and that is what gets covered. Everything from about 58%
+     down is untouched, which is where the people are in every one of these
+     pictures. */
   --hero-scrim:
-    radial-gradient(52% 40% at 48% 39%,
-      rgba(255, 251, 245, 0.78) 0%,
-      rgba(255, 251, 245, 0.64) 40%,
-      rgba(255, 251, 245, 0.32) 66%,
-      rgba(255, 251, 245, 0.09) 85%,
-      rgba(255, 251, 245, 0) 100%),
-    /* top veil, so the navbar stays legible against bright sky */
     linear-gradient(to bottom,
-      rgba(255, 252, 247, 0.34) 0%,
-      rgba(255, 252, 247, 0.10) 15%,
-      transparent 28%),
-    /* a little warmth low down, tying the two photographs together */
-    radial-gradient(130% 42% at 50% 102%,
-      rgba(255, 234, 202, 0.26) 0%,
-      rgba(255, 234, 202, 0) 72%);
+      rgba(255, 252, 247, 0.88) 0%,
+      rgba(255, 252, 247, 0.82) 24%,
+      rgba(255, 252, 247, 0.58) 40%,
+      rgba(255, 252, 247, 0.22) 52%,
+      rgba(255, 252, 247, 0.04) 62%,
+      rgba(255, 252, 247, 0) 70%),
+    /* a little warmth low down, tying the slides together */
+    radial-gradient(130% 40% at 50% 102%,
+      rgba(255, 234, 202, 0.22) 0%,
+      rgba(255, 234, 202, 0) 74%);
   --hero-shadow: 0 1px 12px rgba(252, 248, 242, 0.65);
   --hero-accent: #8E1B27;   /* deeper than brand crimson: it sits on imagery */
 
@@ -962,18 +972,22 @@ section[id], main[id] {
      off-centre. The copy itself has to be centred too. */
   text-align: center;
 }
-.hero__eyebrow { margin-bottom: 1.5rem; }
+.hero__eyebrow { margin-bottom: 0.9rem; }
 /* Sized to its column, not to the page. The shared display-1 scale runs to
    5.25rem, at which "Bridging Nepali Hearts" cannot fit one line inside a centred
    48rem column and the headline breaks to three. Capped so it holds two. */
-.hero .display-1 { font-size: clamp(2.4rem, 5.4vw, 4.1rem); }
-.hero__title { margin-bottom: 1.5rem; }
+/* Smaller than it was (was 2.4-4.1rem). Every rem here is a rem of photograph
+   the visitor does not get to see, and at 4.1rem the copy block ran to within a
+   whisker of the event ribbon — the clear band between them measured 60px out
+   of 880. It still holds two lines. */
+.hero .display-1 { font-size: clamp(2.15rem, 4.5vw, 3.45rem); }
+.hero__title { margin-bottom: 0.9rem; }
 .hero__title em {
   font-style: italic;
   font-variation-settings: "SOFT" 30, "WONK" 1;
   color: var(--hero-accent);
 }
-.hero__lede { max-width: 34rem; margin-inline: auto; margin-bottom: 2.25rem; }
+.hero__lede { max-width: 34rem; margin-inline: auto; margin-bottom: 1.4rem; }
 .hero__actions {
   display: flex;
   flex-wrap: wrap;

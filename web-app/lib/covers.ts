@@ -53,44 +53,58 @@
  * aspect 1.66 against a desktop hero box of about 1.63 — so almost nothing is
  * cropped a second time by object-fit. It also came out 90KB lighter.
  *
- * A HERO PHOTOGRAPH HAS TO CARRY THE HEADLINE, which rules most photographs
- * out. Every published gallery photograph was measured by covering it into a
- * 1440x880 box and sampling the band the title occupies, against the
- * rgb(27,23,20) it is drawn in, BEFORE the page's own scrim:
+ * THE LAYOUT CHANGE IS WHAT MADE THIS LIST POSSIBLE. The hero copy used to sit
+ * in the MIDDLE of the photograph under a halo centred at 48% 39%, so the
+ * brightest part of the veil landed on the most interesting part of every
+ * picture — the people — and the headline landed on their faces. Exactly one
+ * photograph in the whole gallery survived that, because exactly one has a
+ * quiet ceiling above its group.
  *
- *     the room (chosen)        7.04:1      festival banner       4.96:1
- *     Fukuoka arch             6.45:1      Lakhe dancer          3.23:1
- *     family portrait          6.32:1      football team         2.95:1
- *     traditional dress        5.26:1      park bench            5.32:1
+ * The copy is now a compact block at the top with the veil moved up to meet it.
+ * Measured on the rendered page, title band against rgb(27,23,20):
  *
- * Rejected, and why, so the list is not re-litigated:
- *   football team      2.95 raw. Dusk sky and dark concrete exactly where the
- *                      title goes. No scrim rescues a 2.95.
- *   Lakhe dancer       3.23 raw, and a single masked figure is a portrait
- *                      rather than a picture of a community.
- *   Fukuoka arch       Reads well, but "Nepal Festival Fukuoka2025" is printed
- *                      across the arch at exactly the height of the headline.
- *                      Two sets of display type fighting.
- *   festival banner    Same fault: the banner's own title sits under ours.
- *   family portrait    A child's ceremony. Private in a way a front page is not.
- *   classroom          Scores best of all (14.65) and shows a whiteboard and
- *                      the backs of heads. Legible is not the only test.
+ *                        BEFORE (centred copy)      AFTER (copy at the top)
+ *                        mean     below 3.0:1       mean    worst   below 3.0:1
+ *     the room          12.15:1      0.00%         14.74:1  9.39:1     0.00%
+ *     traditional dress 11.06:1      0.00%         14.16:1  9.58:1     0.00%
+ *     family               —           —           14.59:1  9.24:1     0.00%
+ *     football team      2.95:1    (rejected)       13.50:1  9.68:1     0.00%
+ *     Lakhe dancer       3.23:1    (rejected)       13.61:1  9.12:1     0.00%
+ *
+ * The football team went from unusable to one of the best. Contrast stopped
+ * being the filter; what is left is composition, which is a judgement:
+ *
+ * THE RULE THAT DECIDES IT IS NOW ONE SENTENCE: the headline must not cross a
+ * face. It is the same rule PersonCard already follows for member portraits,
+ * and with contrast no longer the constraint it is the only one left. Checked
+ * by rendering each candidate as slide one and looking:
+ *
+ *   the room           faces sit below the copy block           keep
+ *   best.webp          no faces in it at all                    keep
+ *   traditional dress  the line passes over hair andthe background above
+ *                      the faces, which stay readable           keep
+ *   football team      the copy lands on the stadium roof       keep
+ *   family             "Bridging Nepali Hearts" covers the
+ *                      boy's face completely                    out
+ *   Lakhe dancer       the copy lands squarely on the mask,
+ *                      which is the entire subject              out
+ *   Fukuoka arch       "Nepal Festival Fukuoka2025" is printed across the arch
+ *                      at exactly the height of our headline — two sets of
+ *                      display type fighting — and it says Fukuoka on the front
+ *                      page of an Oita community.
+ *   festival banner    The same fault: the banner's own title under ours.
+ *   classroom          Scores best of all nine and shows a whiteboard and the
+ *                      backs of heads. Legible is not the only test.
  *   park bench         1079x1080 is the largest copy that exists, so a retina
- *                      hero enlarges it; the group also fills the frame top to
- *                      bottom, leaving no band for the title at any
- *                      object-position. It is still in the gallery, at a size
- *                      it has the pixels for.
+ *                      hero enlarges it and the faces go soft.
  *
- * MEASURED ON THE RENDERED PAGE, with the scrim, which is the number that
- * counts. A single worst pixel is a poor statistic — one dark hair fails it —
- * so what matters is how much of the band falls below the floor:
- *
- *                        title mean   below 3.0:1   below 4.5:1
- *     the room            12.15:1        0.00%         0.36%
- *     traditional dress   11.06:1        0.00%         1.79%
- *
- * The floor is 3.0 for display type. Neither has a single percent of the band
- * under it. Measure the same way before adding a fourth.
+ * community-oita.webp IS CROPPED and it is the only one that is. Its gallery
+ * original is 2048x1536 of which the top third is ceiling, ducting and a
+ * spotlight; it is cut to 1920x1157, which lands at aspect 1.66 against a
+ * desktop hero box of about 1.63, so object-fit crops almost nothing a second
+ * time. The others are left whole because cropping them to the hero's shape
+ * lifts the faces INTO the headline band, which is the trade this file keeps
+ * having to make.
  *
  * WHAT IS STILL LEFT OUT:
  *   oita_city.png       Carries a DREAMSTIME WATERMARK across the middle. It is
@@ -104,6 +118,7 @@ export const HERO_PHOTOS = [
   '/images/community-oita.webp',
   '/images/best.webp',
   '/images/community-dress.webp',
+  '/images/community-football.webp',
 ]
 
 /* What a coverless event borrows.

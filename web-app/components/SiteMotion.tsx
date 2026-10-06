@@ -155,72 +155,123 @@ export function SiteMotion() {
     const toTop = document.querySelector<HTMLElement>('[data-to-top]')
     let span = 0
 
-    const measure = () => {
-      span = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0)
-    }
+    /* EVERYTHING BELOW IS BATCHED INTO A FRAME, and that is the point of this
+     * block rather than a nicety.
+     *
+     * The reported fault is that a SLOW scroll is fine and a FAST one stalls
+     * near the foot of the page. That asymmetry is the signature of main-thread
+     * work per event rather than per frame: scrolling gently fires a handful of
+     * scroll events with idle time between them, and a fling fires a flood of
+     * them with none.
+     *
+     * Two things here were doing layout work per event.
+     *
+     * 1. onScroll wrote to the DOM every time it ran — two classList.toggle
+     *    calls and a custom property ON THE FIXED HEADER, which is the one
+     *    element composited over everything else for the whole length of the
+     *    page. Every write invalidated it. Now at most one write per frame, and
+     *    the property is only written when its 3-decimal value actually
+     *    changes, which during a fling is far less often than the events arrive.
+     *
+     * 2. measure() read documentElement.scrollHeight, and it was wired straight
+     *    into a ResizeObserver on document.body. Reading scrollHeight forces a
+     *    synchronous layout, and a ResizeObserver callback is the worst place to
+     *    do it: on a phone the address bar hides and shows AS YOU FLING, which
+     *    resizes the body, which fired this, which forced a layout in the middle
+     *    of the fling. A desktop browser has no address bar to hide, which is
+     *    why this never reproduced here. The read is now deferred to a frame of
+     *    its own and coalesced, so a burst of resizes costs one layout rather
+     *    than one each. */
+    let frame = 0
+    let lastProgress = ''
 
-    const onScroll = () => {
+    const apply = () => {
+      frame = 0
       const y = window.scrollY
       nav?.classList.toggle('is-stuck', y > 8)
       toTop?.classList.toggle('is-visible', y > window.innerHeight)
       // Written on the nav, not on :root. The thread is a child of the header,
       // and putting the variable on the element that uses it keeps a stray
       // selector elsewhere from picking it up.
-      nav?.style.setProperty('--scroll-progress',
-        span > 0 ? Math.min(y / span, 1).toFixed(4) : '0')
+      const progress = span > 0 ? Math.min(y / span, 1).toFixed(3) : '0'
+      if (progress !== lastProgress) {
+        lastProgress = progress
+        nav?.style.setProperty('--scroll-progress', progress)
+      }
+    }
+
+    const onScroll = () => {
+      if (frame) return
+      frame = requestAnimationFrame(apply)
+    }
+
+    let measureFrame = 0
+    const measure = () => {
+      span = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0)
+      measureFrame = 0
+    }
+    const scheduleMeasure = () => {
+      if (measureFrame) return
+      measureFrame = requestAnimationFrame(measure)
     }
 
     measure()
-    onScroll()
+    apply()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', measure)
-    const ro = 'ResizeObserver' in window ? new ResizeObserver(measure) : null
+    window.addEventListener('resize', scheduleMeasure)
+    const ro = 'ResizeObserver' in window ? new ResizeObserver(scheduleMeasure) : null
     ro?.observe(document.body)
 
     return () => {
       ro?.disconnect()
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', measure)
+      window.removeEventListener('resize', scheduleMeasure)
+      if (frame) cancelAnimationFrame(frame)
+      if (measureFrame) cancelAnimationFrame(measureFrame)
     }
   }, [])
 
-  /* A LONG SMOOTH SCROLL CANNOT BE INTERRUPTED, so it must not be started.
+  /* SMOOTH SCROLLING IS OPT-IN NOW, FOR SHORT IN-PAGE JUMPS ONLY.
    *
-   * `html { scroll-behavior: smooth }` animates every in-page jump. On the home
-   * page "Contact" is 12,091px down, and while that animation runs the browser
-   * owns the scroll position: swiping does nothing, or drags briefly and snaps
-   * back. Measured on the live site — after tapping Contact, three upward swipes
-   * in a row moved the page the WRONG way (-8778, -2926, -323) before control
-   * came back. It reads exactly as "stuck at the contact section", because that
-   * is where the animation was still heading.
+   * `html { scroll-behavior: smooth }` used to be set globally in theme.css and
+   * caused two distinct faults, both of which read as "the page is stuck":
    *
-   * Neither Chrome nor Safari cancels a CSS smooth scroll on touch, and there is
-   * no API to ask. So the distance decides: within two screens it animates,
-   * which is the case the smoothness was for — a reader following a link to the
-   * next section and wanting to see the page move. Beyond that it jumps, which
-   * is what the browser did before `scroll-behavior` existed and what no one has
-   * ever described as stuck.
+   *   1. Tapping a far link — Contact is 12,000px down the home page — started
+   *      an animation the browser owns until it ends. Measured on the live
+   *      site: three upward swipes during it moved the page the WRONG way
+   *      (-8778, -2926, -323) before control came back.
    *
-   * Done by flipping the property for one frame rather than by calling
-   * scrollTo() here: the browser's own hash handling already deals with
-   * scroll-margin-top on every section, and reimplementing that is how the
-   * headings end up under the fixed header. */
+   *   2. Flinging fast overscrolls past the end of the document, and the
+   *      browser scrolls back to clamp it. Smooth made that clamp an animation
+   *      too, so the next fling landed inside it and did nothing. Scrolling
+   *      slowly never overscrolls, which is why slow was always fine and fast
+   *      was not — and why it never reproduced on a desktop, where a mouse
+   *      wheel does not fling.
+   *
+   * The first was patched by switching the global OFF for long jumps. That left
+   * the second untouched, because nothing clicks anything when you fling. So
+   * the global is gone and this turns it ON instead, for the one case it was
+   * ever wanted: following a link to something within two screens, where seeing
+   * the page move tells you where you went. Everything else — flings, clamps,
+   * the back button, scroll restoration — gets the browser's own behaviour,
+   * which no one has ever described as stuck.
+   *
+   * Still done by flipping the property rather than calling scrollTo(): the
+   * browser's own hash handling already honours scroll-margin-top on every
+   * section, and reimplementing that is how headings end up under the fixed
+   * header. */
   useEffect(() => {
-    const TWO_SCREENS = () => window.innerHeight * 2
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    let restore: ReturnType<typeof setTimeout> | null = null
+    const TWO_SCREENS = () => window.innerHeight * 2
+    let clear: ReturnType<typeof setTimeout> | null = null
 
     /* CAPTURE, and a timer rather than a frame — both for the same reason.
-     *
      * These links are next/link, so the anchor's own handler calls
-     * preventDefault() and the App Router performs the navigation and the scroll
-     * itself, asynchronously. A listener on document in the bubble phase runs
-     * AFTER that preventDefault (so an `if (e.defaultPrevented) return` guard
-     * skips every one of them — measured: the fix did nothing until this moved
-     * to capture), and a one-frame restore lands long before the router has got
-     * round to scrolling. Capture runs first; the window is held open while the
-     * router does its work. Anything the reader scrolls inside that window is
-     * instant too, which is the behaviour being asked for anyway. */
+     * preventDefault() and the App Router performs the navigation and the
+     * scroll itself, asynchronously. A bubble-phase listener runs after that;
+     * a one-frame window closes long before the router has got round to
+     * scrolling. Capture runs first and the window is held open across it. */
     const onClick = (e: MouseEvent) => {
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
       const link = (e.target as Element | null)?.closest?.('a[href*="#"]')
@@ -233,18 +284,22 @@ export function SiteMotion() {
       const id = decodeURIComponent(url.hash.slice(1))
       const target = id ? document.getElementById(id) : null
       if (!target) return
-      if (Math.abs(target.getBoundingClientRect().top) <= TWO_SCREENS()) return
+      // Far away: leave it instant. That is fault 1 above.
+      if (Math.abs(target.getBoundingClientRect().top) > TWO_SCREENS()) return
 
       const html = document.documentElement
-      html.style.scrollBehavior = 'auto'
-      if (restore) clearTimeout(restore)
-      restore = setTimeout(() => { html.style.scrollBehavior = ''; restore = null }, 700)
+      html.style.scrollBehavior = 'smooth'
+      if (clear) clearTimeout(clear)
+      /* Taken off again promptly, so a fling a moment later is never animated.
+         1200ms covers the router's work plus the animation itself. */
+      clear = setTimeout(() => { html.style.scrollBehavior = ''; clear = null }, 1200)
     }
 
     document.addEventListener('click', onClick, true)
     return () => {
       document.removeEventListener('click', onClick, true)
-      if (restore) clearTimeout(restore)
+      if (clear) clearTimeout(clear)
+      document.documentElement.style.scrollBehavior = ''
     }
   }, [])
 

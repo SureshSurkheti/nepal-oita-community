@@ -156,9 +156,29 @@
 
 * { margin: 0; }
 
+/* NO `scroll-behavior: smooth` HERE, AND THAT IS THE FIX FOR THE SCROLL BUG.
+   
+   It used to be set globally on html, and this file and SiteMotion have both
+   had to work around it ever since — SiteMotion switches it off for in-page
+   jumps longer than two screens, and ToTop refuses to animate from the foot of
+   the page. Two separate workarounds for one global is the sign the global is
+   wrong.
+   
+   The reported symptom was precise and it is what finally explained it: scroll
+   SLOWLY and the page is fine, fling it FAST and it sticks at the bottom. A
+   slow scroll never overscrolls. A fling does — it carries past the end of the
+   document, and the browser then scrolls back to clamp it. With
+   `scroll-behavior: smooth` that clamp is an ANIMATION, and an animated scroll
+   is owned by the browser until it finishes; touch cannot cancel it. So the
+   next fling lands during the clamp, does nothing, overscrolls again, and
+   clamps again. It reads as stuck at the bottom, and only ever when flinging,
+   which is exactly the report.
+   
+   It is now opt-in: SiteMotion turns it on for the length of a short in-page
+   jump, which is the one case the smoothness was ever for, and the browser's
+   own behaviour applies everywhere else. */
 html {
   -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
 }
 
 body {

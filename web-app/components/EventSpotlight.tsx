@@ -6,7 +6,7 @@ import { useI18n } from '@/lib/useI18n'
 import { localeNum } from '@/lib/i18n'
 import { fallbackCoverFor } from '@/lib/covers'
 import { EventsShowcase, type ShowcaseEvent } from './EventsShowcase'
-import { CoverImage } from './CoverImage'
+import Image from 'next/image'
 
 /* The same event the showcase shows, plus how far away it is.
  *
@@ -74,21 +74,19 @@ export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
     return () => q.removeEventListener('change', read)
   }, [])
 
-  /* Every cover decoded before it is ever shown.
+  /* NO PRELOAD, AND THAT IS THE SECOND VERSION OF THIS DECISION.
    *
-   * Without this the first rotation swaps `src` on an image the browser has not
-   * fetched, so the frame goes empty for as long as the request takes and the
-   * ribbon appears to flicker. Three images, requested once, after the rest of
-   * the page has settled. */
-  useEffect(() => {
-    if (events.length < 2) return
-    const imgs = events.slice(1).map((e) => {
-      const img = new Image()
-      img.src = e.cover ?? ''
-      return img
-    })
-    return () => { imgs.forEach((img) => { img.src = '' }) }
-  }, [events])
+   * The first one warmed every other event's cover on mount so the rotation
+   * would not flicker. Measured, that fetched the RAW files — 461KB of
+   * festival.jpg for a 150px frame nobody had looked at yet — and put them on
+   * the critical path of the home page. Deferring it to `load` fixed the
+   * critical path and still spent the 461KB.
+   *
+   * It is not needed any more. The covers go through next/image now, so the
+   * rotation swaps to a ~55KB resized copy instead of a quarter-megabyte
+   * poster, and the frame it paints into already carries the event's accent
+   * wash — so the worst case is a tinted panel for a moment rather than a hole.
+   * Six seconds of idle time before the first change is plenty for 55KB. */
 
   /* Advance. Stopped entirely while a finger or a cursor is on the ribbon, while
      the keyboard focus is inside it, while the tab is in the background, and for
@@ -133,20 +131,44 @@ export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
         <div className="spot__media" key={`m${i}`}>
           {e.cover && (
             /* eslint-disable-next-line @next/next/no-img-element */
-            /* fit="cover" rather than the default: this frame is barely wider
-               than it is tall, so showing a film bill whole would shrink it to
-               an unreadable stamp between two bars. Cropping is right at this
-               size.
-
-               CoverImage rather than a bare <img> with an onError, which is what
-               this was first. The handler never fired: the image is in the
-               server-rendered HTML, so it had already failed by the time React
-               hydrated and attached the handler — the exact trap this component
-               documents and already solves by asking the element directly on
-               mount. Measured: a deliberately broken cover stayed broken with
-               the inline handler and repairs itself with this. */
-            <CoverImage className="spot__img" src={e.cover} alt="" fit="cover"
-                        fallback={fallbackCoverFor(e.slug)} />
+            /* next/image, and the reason is a measured regression.
+               
+               This frame is about 150px wide. It was serving the file whole —
+               the Kabaddi bill is 1024x1536 and 241KB — and because the ribbon
+               sits at the top of the home page, that made a poster scaled down
+               by a factor of ten the LARGEST CONTENTFUL PAINT of the whole site:
+               5.7s on Slow 4G, where Google calls anything over 4s poor. Next's
+               optimiser resizes and re-encodes it to the size actually drawn.
+               
+               `sizes` has to match the CSS or the whole thing is pointless —
+               .spot__media is clamp(104px, 11vw, 150px), 92px below 820px. Told
+               that, the browser fetches roughly a 150px-wide copy instead of a
+               1024px one.
+               
+               `priority` because this IS the element above the fold; now that
+               it is a few KB rather than a quarter of a megabyte, asking for it
+               early is the right trade rather than the wrong one.
+               
+               fit="cover" is the behaviour kept from CoverImage: this frame is
+               barely wider than it is tall, so showing a film bill whole would
+               shrink it to an unreadable stamp between two bars. */
+            <Image
+              className="spot__img"
+              src={e.cover}
+              alt=""
+              fill
+              sizes="(max-width: 820px) 92px, 150px"
+              priority
+              onError={(ev) => {
+                /* The cover can be a storage object that was never uploaded.
+                   Unlike the server-rendered case CoverImage documents, this one
+                   is safe to handle here: next/image renders on the client, so
+                   the handler is attached before the request is made. */
+                const el = ev.currentTarget
+                const fb = fallbackCoverFor(e.slug)
+                if (!el.src.includes(encodeURIComponent(fb)) && el.src !== fb) el.src = fb
+              }}
+            />
           )}
           <span className="spot__shade" aria-hidden="true" />
           <div className="spot__chip">

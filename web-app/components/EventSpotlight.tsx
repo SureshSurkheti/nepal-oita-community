@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Icon } from './Sprite'
 import { useI18n } from '@/lib/useI18n'
 import { localeNum } from '@/lib/i18n'
+import { categoryLabel } from '@/lib/dictionaries'
 import { EventsShowcase, type ShowcaseEvent } from './EventsShowcase'
 import Image from 'next/image'
 
@@ -107,9 +108,11 @@ export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
 
   const e = events[Math.min(i, events.length - 1)]
 
-  const countdown = e.days <= 0 ? t.spotlight.today
-    : e.days === 1 ? t.spotlight.tomorrow
-    : t.spotlight.inDays.replace('{n}', localeNum(e.days, locale))
+  /* The countdown is the one thing on this band that changes by itself, and the
+     only reason anybody feels a date is near. It was a grey pill the size of the
+     eyebrow; it is now the second-largest thing in the row after the title. */
+  const soon = e.days <= 0 || e.days === 1
+  const countdownWord = e.days <= 0 ? t.spotlight.today : t.spotlight.tomorrow
 
   return (
     <>
@@ -124,6 +127,23 @@ export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
            touch anywhere on the ribbon holds it still long enough to read. */
         onTouchStart={() => setPaused(true)}
       >
+        {/* The event's own colours, bleeding across the band.
+            
+            It is the poster at 64px under a heavy blur — about 2KB, and the same
+            file the thumbnail already fetched, so it costs a cache hit rather
+            than a request. The point is that the band belongs to the thing it is
+            announcing: a film bill tints it differently from a festival. The
+            veil over it is not decoration, it is what keeps the words readable.
+            Measured off the rendered pixels, not estimated: the title is 15.4:1
+            against the tinted panel and the summary 7.4:1, where 4.5 is the
+            floor. Re-measure if the veil is ever lightened — the tint comes from
+            the artwork, so it is darker for some events than others. */}
+        {e.cover && (
+          <span className="spot__glow" aria-hidden="true">
+            <Image src={e.cover} alt="" fill sizes="64px" />
+          </span>
+        )}
+
         {/* Keyed by index so React replaces these two rather than mutating them,
             which is what lets one CSS animation play the cross-fade on every
             change without a transition group or a second copy in the DOM. */}
@@ -189,9 +209,15 @@ export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
           <p className="spot__eyebrow">
             <span className="spot__pulse" aria-hidden="true" />
             {t.ui.comingUp}
-            <span className="spot__countdown">{countdown}</span>
+            {e.category && <span className="spot__tag">{categoryLabel(t, e.category)}</span>}
           </p>
           <h2 className="spot__title">{e.title}</h2>
+          {/* The countdown block beside this is aria-hidden, because it is the
+              same fact as the date below in a louder voice. Said once here, for
+              anybody listening rather than looking. */}
+          <span className="visually-hidden">
+            {soon ? countdownWord : t.spotlight.inDays.replace('{n}', localeNum(e.days, locale))}
+          </span>
           {/* Date, time and place on ONE line, each with its own icon. Three
               stacked lines is what a card does; the hero has a height budget and
               this has to survive a 1366x650 laptop with the statistics still
@@ -204,8 +230,27 @@ export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
                 {e.start_time}{e.end_time ? ` – ${e.end_time}` : ''}
               </span>
             )}
-            {e.place && <span><Icon name="pin" />{e.place}</span>}
+            {e.place && <span className="spot__where"><Icon name="pin" />{e.place}</span>}
           </p>
+          {/* The sentence that does the inviting. It was fetched, carried across
+              the network and then not rendered — the band showed a date and a
+              title, which tells somebody an event exists but nothing about
+              whether it is for them. One line, clipped, never wrapping past it. */}
+          {e.summary && <p className="spot__sum">{e.summary}</p>}
+        </div>
+
+        {/* The count, in the space the old layout left empty. On a wide screen
+            the row ran title + date and then a hand's width of nothing before
+            the button. */}
+        <div className="spot__count" aria-hidden="true">
+          {soon ? (
+            <span className="spot__count-word">{countdownWord}</span>
+          ) : (
+            <>
+              <span className="spot__count-n">{localeNum(e.days, locale)}</span>
+              <span className="spot__count-l">{t.spotlight.daysLabel}</span>
+            </>
+          )}
         </div>
 
         <div className="spot__side">

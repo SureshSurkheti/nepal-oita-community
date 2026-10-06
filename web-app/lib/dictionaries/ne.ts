@@ -333,6 +333,7 @@ export const ne: Dictionary = {
     inDays: '{n} दिनमा',
     open: 'पूरा स्क्रिनमा हेर्नुहोस्',
     more: 'थप {n} वटा',
+    daysLabel: 'दिन बाँकी',
   },
   /* --------------------------------------------------------------- contact */
   contactForm: {

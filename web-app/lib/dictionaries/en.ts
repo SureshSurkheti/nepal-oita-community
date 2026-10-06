@@ -334,6 +334,9 @@ export const en = {
     /* Shown only when there is more than one booked. {n} is the count of the
        OTHERS, so it never reads "and 0 more". */
     more: 'and {n} more',
+    /* Under the big number in the countdown block. Short, because it sits
+       under a figure that can be three digits wide. */
+    daysLabel: 'days to go',
   },
   /* --------------------------------------------------------------- contact */
   contactForm: {

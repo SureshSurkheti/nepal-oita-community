@@ -3191,6 +3191,74 @@ body[data-hero] .nav:not(.is-stuck) {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
+
+/* A SCRIM, BECAUSE DARK TYPE ON A PHOTOGRAPH IS NOT A COLOUR CHOICE — IT IS A
+   GAMBLE ON WHAT THE PHOTOGRAPH HAPPENS TO PUT THERE.
+   
+   The links are var(--ink) over whatever the hero is showing, and the hero is
+   now the committee's own photographs rather than a sky. Measured at 1440 by
+   hiding the type and sampling the band each link occupies, against the
+   rgb(27,23,20) they are drawn in:
+   
+                  mean bg    mean ratio    darkest pixel    worst ratio
+     About          175        7.86:1          154            6.29:1
+     New here?      188        8.89:1          107            3.33:1
+     Programmes     201       10.05:1          103            3.17:1
+     Events         211       10.65:1           99            2.96:1
+     Gallery        219       11.27:1           92            2.66:1
+     Members        171        8.38:1           96            2.84:1
+     Contact        181        8.79:1           86            2.41:1
+   
+   Every mean passes comfortably and five of the seven FAIL on the pixels that
+   actually matter — the dark ceiling ducting running behind the row. A mean is
+   the wrong statistic for legibility: you do not read the average of a word,
+   you read the stroke that crosses the dark bit. AA for text this size is
+   4.5:1, so Contact at 2.41 is less than half of what it needs.
+   
+   WHY A SCRIM AND NOT THE OTHER THREE FIXES
+     light type instead    moves the problem to the pale slide, not off the page
+     text-shadow           muddies the letterforms and still fails on black
+     an opaque bar         works, and throws away the floating header entirely
+   
+   A veil plus a blur fixes it for ANY photograph that is ever put here, which
+   is the property worth having — the next committee swapping a hero image
+   should not have to know this measurement exists. The blur is what does most
+   of the work: it averages the ducting away, so the darkest pixel rises towards
+   the local mean instead of staying a hard edge. The veil then guarantees a
+   floor even where blur has nothing to average.
+   
+   It fades out downward so it reads as light haze over the top of the picture
+   rather than as a band with an edge, and the mask fades the blur with it —
+   without that the blur stops dead in a visible line. */
+body[data-hero] .nav:not(.is-stuck)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  bottom: -30px;            /* the fade finishes below the bar, not at it */
+  pointer-events: none;
+  z-index: -1;              /* behind .nav__inner, over the photograph */
+  background: linear-gradient(to bottom,
+    rgba(255, 252, 247, 0.80) 0%,
+    rgba(255, 252, 247, 0.62) 48%,
+    rgba(255, 252, 247, 0.26) 78%,
+    rgba(255, 252, 247, 0) 100%);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+  backdrop-filter: blur(12px) saturate(1.15);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 52%, transparent 100%);
+}
+
+/* No backdrop-filter, no averaging — so the veil has to carry the floor on its
+   own and is correspondingly heavier. Only old browsers land here. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body[data-hero] .nav:not(.is-stuck)::before {
+    background: linear-gradient(to bottom,
+      rgba(255, 252, 247, 0.92) 0%,
+      rgba(255, 252, 247, 0.78) 48%,
+      rgba(255, 252, 247, 0.34) 78%,
+      rgba(255, 252, 247, 0) 100%);
+  }
+}
 body[data-hero] .nav:not(.is-stuck) .brand__name { color: var(--ink); }
 body[data-hero] .nav:not(.is-stuck) .brand__sub  { color: var(--ink-2); }
 body[data-hero] .nav:not(.is-stuck) .nav__link   { color: var(--ink); }
@@ -5391,10 +5459,35 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
    looking at. It is a strip rather than a thumbnail: at 60px a photograph is a
    smudge, and the ribbon is the one place on the page where the next event gets
    to be a picture rather than a line of text. */
+/* THE FRAME IS THE POSTER'S SHAPE, AT EVERY WIDTH — and it was not, which is
+   why the same event looked different on a phone and on a laptop.
+   
+   The width was fixed and the height came from `align-items: stretch`, so the
+   frame's aspect was whatever the text column happened to need that day.
+   Measured, against posters that are all 2:3 (0.667):
+   
+       1440px   164 x 108   aspect 1.514   landscape — top and bottom sliced off
+       1280px   154 x 108   aspect 1.418
+       1024px   123 x 102   aspect 1.200
+        820px    92 x 100   aspect 0.920
+        393px    92 x 109   aspect 0.845   nearly the poster — looks right
+   
+   On a phone the text wraps to more lines, the row grows, and the frame comes
+   out portrait by accident. On a laptop the row is short and the frame is
+   LANDSCAPE, so object-fit: cover threw away more than half the bill — the
+   dates and the names printed down it. Nobody chose that; it was a side effect
+   of a stretched row.
+   
+   An explicit aspect-ratio makes the frame the same shape everywhere and the
+   crop nothing, so the poster is whole on a laptop exactly as it already was on
+   a phone. The height now comes from the ratio instead of the row, which is the
+   right way round: the picture decides how tall it is, and the band follows. */
 .spot__media {
   position: relative;
   flex: none;
-  width: clamp(112px, 12vw, 164px);
+  align-self: center;
+  width: clamp(92px, 8.4vw, 116px);
+  aspect-ratio: 2 / 3;
   border-radius: calc(var(--r) - 6px);
   overflow: hidden;
   background: color-mix(in srgb, var(--accent, var(--crimson)) 12%, var(--surface-2));
@@ -5577,8 +5670,14 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
   align-items: center;
   justify-content: center;
   flex: none;
+  /* Sized by its own contents, NOT stretched to the row. The row got taller
+     when the poster frame was given the poster's shape, and a tinted box
+     stretched to 174px with two short lines floating in the middle of it reads
+     as something that failed to load. It is a counter, so it should be the size
+     of the count. */
+  align-self: center;
   min-width: 86px;
-  padding: 0.3rem 0.7rem;
+  padding: 0.55rem 0.7rem;
   border-radius: var(--r);
   background: color-mix(in srgb, var(--accent, var(--crimson)) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent, var(--crimson)) 22%, transparent);
@@ -5687,7 +5786,7 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
     grid-template-columns: auto minmax(0, 1fr) auto;
     row-gap: 0.7rem;
   }
-  .spot__media { width: 92px; }
+  .spot__media { width: 86px; }
   .spot__count { min-width: 68px; padding: 0.25rem 0.5rem; }
   .spot__side {
     grid-column: 1 / -1;
@@ -5757,7 +5856,7 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
    sitting on top of. */
 @media (max-height: 760px) and (min-width: 821px) {
   .hero__scroll { display: none; }
-  .spot__media { width: clamp(96px, 9vw, 120px); }
+  .spot__media { width: clamp(80px, 7vw, 96px); }
   .spot__meta { font-size: 0.82rem; }
 }
 

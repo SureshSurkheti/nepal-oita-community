@@ -63,20 +63,16 @@
  * white; the people are below it. That is a fact about THIS photograph, so
  * measure again before putting a different one first.
  *
- * SLIDE THREE IS THE WEAK ONE, and it is worth saying so rather than letting
- * somebody rediscover it. community-park.webp is 1079x1080 — the largest copy
- * that exists in the gallery. A full-bleed hero on a 1440px retina desktop asks
- * for about 2880px, so Next upscales it and the faces go soft; it is the only
- * photograph on this site being enlarged rather than reduced. Its composition
- * is also the opposite of slide one's: the people fill the frame from top to
- * bottom, so there is no band of quiet background for the headline to sit on at
- * ANY object-position, and the title crosses their faces.
- *
- * It is here because the committee asked for it. Two things would fix it, and
- * both need a person rather than a build: the original full-size file off
- * whoever's phone took it, or a wider frame with sky or grass above the group.
- * Until then it is third, which is the slot that does the least harm — nobody
- * sees it until the rotation has run twice.
+ * THE PARK PHOTOGRAPH WAS HERE AND WAS TAKEN OUT, which is worth recording so
+ * it is not tried again by accident. community-park.webp is 1079x1080 — the
+ * largest copy that exists — so a retina desktop hero upscaled it and the faces
+ * went soft; it was the only image on the site being enlarged rather than
+ * reduced. Its composition made it worse: the group fills the frame top to
+ * bottom, so there was no quiet band for the headline at ANY object-position
+ * and the title crossed their faces. The file is still in public/images and is
+ * still in the gallery, where it is shown at a size it actually has the pixels
+ * for. A full-resolution original, or a wider frame with sky above the group,
+ * is what it would take to put it back.
  *
  * WHAT IS STILL LEFT OUT, each for a reason worth keeping written down:
  *
@@ -92,7 +88,6 @@
 export const HERO_PHOTOS = [
   '/images/community-oita.webp',
   '/images/best.webp',
-  '/images/community-park.webp',
 ]
 
 /* What a coverless event borrows.

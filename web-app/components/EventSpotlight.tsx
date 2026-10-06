@@ -159,9 +159,12 @@ export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
                5.7s on Slow 4G, where Google calls anything over 4s poor. Next's
                optimiser resizes and re-encodes it to the size actually drawn.
                
-               `sizes` has to match the CSS or the whole thing is pointless —
-               .spot__media is clamp(104px, 11vw, 150px), 92px below 820px. Told
-               that, the browser fetches roughly a 150px-wide copy instead of a
+               `sizes` has to match the CSS or the whole thing is pointless.
+               .spot__media is now clamp(92px, 8.4vw, 116px) with an explicit
+               2:3 ratio, and 86px below 820px — it was re-sized when the frame
+               was given the poster's own shape, because a frame that is taller
+               than it is wide needs fewer horizontal pixels, not more. Told
+               that, the browser fetches roughly a 116px-wide copy instead of a
                1024px one.
                
                `priority` because this IS the element above the fold; now that
@@ -176,7 +179,7 @@ export function EventSpotlight({ events }: { events: SpotlightEvent[] }) {
               src={e.cover}
               alt=""
               fill
-              sizes="(max-width: 820px) 92px, 150px"
+              sizes="(max-width: 820px) 86px, 116px"
               priority
               /* NO onError HANDLER, AND THAT IS DELIBERATE — it was here and it
                  cost 257KB a page view.

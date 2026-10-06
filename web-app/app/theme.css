@@ -607,7 +607,13 @@ section[id], main[id] {
 }
 .nav__link {
   position: relative;
-  padding: 0.5rem 0.8rem;
+  /* 0.68rem across, not 0.8rem. Seven links x 2 x 1.9px is 26px, and the
+     desktop row's budget is fixed at 1084px however wide the monitor is — so
+     26px is the difference between the margin this row had before "New here?"
+     joined it (47px spare) and the margin it would have had after (24px).
+     Measured at 1366: 1038 against 1084. Horizontal padding on a nav link is
+     the cheapest 26px on this page. */
+  padding: 0.5rem 0.68rem;
   border-radius: var(--r-xs);
   font-size: 0.92rem;
   font-weight: 500;
@@ -698,7 +704,20 @@ section[id], main[id] {
    out" is not, because there is nowhere else in the header to sign in from. So
    the two things now collapse independently: the links get tighter, then give
    way to the burger; the auth buttons only ever shrink to their icons. */
-@media (max-width: 1080px) {
+/* 1120, raised from 1080 when "New here?" joined the row. Measured at 1100px:
+   the gutter is clamp(1.25rem, 4vw, 3rem), so the budget there is 1012 rather
+   than 1084 while the links are still at their full padding — the row fitted
+   with 15px to spare, which is not enough margin for a translated label. Inside
+   this rule the same row needs 953.
+   
+   Swept at ten widths afterwards and moved again, to 1180: the container is
+   min(1180px, viewport - 2 x clamp(1.25rem, 4vw, 3rem)), so between about 1121
+   and 1180 the GUTTER has started growing with the viewport while the links are
+   still at full padding. That band measured 7px of spare at 1160 — a translated
+   label away from the overflow this whole block exists to prevent. Above 1180
+   the container is capped and the budget stops moving, which is the plateau the
+   padding above is sized for. */
+@media (max-width: 1180px) {
   .nav__link { padding-inline: 0.45rem; font-size: 0.86rem; }
   .nav__link::after { left: 0.45rem; right: 0.45rem; }
   .nav__inner { gap: 0.75rem; }
@@ -5741,3 +5760,390 @@ body:has(.setup-banner) .to-top { bottom: calc(1.25rem + 4.5rem); }
   .spot__media { width: clamp(96px, 9vw, 120px); }
   .spot__meta { font-size: 0.82rem; }
 }
+
+/* ==========================================================================
+   24. New in Oita — the arriving guide, and the two bands that point at it
+   ========================================================================== */
+
+/* Small utilities this page needed and the sheet did not have. Named for what
+   they do, kept here rather than at the top because nothing else uses them yet
+   and a utility invented for one page should be easy to find and delete. */
+.section--tight { padding-block: clamp(1.75rem, 4vw, 2.75rem); }
+.mx-auto { margin-inline: auto; }
+/* A reading measure. Long body text across a 1200px container is unreadable —
+   the eye loses the line on the way back. 62ch is the usual comfortable range. */
+.measure { max-width: 62ch; }
+
+/* --------------------------------------------------------------- two doors */
+/* "Which of these are you?", asked before the page explains anything. */
+.doors {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+.door {
+  --door: var(--crimson);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--door);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.door--crimson { --door: var(--crimson); }
+.door--indigo  { --door: var(--indigo); }
+.door:hover,
+.door:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.door__plate {
+  flex: none;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--door) 12%, transparent);
+  color: var(--door);
+}
+.door__plate .icon { width: 21px; height: 21px; }
+.door__text { display: block; }
+.door__text strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+.door__text span {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.door__go {
+  flex: none;
+  width: 18px; height: 18px;
+  color: var(--door);
+  transition: transform 0.18s ease;
+}
+.door:hover .door__go { transform: translateX(3px); }
+
+/* ------------------------------------------------------- the numbered track */
+/* ONE COLUMN AT EVERY WIDTH, on purpose. These six steps are an order, not a
+   set — "register your address" has to be read before "health insurance at the
+   same visit" or the second sentence makes no sense. A responsive grid would
+   reflow to two columns on a tablet and the reading order would stop being
+   obvious, which is the one thing this section cannot afford. */
+.track {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 740px;
+  display: grid;
+  gap: 0;
+}
+.track__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 1.1rem;
+  padding: 0 0 1.6rem 0;
+}
+.track__step:last-child { padding-bottom: 0; }
+/* The connecting line, drawn behind the numbers rather than as a border on the
+   list — a border would stop at the last item's box, not at its number. */
+.track__step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 46px;
+  bottom: 6px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--line-strong), var(--line));
+}
+.track__num {
+  position: relative;
+  z-index: 1;
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 2px solid var(--line-strong);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.track__num--crimson { background: var(--crimson); border-color: var(--crimson); color: #fff; }
+.track__num--indigo  { background: var(--indigo);  border-color: var(--indigo);  color: #fff; }
+.track__num--moss    { background: var(--moss);    border-color: var(--moss);    color: #fff; }
+.track__num--gold    { background: var(--gold);    border-color: var(--gold);    color: #fff; }
+
+.track__body {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.05rem 1.2rem;
+  box-shadow: var(--shadow-sm);
+}
+/* The fourteen-day one. It is the only step on the page with a legal deadline
+   and the only one people are actually penalised for missing, so it is the only
+   one that gets a tinted card — a page where every step is emphasised is a page
+   where none of them is. */
+.track__step.is-marked .track__body {
+  background: var(--crimson-wash);
+  border-color: color-mix(in srgb, var(--crimson) 28%, transparent);
+}
+.track__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  line-height: 1.3;
+  margin: 0;
+}
+.track__icon { width: 18px; height: 18px; flex: none; color: var(--ink-3); }
+.track__step.is-marked .track__icon { color: var(--crimson); }
+.track__text {
+  margin: 0.45rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+.track__tag {
+  display: inline-block;
+  margin-top: 0.7rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.track__step.is-marked .track__tag {
+  background: var(--crimson);
+  border-color: var(--crimson);
+  color: #fff;
+}
+
+@media (max-width: 520px) {
+  /* The number moves above the card instead of beside it: at this width a 46px
+     gutter plus 1.1rem of gap leaves the body under 200px and every title wraps
+     to three lines. */
+  .track__step { grid-template-columns: 1fr; gap: 0.6rem; }
+  .track__step:not(:last-child)::before { display: none; }
+  .track__num { width: 38px; height: 38px; font-size: 1rem; }
+}
+
+/* ----------------------------------------------------------------- the faq */
+/* <details>, not a hand-built accordion. See the note on faqJsonLd: Google will
+   not read an answer that JavaScript has to produce, and this element collapses
+   the text without hiding it from the parser — while being keyboard- and
+   screen-reader-complete with no code at all. */
+/* Exactly two columns, not auto-fit.
+   `.grid--2` is repeat(auto-fit, minmax(320px, 1fr)), which inside an 1180px
+   container resolves to THREE — so four cards landed as a row of three and one
+   on its own with two empty columns beside it. That is the same ragged-row
+   fault the members section already carries a note about. Four cards want 2x2.
+   The breakpoint is 760 rather than a minmax, because the point of this grid is
+   that the count is fixed until there is genuinely no room. */
+.grid--2up { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 760px) {
+  .grid--2up { grid-template-columns: 1fr; }
+}
+
+.faq { display: grid; gap: 0.7rem; }
+.faq__item {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  overflow: hidden;
+}
+.faq__item[open] { border-color: var(--line-strong); box-shadow: var(--shadow-sm); }
+.faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1.15rem;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.35;
+  list-style: none;
+}
+/* Safari draws its own disclosure triangle and ignores `list-style`. */
+.faq__q::-webkit-details-marker { display: none; }
+.faq__q:hover { background: var(--surface-2); }
+.faq__chev {
+  flex: none;
+  width: 18px; height: 18px;
+  color: var(--ink-3);
+  transition: transform 0.2s ease;
+}
+.faq__item[open] .faq__chev { transform: rotate(180deg); }
+.faq__a {
+  margin: 0;
+  padding: 0 1.15rem 1.1rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+/* ------------------------------------------- the home page band that links here */
+/* A full-width invitation, not another card in a grid. It is competing with a
+   hero, a what's-on ribbon and four figures for the attention of somebody who
+   has just arrived in the country, and a card would lose. */
+.newcomer {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: clamp(1.2rem, 3vw, 2.5rem);
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(90% 120% at 100% 0%, rgba(166, 36, 50, 0.14), transparent 62%),
+    radial-gradient(70% 110% at 0% 100%, rgba(30, 58, 110, 0.12), transparent 60%),
+    var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.newcomer__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 1.95rem);
+  line-height: 1.18;
+  margin: 0.35rem 0 0;
+}
+.newcomer__lede {
+  margin: 0.6rem 0 1.15rem;
+  font-size: 0.97rem;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: 54ch;
+}
+.newcomer__points { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+.newcomer__points li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.newcomer__points .icon {
+  flex: none;
+  width: 17px; height: 17px;
+  margin-top: 0.15rem;
+  color: var(--moss);
+}
+
+@media (max-width: 820px) {
+  .newcomer { grid-template-columns: 1fr; }
+}
+
+/* ----------------------------------------- a word from the president */
+/* The band only ever renders when somebody has actually written the words, so
+   there is no empty state to style. */
+.saying {
+  display: grid;
+  /* Both columns shrink to their content and the pair is centred, rather than
+     the text column taking 1fr. Capping the quote at 46ch inside a 1fr column
+     left 600px of empty paper to the right of every line and the rule under the
+     signature running out into it — the band read as half-finished. */
+  grid-template-columns: auto auto;
+  justify-content: center;
+  gap: clamp(1.1rem, 3vw, 2rem);
+  align-items: start;
+  padding: clamp(1.4rem, 3.2vw, 2.25rem);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.saying__portrait {
+  position: relative;
+  flex: none;
+  width: clamp(84px, 11vw, 128px);
+  aspect-ratio: 1;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  background: var(--crimson-wash);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  color: var(--crimson);
+  box-shadow: 0 0 0 4px var(--surface), 0 0 0 5px var(--line);
+}
+.saying__portrait img { width: 100%; height: 100%; object-fit: cover; }
+.saying__quote {
+  margin: 0;
+  /* 46ch, not the full width of the band. Measured at 1280 the line ran to
+     1300px — around 110 characters, nearly twice the range an eye tracks back
+     across reliably. This is the one paragraph on the home page somebody reads
+     word for word, so it is the one that most wants a measure. */
+  max-width: 46ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.02rem, 1.9vw, 1.28rem);
+  line-height: 1.55;
+  color: var(--ink);
+}
+/* The opening mark hangs into the left margin so the first letter of the
+   sentence still lines up with everything under it. */
+.saying__quote::before {
+  content: '\201C';
+  float: left;
+  margin: -0.1em 0.08em 0 -0.42em;
+  font-size: 2.4em;
+  line-height: 1;
+  color: color-mix(in srgb, var(--crimson) 42%, transparent);
+}
+.saying__who {
+  display: block;
+  margin-top: 1.1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.saying__name { font-weight: 600; color: var(--ink); }
+.saying__role { color: var(--ink-3); }
+
+@media (max-width: 560px) {
+  .saying { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .saying__quote::before { float: none; margin: 0; font-size: 1.6em; }
+  .saying__who { text-align: center; }
+}
+
+/* ------------------------------------------- one of these two, never both
+   The desktop link row has a fixed 1084px budget (see the long note above) and
+   it was spending 1037 of it. "New here?" costs 102px, which put Sign in 22px
+   past the right edge of a 1100px laptop — measured, and the failure the note
+   above says to measure for.
+   
+   Neither row gets both, and neither link is a compromise in the row it is in:
+   
+     signed out   About · New here? · Programmes · Events · Gallery · Members
+                  · Contact                          7 links, 1043px, 41 spare
+     signed in    About · Programmes · Events · Gallery · Decisions · Members
+                  · Contact · Committee    8 links, 1053px, 31 spare — unchanged
+   
+   Decisions is a members-only page: shown to a signed-out visitor it is a link
+   to a wall, so dropping it from the public row costs nothing and buys the
+   97px that pays for the new one. Both are in the drawer and the footer at every
+   width, and both are in the HTML always — this hides one from the eye, not from
+   a crawler or a screen reader. */
+.nav__link--minutes { display: none; }
+.nav--member .nav__link--minutes { display: inline-flex; }
+.nav--member .nav__link--new { display: none; }

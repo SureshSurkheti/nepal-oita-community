@@ -218,6 +218,17 @@ submission.
 **Somebody leaves.** Remove them. Their sign-in account survives but is linked to
 nothing, so it grants nothing.
 
+**Keeping `/arriving` right.** The "New in Oita" page is the only route on this
+site a stranger searches for, and every fact on it is a national procedure — the
+fourteen-day registration deadline, the backdated health insurance, the
+certificate you need before another city will register you. There is
+deliberately no address, opening time, phone number or named shop on it: those
+go stale without anybody noticing, and a guide that sends somebody to a closed
+counter is worse than no guide. Where a local answer is needed the page says
+"ask us". Keep it that way. The words live in `lib/dictionaries/{en,ne}.ts`
+under `pages.arriving`, and the five questions at the foot of it are marked up
+as a `FAQPage`, so adding a sixth means adding it to `FAQ` in the page as well.
+
 **Locked out of the committee.** Re-run an edited `0006_first_admin.sql` for
 someone else. `admin_delete_member` and `admin_set_admin` both refuse to remove
 the last admin, so this should not happen by accident.
@@ -281,9 +292,12 @@ none of it is a code change, and none of it needs a developer.
 
 ### 1. Run `supabase/RUN-IN-SQL-EDITOR.sql`
 
-**This is the one that matters.** Five migrations, 470 lines, none of them ever
-run on the live project. The site works without them, but it is quietly showing
-you the fallback for all five.
+**This is the one that matters.** Seven migrations. The site works without them,
+but it is quietly showing you the fallback for every one.
+
+If you have already run this file once, run it again — it has grown. 0020–0024
+you have done; 0025 and 0026 are new and the last two rows of the table below
+are what they are for.
 
 Supabase dashboard → **SQL Editor** → **New query** → paste the whole file →
 **Run**. It is safe to run more than once: every statement fills in a blank,
@@ -298,6 +312,8 @@ What changes the moment it finishes:
 | 0022 | the other events take covers from the community's own photographs |
 | 0023 | gallery captions that describe the photograph they are under |
 | 0024 | Dashain moves into the past, so the hero ribbon stops announcing it |
+| 0025 | Nepali columns for the minutes, the decisions, the stories and the gallery captions — and the boxes to type them into on every committee page |
+| 0026 | somewhere for a signed welcome message on the home page. Nothing appears until somebody writes one — see item 5 |
 
 If anything goes red, copy the message out before closing the tab — the editor
 throws it away when you navigate.
@@ -341,6 +357,31 @@ is in `app/[lang]/page.tsx` and `components/ContactForm.tsx`; both link
 
 ---
 
+### 5. Ask the president for two or three sentences
+
+The home page has a band for a signed welcome — a portrait, a short message, and
+the name and office under it. **It is empty, and the site renders nothing at all
+while it is empty.** That is deliberate: a greeting signed with somebody's name,
+face and office that they did not write is not a placeholder, it is words put in
+their mouth on the front page of their own community's website. Nobody has
+written one yet, and nobody should write one on their behalf.
+
+So this item is not a task on a computer. It is: ask Prakash Rasaili (or
+whoever holds the office) for two or three sentences in his own words, in
+Nepali or English or both. Then `/admin/members` → **Edit** on his card → the
+box called *Their welcome message on the home page* → **Save the welcome
+message**. The band appears immediately.
+
+A few things worth telling him, because they change what he writes:
+
+- It is read by somebody who has never heard of the community and is deciding
+  whether these are real people. First person, short, specific.
+- The Nepali box is optional. Left empty, the Nepali page shows the English.
+- Clearing the box takes the band off the page again. Nothing is permanent.
+- Only leadership cards have the box, and only the most senior person who has
+  written one is shown — so the band follows the office when the committee
+  changes, without anybody touching the code.
+
 ### When the committee has decided, not tonight
 
 Three dates are placeholders. Each is one row at `/admin/events`, and the site
@@ -356,10 +397,15 @@ says so in its own words on every one of them — but a chip can only print a da
 
 ### Still open, and needs a decision rather than an evening
 
-- No password reset. A member who forgets theirs has to be issued a new claim
-  code by the committee.
-- No admin fields for the `_ne` columns, so anything the committee adds from now
-  on is English-only until somebody writes the Nepali into the database by hand.
 - The Supabase project is on the free tier, with no backup of the database.
+  This is the single largest risk left: every event, every minute, every story
+  the committee has typed exists in exactly one place.
+- Ten of the twelve events have no Nepali. The boxes are there on
+  `/admin/events`; the words are not.
+- Dates still render in English on `/ne` — `longDate` is hard-coded to `en-GB`.
+  It needs a hand-written Nepali month table rather than `Intl`, which returns
+  different digits in Node and in Chrome and would break hydration.
+- Members' names, roles and professions are untranslated by choice. They want
+  doing in one piece rather than one card at a time.
 - The sitemap has about thirty URLs and has never been submitted to Google
   Search Console.

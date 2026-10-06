@@ -18,6 +18,10 @@ export const dynamic = 'force-dynamic'
    tells it to drop. */
 const PAGES: { path: string; changeFrequency: MetadataRoute.Sitemap[0]['changeFrequency']; priority: number }[] = [
   { path: '/',           changeFrequency: 'weekly',  priority: 1.0 },
+  /* Second only to the home page. It is the only route on this site that
+     answers a question somebody types into a search box without already
+     knowing the community exists, and it changes only when the law does. */
+  { path: '/arriving',   changeFrequency: 'yearly',  priority: 0.9 },
   { path: '/events',     changeFrequency: 'weekly',  priority: 0.9 },
   { path: '/programmes', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/gallery',    changeFrequency: 'monthly', priority: 0.7 },

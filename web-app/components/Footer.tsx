@@ -47,9 +47,9 @@ export function Footer({ lang }: { lang: Locale }) {
             <div>
               <h4>{t.footer.resources}</h4>
               <div className="footer__links">
-                <Link href="/#contact">{t.footer.studentGuide}</Link>
+                <Link href="/arriving">{t.footer.studentGuide}</Link>
                 <Link href="/#contact">{t.footer.jobBoard}</Link>
-                <Link href="/#contact">{t.footer.housingHelp}</Link>
+                <Link href="/arriving#faq">{t.footer.housingHelp}</Link>
                 <Link href="/#contact">{t.footer.emergency}</Link>
               </div>
             </div>

@@ -12,6 +12,7 @@ import { ContactForm } from '@/components/ContactForm'
 import { HeroBody } from '@/components/HeroBody'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { HomeMinutes } from '@/components/HomeMinutes'
+import { WelcomeNote } from '@/components/WelcomeNote'
 import { EventSpotlight, type SpotlightEvent } from '@/components/EventSpotlight'
 import { HERO_PHOTOS } from '@/lib/covers'
 import { PhotoTiles } from '@/components/PhotoTiles'
@@ -345,6 +346,38 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
                 <p className="card__body">{t.home.audiences[`${a.key}Body`]}</p>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------ a word from the office */}
+      {/* Renders nothing until somebody on the committee has actually written
+          one — see the note in WelcomeNote. The site ships with no band. */}
+      <WelcomeNote members={members} lang={lang} t={t.home.welcome} />
+
+      {/* ------------------------------------------------------ new in Oita */}
+      {/* The one block on this page aimed at somebody who has never heard of us.
+          It sits directly under "Everyone who calls Oita home" because that
+          section makes a promise and this is the first page that keeps it. */}
+      <section className="section section--tight">
+        <div className="container">
+          <div className="newcomer reveal">
+            <div>
+              <p className="eyebrow">
+                <span className="eyebrow__badge"><Icon name="user-plus" /></span>
+                {t.home.newcomer.eyebrow}
+              </p>
+              <h2 className="newcomer__title">{t.home.newcomer.title}</h2>
+              <p className="newcomer__lede">{t.home.newcomer.lede}</p>
+              <Link className="btn btn--primary" href="/arriving">
+                <Icon name="arrow-right" /> {t.home.newcomer.cta}
+              </Link>
+            </div>
+            <ul className="newcomer__points">
+              <li><Icon name="check" /><span>{t.home.newcomer.p1}</span></li>
+              <li><Icon name="check" /><span>{t.home.newcomer.p2}</span></li>
+              <li><Icon name="check" /><span>{t.home.newcomer.p3}</span></li>
+            </ul>
           </div>
         </div>
       </section>

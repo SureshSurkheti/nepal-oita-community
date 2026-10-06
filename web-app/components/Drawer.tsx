@@ -12,6 +12,10 @@ import { Icon } from './Sprite'
 const LINKS = [
   { href: '/', key: 'home' },
   { href: '/#about', key: 'about' },
+  /* Second, and high on purpose. Below 860px the desktop row is gone entirely,
+     so this drawer is the ONLY chrome a phone has — and a phone is what the
+     person this page is written for is holding. */
+  { href: '/arriving', key: 'arriving' },
   { href: '/programmes', key: 'programmes' },
   { href: '/events', key: 'events' },
   { href: '/gallery', key: 'gallery' },

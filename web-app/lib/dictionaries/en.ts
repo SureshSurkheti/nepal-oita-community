@@ -18,6 +18,7 @@ export const en = {
     decisions: 'Decisions',
     members: 'Members',
     contact: 'Contact',
+    arriving: 'New here?',
     home: 'Home',
     committee: 'Committee',
     signIn: 'Sign in',
@@ -135,6 +136,15 @@ export const en = {
       neighboursTitle: 'Neighbours',
       neighboursBody: 'Our Japanese friends and local organisations — every festival we hold is an open invitation, not a closed door.',
     },
+    newcomer: {
+      eyebrow: 'Just arrived, or on your way',
+      title: 'The first two weeks, in the right order',
+      lede: 'Fourteen days to register your address. Health insurance at the same counter. A card you must carry by law. Nobody explains this in English — so we wrote it down.',
+      cta: 'Read: New in Oita',
+      p1: 'Every step, in the order the city hall wants them',
+      p2: 'What is different if you are moving from another Japanese city',
+      p3: 'And somebody from the community who will come with you',
+    },
     programmes: {
       eyebrow: 'What we do',
       title: 'Done properly, or not at all',
@@ -172,6 +182,11 @@ export const en = {
     /* Was hardcoded English in page.tsx, so it stayed English on the Nepali
        page. Moving the section into a component is what surfaced it. */
     everyMeeting: 'Every meeting, and add one',
+    },
+    welcome: {
+      eyebrow: 'A word from the committee',
+      read: 'Read more about us',
+      meet: 'Meet the committee',
     },
     members: {
       eyebrow: 'Our people',
@@ -235,7 +250,7 @@ export const en = {
     explore: 'Explore',
     aboutUs: 'About us',
     resources: 'Resources',
-    studentGuide: 'Student guide',
+    studentGuide: 'New in Oita',
     jobBoard: 'Job board',
     housingHelp: 'Housing help',
     emergency: 'Emergency contacts',
@@ -245,6 +260,95 @@ export const en = {
   },
   /* ----------------------------------------------------------------- pages */
   pages: {
+    arriving: {
+      eyebrow: 'Just arrived',
+      title: 'New in Oita?',
+      back: 'Back to home',
+      lede: 'Whether you landed at Fukuoka last night or you are moving down from Tokyo next month, the first few weeks here are mostly paperwork — and almost none of it is in English. This is the order it goes in, what it costs you to get it wrong, and what we will do alongside you.',
+
+      /* The two ways people arrive. Kept apart because the second group have
+         done this once already and do not need step one explained again. */
+      fromNepalTitle: 'Straight from Nepal',
+      fromNepalBody: 'Student, trainee, engineer, specified skilled worker — the list below is the same for all of you, and the city hall counter does not mind which.',
+      fromJapanTitle: 'Moving from another city in Japan',
+      fromJapanBody: 'You have done most of this before. Only three things are different, and they are further down the page.',
+
+      firstEyebrow: 'Week one and two',
+      firstTitle: 'Do these in this order',
+      firstLede: 'Steps two, three and four all happen at the same counter on the same visit. Nobody tells you that, and most people make the trip three times.',
+
+      s1Title: 'Carry your residence card',
+      s1Body: 'The 在留カード is handed to you at the airport if you land at one of the big ones — Fukuoka, Kansai, Narita, Haneda — and at the city hall if you came in anywhere else. Carrying it is not advice, it is the law. A police officer may ask, and “it is at home” is the wrong answer.',
+      s1Tag: 'Day one',
+
+      s2Title: 'Register your address — 14 days',
+      s2Body: 'At the city hall for wherever you sleep: Oita City, Beppu, Nakatsu, Hita, Usa. Take the residence card and your passport. They write your address on the back of the card while you wait, and nothing else on this page can happen until they have. Fourteen days is a deadline, not a suggestion.',
+      s2Tag: 'The one with a deadline',
+
+      s3Title: 'Health insurance, same visit',
+      s3Body: 'If an employer is not enrolling you, you join 国民健康保険 at the same office. It turns a hospital bill into 30% of itself. It is also backdated to the day you registered your address — so joining three months late means paying those three months anyway, for cover you never had.',
+      s3Tag: 'Do not put this off',
+
+      s4Title: 'Pension, also same visit',
+      s4Body: '国民年金, unless a company scheme covers you. Students and low earners can apply for an exemption or a postponement right at the counter — but you have to ask. Nobody offers it.',
+      s4Tag: 'Ask about the exemption',
+
+      s5Title: 'My Number comes by post',
+      s5Body: 'Two or three weeks after you register, to the address you gave. You will need it for a job, a bank account and a phone contract, so watch the postbox and do not throw away the envelope it comes in.',
+      s5Tag: 'Weeks 3–4',
+
+      s6Title: 'Bank account, then phone',
+      s6Body: 'In that order. Most phone shops want a Japanese bank account or card, and the bank wants to see the address already printed on the back of your residence card. Japan Post Bank is the one most of us opened first.',
+      s6Tag: 'In that order',
+
+      movingEyebrow: 'Already in Japan',
+      movingTitle: 'Moving to Oita from another city',
+      movingLede: 'Three differences. The first one has to happen before you get on the train, and people forget it every single month.',
+      m1Title: 'Tell the old city hall before you leave',
+      m1Body: '転出届 at the office you are leaving behind. They hand you a 転出証明書 — your certificate of moving out. Oita cannot register you without it, and going back for it is a long and expensive train.',
+      m2Title: 'Then register here, within 14 days',
+      m2Body: '転入届 with that certificate, your residence card and your My Number card. Same counter, same visit as moving your insurance across.',
+      m3Title: 'Nothing else follows you automatically',
+      m3Body: 'Health insurance, pension, the bank, the phone contract and the address on the back of the residence card all have to be told separately. The post office will forward your mail for a year if you ask — do ask.',
+
+      lifeEyebrow: 'After the paperwork',
+      lifeTitle: 'The things nobody tells you',
+      l1Title: 'Rubbish has rules, and they are local',
+      l1Body: 'Sorted into burnable, non-burnable, plastics and cans, in bags your own city sells, put out on fixed mornings. Oita City and Beppu do it differently from each other. The city hall hands out the calendar in English — ask for it while you are there registering.',
+      l2Title: 'Japanese classes cost almost nothing',
+      l2Body: 'Volunteer-run classes meet across the prefecture in the evenings and at weekends for little or no money. They are not advertised in English and they do not come up in a search. Ask us which one is nearest you and when it actually meets.',
+      l3Title: 'Find your evacuation site on a quiet day',
+      l3Body: 'Typhoons every summer, earthquakes with no season at all. Your city hall will tell you the nearest shelter and show you the hazard map for your own street. Do it now, not at eleven at night in the rain.',
+      l4Title: 'Nobody insulates the walls',
+      l4Body: 'A January room in Oita is colder indoors than you would ever expect from a place famous for hot springs. Budget for heating before you budget for anything else, and ask before you use a kerosene heater in a room with the windows shut.',
+
+      weEyebrow: 'What we do',
+      weTitle: 'You do not have to do any of it alone',
+      weLede: 'Not a leaflet of good intentions. Every one of these is something members asked for and got, this year.',
+      w1: 'Somebody comes to the city hall with you and translates at the counter',
+      w2: 'Help reading a lease, a contract, or a letter that looks important',
+      w3: 'Rooms and jobs reach members before they reach anywhere else',
+      w4: 'A number that answers at three in the morning, in Nepali, when something goes wrong',
+      w5: 'A room full of people cooking the food you grew up on, most months',
+
+      faqEyebrow: 'Asked every week',
+      faqTitle: 'Questions people write to us with',
+      q1: 'Do I have to be a member before I can ask for help?',
+      a1: 'No. Write to us and you get an answer either way. Membership is ¥3,000 a year and gets you free entry to most events, the jobs and rooms first, and a vote at the general meeting — it is not the price of asking a question.',
+      q2: 'I do not speak Japanese at all. Is that a problem?',
+      a2: 'It is the normal starting point, and roughly where every one of us began. The city hall counters have translation tablets, and for the harder visits one of us comes with you and speaks for you.',
+      q3: 'I am moving to Oita in a few months. Can I contact you before I arrive?',
+      a3: 'Please do — it is the single most useful message you can send us. Tell us roughly when you land and which city you are coming to, and we will tell you what rent really costs there, what the commute is actually like, and often put you in touch with somebody already living on that street.',
+      q4: 'Is there Nepali food in Oita?',
+      a4: 'Yes, and members will tell you where — the shops that carry the spices and the daal, and the kitchens run by people from home. The good ones are rarely the ones a search engine finds.',
+      q5: 'My visa or my job has gone wrong. Can you help?',
+      a5: 'Tell us early rather than late. We cannot give legal advice, but we have sat with enough of these to know which office you need, which free consultation to book, and who should come with you. The worst thing you can do with a problem like that is wait.',
+
+      ctaTitle: 'Tell us you are coming',
+      ctaBody: 'One message is enough. Which city, roughly when, and what brings you here — we will take it from there.',
+      ctaButton: 'Write to the committee',
+      ctaEvents: 'See what is on',
+    },
     members: {
       eyebrow: 'Members',
       title: 'The people of Nepal–Oita',
@@ -431,6 +535,8 @@ export const en = {
     programmesTitle: 'What we do',
     programmesDesc: 'Everything the Nepal–Oita Community runs: festivals, newcomer support, Nepali language classes, sport, volunteering and help when something goes wrong.',
     decisionsTitle: 'Meeting decisions',
+    arrivingTitle: 'New in Oita — the first two weeks',
+    arrivingDesc: 'Arriving in Oita Prefecture from Nepal, or moving from another city in Japan: registering your address within 14 days, health insurance, pension, My Number, a bank account — and a Nepali community that will come to the city hall with you.',
     signInTitle: 'Member sign in',
   },
 } as const

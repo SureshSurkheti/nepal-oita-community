@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { setMemberProfile, type ActionResult } from '@/app/[lang]/admin/members/actions'
+import { setMemberProfile, setMemberWelcome, type ActionResult } from '@/app/[lang]/admin/members/actions'
 import { compressImage, describeSaving } from '@/lib/image'
 import { supabaseEnv } from '@/lib/env'
 import { createClient } from '@/lib/supabase/client'
@@ -50,6 +50,29 @@ export function AdminMemberProfile({ member, onDone }: {
   const [tiktok, setTiktok] = useState(member.tiktok_url ?? '')
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
+
+  /* The welcome message, and it is deliberately NOT part of `save()` below.
+     It is a different person's words going to a different place — the front
+     page rather than this card — and it goes through its own database function
+     because 0026 may not have been run yet. Keeping it on its own button means
+     a database that is a migration behind loses the welcome and nothing else;
+     folded into Save, it would take the photograph and the profession with it. */
+  const w = member as unknown as { welcome?: string | null; welcome_ne?: string | null }
+  const [welcome, setWelcome] = useState(w.welcome ?? '')
+  const [welcomeNe, setWelcomeNe] = useState(w.welcome_ne ?? '')
+  const [wBusy, setWBusy] = useState(false)
+  const [wNote, setWNote] = useState<string | null>(null)
+
+  async function saveWelcome() {
+    setWBusy(true); setWNote(null)
+    const fd = new FormData()
+    fd.set('member_id', member.id)
+    fd.set('welcome', welcome)
+    fd.set('welcome_ne', welcomeNe)
+    const r = await setMemberWelcome(fd)
+    setWBusy(false)
+    setWNote(r.message)
+  }
 
   async function onPick(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
@@ -176,6 +199,47 @@ export function AdminMemberProfile({ member, onDone }: {
                  placeholder="tiktok.com/@their-name"
                  value={tiktok} onChange={(e) => setTiktok(e.target.value)} />
         </span>
+
+        {/* The home-page welcome, for office holders only.
+            
+            Not offered on a general member's card, because the band is a word
+            from whoever holds the office — a message signed by somebody with no
+            role under their name would be a stranger talking on the front page.
+            The component reads `category` rather than naming a person, so it
+            follows the committee instead of a deploy. */}
+        {member.category === 'leadership' && (
+          <>
+            <span className="field">
+              <label htmlFor={`wl-${member.id}`}>
+                Their welcome message on the home page{' '}
+                <span className="muted">(their own words — leave empty for no message)</span>
+              </label>
+              <textarea id={`wl-${member.id}`} rows={4} maxLength={600}
+                        placeholder="Two or three sentences, in the first person. Nothing appears on the home page while this is empty."
+                        value={welcome} onChange={(e) => setWelcome(e.target.value)} />
+            </span>
+            <span className="field">
+              <label htmlFor={`wn-${member.id}`}>
+                The same message <span className="muted">(नेपालीमा — optional)</span>
+              </label>
+              <textarea id={`wn-${member.id}`} rows={4} maxLength={600} lang="ne"
+                        value={welcomeNe} onChange={(e) => setWelcomeNe(e.target.value)} />
+            </span>
+            <span className="cluster">
+              <button className="btn btn--sm btn--ghost" type="button"
+                      disabled={wBusy} onClick={saveWelcome}>
+                {wBusy ? <Spinner /> : <Icon name="send" />}
+                {wBusy ? 'Saving…' : 'Save the welcome message'}
+              </button>
+            </span>
+            {wNote && <span className="form-note">{wNote}</span>}
+            <span className="form-note">
+              <Icon name="heart" /> This goes on the front page with their name,
+              their office and their photograph under it. Write what they wrote,
+              not what you think they would have written.
+            </span>
+          </>
+        )}
 
         <span className="cluster">
           <button className="btn btn--sm btn--primary" type="button"

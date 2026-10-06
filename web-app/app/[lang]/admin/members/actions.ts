@@ -242,3 +242,48 @@ function tidyUrl(raw: string | null): string | null {
   if (/^https?:\/\//i.test(raw)) return raw
   return `https://${raw.replace(/^\/+/, '')}`
 }
+
+/* The signed welcome on the home page — see migration 0026 and WelcomeNote.
+ *
+ * A SEPARATE ACTION AND A SEPARATE FUNCTION, not two more arguments on
+ * setMemberProfile. 0026 may not have been run: adding arguments to
+ * admin_set_member_profile would mean dropping and recreating it, and a browser
+ * calling the new signature against an old database would fail on EVERY card
+ * save rather than only on the new field. This one fails only at the new thing,
+ * and says which file to run. */
+export async function setMemberWelcome(formData: FormData): Promise<ActionResult> {
+  const supabase = await createClient()
+
+  const memberId = String(formData.get('member_id') ?? '')
+  if (!memberId) return { ok: false, message: 'No member was named.' }
+
+  const { error } = await supabase.rpc('admin_set_member_welcome', {
+    p_member_id: memberId,
+    p_welcome: String(formData.get('welcome') ?? '').trim(),
+    p_welcome_ne: String(formData.get('welcome_ne') ?? '').trim(),
+  })
+
+  if (error) {
+    /* PostgREST says PGRST202 for a function that is not in its schema, and
+       Postgres 42883 for one that does not exist. Either means 0026 has not been
+       run, which is a different problem from a failed save and wants a different
+       sentence. */
+    const m = error.message.toLowerCase()
+    if (m.includes('pgrst202') || m.includes('42883')
+        || (m.includes('function') && m.includes('not'))) {
+      return {
+        ok: false,
+        message: 'This database has not had supabase/RUN-IN-SQL-EDITOR.sql run on '
+          + 'it yet, so there is nowhere to put a welcome message. Run it first.',
+      }
+    }
+    return { ok: false, message: errorMessage(error.message) }
+  }
+
+  revalidatePath('/admin/members')
+  revalidatePath('/')
+  return {
+    ok: true,
+    message: 'Saved. It is on the home page now — or gone from it, if you cleared the box.',
+  }
+}

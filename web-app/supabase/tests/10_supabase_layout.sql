@@ -315,6 +315,121 @@ begin;
 rollback;
 
 \echo ''
+\echo '=== the signed welcome on the home page ==='
+
+-- The committee writes one, in both languages.
+begin;
+  do $$
+  declare v_en text; v_ne text;
+  begin
+    perform t_be('11111111-1111-1111-1111-111111111111');
+    perform public.admin_set_member_welcome(
+      'aaaaaaaa-0000-0000-0000-000000000002', 'Namaste, and welcome.', 'नमस्ते।');
+
+    perform set_config('role', 'postgres', true);
+    select welcome, welcome_ne into v_en, v_ne
+      from public.members where id = 'aaaaaaaa-0000-0000-0000-000000000002';
+
+    if v_en = 'Namaste, and welcome.' and v_ne = 'नमस्ते।' then
+      raise notice 'PASS  the committee can write a welcome in both languages';
+    else
+      raise notice 'FAIL  wrote en=% ne=%', v_en, v_ne;
+    end if;
+  end $$;
+rollback;
+
+-- Null leaves the other language alone. Correcting the English must not silently
+-- drop the Nepali — the form sends both boxes, but the contract is the one
+-- admin_set_member_profile already uses and it is worth holding it to that.
+begin;
+  do $$
+  declare v_en text; v_ne text;
+  begin
+    perform t_be('11111111-1111-1111-1111-111111111111');
+    perform public.admin_set_member_welcome(
+      'aaaaaaaa-0000-0000-0000-000000000002', 'First', 'पहिलो');
+    perform public.admin_set_member_welcome(
+      'aaaaaaaa-0000-0000-0000-000000000002', 'Second', null);
+
+    perform set_config('role', 'postgres', true);
+    select welcome, welcome_ne into v_en, v_ne
+      from public.members where id = 'aaaaaaaa-0000-0000-0000-000000000002';
+
+    if v_en = 'Second' and v_ne = 'पहिलो' then
+      raise notice 'PASS  null leaves the other language alone';
+    else
+      raise notice 'FAIL  en=% ne=%', v_en, v_ne;
+    end if;
+  end $$;
+rollback;
+
+-- An empty string takes the band off the home page again.
+begin;
+  do $$
+  declare v_en text;
+  begin
+    perform t_be('11111111-1111-1111-1111-111111111111');
+    perform public.admin_set_member_welcome(
+      'aaaaaaaa-0000-0000-0000-000000000002', 'Something', null);
+    perform public.admin_set_member_welcome(
+      'aaaaaaaa-0000-0000-0000-000000000002', '', null);
+
+    perform set_config('role', 'postgres', true);
+    select welcome into v_en
+      from public.members where id = 'aaaaaaaa-0000-0000-0000-000000000002';
+
+    if v_en is null then
+      raise notice 'PASS  an empty string clears it, and the band disappears';
+    else
+      raise notice 'FAIL  clearing left welcome = %', v_en;
+    end if;
+  end $$;
+rollback;
+
+-- THE ONE THAT MATTERS. This writes the most prominent paragraph on the site,
+-- signed with somebody's name and photograph. An ordinary member reaching it
+-- would be able to put words on the front page under the president's name.
+begin;
+  select test_as('22222222-2222-2222-2222-222222222222');
+  do $$ begin
+    perform public.link_member_to_current_user();
+    perform public.admin_set_member_welcome(
+      'aaaaaaaa-0000-0000-0000-000000000002', 'I speak for this community.', null);
+    raise notice 'FAIL  an ordinary member wrote the president''s welcome message';
+  exception when others then
+    raise notice 'PASS  an ordinary member cannot write anybody''s welcome';
+  end $$;
+rollback;
+
+-- Not even their own card, which is the tempting exception. A member's own row
+-- is still the front page of the site if they hold an office.
+begin;
+  select test_as('22222222-2222-2222-2222-222222222222');
+  do $$
+  declare v_me uuid;
+  begin
+    perform public.link_member_to_current_user();
+    select id into v_me from public.members where user_id = auth.uid();
+    perform public.admin_set_member_welcome(v_me, 'Listen to me.', null);
+    raise notice 'FAIL  a member wrote a welcome onto their own card';
+  exception when others then
+    raise notice 'PASS  nor onto their own card';
+  end $$;
+rollback;
+
+-- Nobody signed in at all.
+begin;
+  do $$ begin
+    perform set_config('role', 'anon', true);
+    perform public.admin_set_member_welcome(
+      'aaaaaaaa-0000-0000-0000-000000000002', 'Anyone can write here.', null);
+    raise notice 'FAIL  anon wrote a welcome message';
+  exception when others then
+    raise notice 'PASS  and a visitor with no account certainly cannot';
+  end $$;
+rollback;
+
+\echo ''
 \echo '=== the member-photos bucket ==='
 
 -- The admin can now write into any member's folder.

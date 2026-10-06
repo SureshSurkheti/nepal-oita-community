@@ -112,10 +112,25 @@ export function Nav() {
 
         <nav className="nav__links" aria-label={t.nav.primaryNav}>
           <Link className="nav__link" href="/#about">{t.nav.about}</Link>
+          {/* ONE OF THESE TWO AT A TIME, swapped by CSS on .nav--member, and the
+              budget below is why. The desktop row has 1084px to spend at every
+              width (see the long note in theme.css) and it was already spending
+              1037 of it. Adding a ninth link cost 102px and put Sign in 22px off
+              the right edge of a 1100px laptop — measured, and exactly what the
+              stylesheet's "measure again if a link is added" warns about.
+              
+              So neither row gets both. "New here?" is for somebody who has not
+              signed in and may not have landed in Japan yet. Decisions is a
+              members-only page that answers a signed-out visitor with a wall —
+              it has no business in a public nav and is a saving rather than a
+              sacrifice. Both stay in the drawer, in the footer, and in the HTML
+              at every width, so nothing is hidden from a crawler or a screen
+              reader; this is which of the two the desktop row draws. */}
+          <Link className="nav__link nav__link--new" href="/arriving">{t.nav.arriving}</Link>
           <Link className="nav__link" href="/programmes">{t.nav.programmes}</Link>
           <Link className="nav__link" href="/events">{t.nav.events}</Link>
           <Link className="nav__link" href="/gallery">{t.nav.gallery}</Link>
-          <Link className="nav__link" href="/decisions">{t.nav.decisions}</Link>
+          <Link className="nav__link nav__link--minutes" href="/decisions">{t.nav.decisions}</Link>
           <Link className="nav__link" href="/members">{t.nav.members}</Link>
           <Link className="nav__link" href="/#contact">{t.nav.contact}</Link>
           {member?.isAdmin && <Link className="nav__link" href="/admin">{t.nav.committee}</Link>}

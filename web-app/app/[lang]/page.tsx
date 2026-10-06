@@ -192,7 +192,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
      All five fetchers below go through createPublicClient() and unstable_cache,
      so this page is prerendered and served from the edge. */
   const [members, events, programmes, stories, photos] = await Promise.all([
-    getPublicMembers(), getEvents(lang), getProgrammes(lang), getStories(), getPhotos(),
+    getPublicMembers(), getEvents(lang), getProgrammes(lang), getStories(lang), getPhotos(lang),
   ])
 
   const past = events.filter((e) => e.past)

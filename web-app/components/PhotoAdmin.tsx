@@ -149,6 +149,22 @@ export function PhotoAdmin({ photos }: { photos: Row[] }) {
             <input id="p-alt" name="alt" defaultValue={form.alt ?? ''} />
           </div>
 
+          {/* The same two in Nepali. Optional: anything left empty shows the
+              English on the Nepali gallery, which is what happens today. */}
+          <div className="field">
+            <label htmlFor="p-cap-ne">Caption in Nepali <span className="muted">(optional)</span></label>
+            <input id="p-cap-ne" name="caption_ne" lang="ne"
+                   defaultValue={(form as { caption_ne?: string | null }).caption_ne ?? ''}
+                   placeholder="दशैं" />
+          </div>
+          <div className="field">
+            <label htmlFor="p-alt-ne">
+              What is in the photograph, in Nepali <span className="muted">(optional)</span>
+            </label>
+            <input id="p-alt-ne" name="alt_ne" lang="ne"
+                   defaultValue={(form as { alt_ne?: string | null }).alt_ne ?? ''} />
+          </div>
+
           <AdminAdvanced label="Credit and licence">
           <p className="adminsec__hint">
             Only needed when somebody outside the community took the photograph.

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Icon } from './Sprite'
@@ -36,6 +36,50 @@ export function MeetingEditor({ draft, allowDelete = true }: {
   const [mode, setMode] = useState<'idle' | 'edit' | 'confirm'>('idle')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [raw, setRaw] = useState<MeetingDraft | null>(null)
+
+  /* THE FORM IS LOADED FROM THE DATABASE, NOT FROM THE CARD IT SITS UNDER, and
+   * that is a correctness fix rather than a nicety.
+   *
+   * `draft` comes from getMeetings(), which RESOLVES each field to the language
+   * of the page — the Nepali title on /ne when there is one. Handing that back
+   * to the form would make Save write the Nepali into the English column, so
+   * editing a typo on the Nepali page would quietly destroy the English
+   * version of the same meeting. There is nothing on screen that would show it.
+   *
+   * So pressing Edit fetches the row as it is actually stored, both languages
+   * side by side. The card keeps showing the translated text, which is right:
+   * it is what the page is for. */
+  useEffect(() => {
+    if (mode !== 'edit' || raw) return
+    let live = true
+    const supabase = createClient()
+
+    Promise.all([
+      supabase.from('meetings').select('*').eq('id', draft.id).single(),
+      supabase.from('meeting_points').select('*').eq('meeting_id', draft.id).order('position'),
+    ]).then(([m, pts]) => {
+      if (!live) return
+      if (m.error || !m.data) {
+        setError(`Could not open that for editing. ${m.error?.message ?? ''}`)
+        setMode('idle')
+        return
+      }
+      const row = m.data as Record<string, unknown>
+      setRaw({
+        id: draft.id,
+        held_on: row.held_on as string,
+        title: row.title as string,
+        title_ne: (row.title_ne as string | null) ?? null,
+        place: (row.place as string | null) ?? null,
+        summary: (row.summary as string | null) ?? null,
+        summary_ne: (row.summary_ne as string | null) ?? null,
+        points: ((pts.data ?? []) as { text: string; text_ne: string | null }[])
+          .map((x) => ({ text: x.text, text_ne: x.text_ne ?? null })),
+      })
+    })
+    return () => { live = false }
+  }, [mode, raw, draft.id])
 
   async function remove() {
     setBusy(true)
@@ -49,9 +93,12 @@ export function MeetingEditor({ draft, allowDelete = true }: {
   }
 
   if (mode === 'edit') {
+    /* Nothing rendered until the stored row is in hand. A form pre-filled with
+       the translated text for even one frame is a form somebody can submit. */
+    if (!raw) return <p className="muted">Opening…</p>
     return (
-      <MeetingForm memberId={null} canContribute draft={draft}
-                   onDone={() => setMode('idle')} />
+      <MeetingForm memberId={null} canContribute draft={raw}
+                   onDone={() => { setRaw(null); setMode('idle') }} />
     )
   }
 

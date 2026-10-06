@@ -39,7 +39,7 @@ export default async function DecisionsPage({ params }: { params: Promise<{ lang
   // The member first: getMeetings() needs to know whether to send a query at
   // all, because a visitor has no read grant on these tables. See lib/content.
   const member = await getCurrentMember()
-  const meetings = await getMeetings(member !== null)
+  const meetings = await getMeetings(member !== null, lang)
 
   /* Nothing waits any more — 0015 made a contributor's write-up live on arrival.
      A row that is not 'approved' is therefore one the committee has taken down,

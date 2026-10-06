@@ -31,7 +31,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ lang: 
   const lang = toLocale((await params).lang)
   const t = getDictionary(lang)
 
-  const [photos, member] = await Promise.all([getPhotos(), getCurrentMember()])
+  const [photos, member] = await Promise.all([getPhotos(lang), getCurrentMember()])
   const canAdd = member !== null && (member.can_contribute || member.is_admin)
   const drafts = canAdd ? await getMyDraftPhotos() : []
 

@@ -11,9 +11,11 @@ export type MeetingDraft = {
   id: string
   held_on: string
   title: string
+  title_ne?: string | null
+  summary_ne?: string | null
   place: string | null
   summary: string | null
-  points: { text: string }[]
+  points: { text: string; text_ne?: string | null }[]
 }
 
 /* Writing up a meeting, and correcting one: the date, a title, and the decisions
@@ -56,6 +58,11 @@ export function MeetingForm({ memberId, canContribute, draft, onDone }: {
   const [title, setTitle] = useState(draft?.title ?? '')
   const [place, setPlace] = useState(draft?.place ?? '')
   const [summary, setSummary] = useState(draft?.summary ?? '')
+  const [titleNe, setTitleNe] = useState(draft?.title_ne ?? '')
+  const [summaryNe, setSummaryNe] = useState(draft?.summary_ne ?? '')
+  const [pointsNe, setPointsNe] = useState(
+    draft ? draft.points.map((p) => p.text_ne ?? '').join('\n') : '',
+  )
   const [points, setPoints] = useState(
     draft ? draft.points.map((p) => p.text).join('\n') : '',
   )
@@ -103,8 +110,17 @@ export function MeetingForm({ memberId, canContribute, draft, onDone }: {
     event.preventDefault()
     setError(null)
 
-    const lines = points.split('\n').map((l) => l.replace(/^[-•*\s]+/, '').trim())
-                        .filter(Boolean)
+    /* ZIPPED FIRST, FILTERED SECOND. The two textareas are paired by line, and
+       the pairing has to be worked out BEFORE the blank English lines go — leave
+       line two untranslated and filtering the lists independently attaches every
+       later Nepali line to the wrong decision, silently. */
+    const strip = (l: string) => l.replace(/^[-•*\s]+/, '').trim()
+    const enLines = points.split('\n').map(strip)
+    const neLines = pointsNe.split('\n').map(strip)
+    const pairs = enLines
+      .map((text, i) => ({ text, text_ne: neLines[i] || null }))
+      .filter((r) => r.text)
+    const lines = pairs.map((r) => r.text)
     if (!title.trim()) { setError('Give it a title — "August monthly meeting" is fine.'); return }
     if (lines.length === 0) { setError('At least one decision, one per line.'); return }
 
@@ -115,6 +131,12 @@ export function MeetingForm({ memberId, canContribute, draft, onDone }: {
       title: title.trim(),
       place: place.trim() || null,
       summary: summary.trim() || null,
+      /* Nullable and optional. Written in the same statement as the English,
+         unlike the events form — the columns arrive in 0025 and this form is
+         behind a sign-in, so a committee member on a database a migration
+         behind gets a clear error rather than a silently half-saved meeting. */
+      title_ne: titleNe.trim() || null,
+      summary_ne: summaryNe.trim() || null,
     }
 
     let meetingId = draft?.id
@@ -146,7 +168,7 @@ export function MeetingForm({ memberId, canContribute, draft, onDone }: {
     }
 
     const { error: pointError } = await supabase.from('meeting_points').insert(
-      lines.map((text, i) => ({ meeting_id: meetingId, text, position: i })),
+      pairs.map((r, i) => ({ meeting_id: meetingId, text: r.text, text_ne: r.text_ne, position: i })),
     )
     setBusy(false)
 
@@ -225,6 +247,37 @@ export function MeetingForm({ memberId, canContribute, draft, onDone }: {
                   placeholder={'Annual fee stays at ¥3,000\nDashain booked for 18 October\nTwo more volunteers needed for the kitchen'}
                   value={points} onChange={(e) => setPoints(e.target.value)} />
       </div>
+      {/* The same write-up in Nepali. Every field optional: anything left empty
+          shows the English on the Nepali pages, which is what happens today.
+          Half this community reads Nepali more comfortably than English, and
+          the minutes are the part of the site where the community talks to
+          itself about its own money and arrangements. */}
+      <details className="adminadv">
+        <summary className="adminadv__summary">
+          <Icon name="chevron-down" /> The same thing in Nepali
+          <span className="muted">(optional)</span>
+        </summary>
+        <div className="adminadv__body">
+        <div className="field">
+          <label htmlFor={`m-title-ne-${draft?.id ?? 'new'}`}>Title</label>
+          <input id={`m-title-ne-${draft?.id ?? 'new'}`} type="text" maxLength={120} lang="ne"
+                 placeholder="अगस्ट मासिक बैठक"
+                 value={titleNe} onChange={(e) => setTitleNe(e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor={`m-summary-ne-${draft?.id ?? 'new'}`}>A line about it</label>
+          <input id={`m-summary-ne-${draft?.id ?? 'new'}`} type="text" maxLength={200} lang="ne"
+                 value={summaryNe} onChange={(e) => setSummaryNe(e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor={`m-points-ne-${draft?.id ?? 'new'}`}>
+            What was decided — one per line, <strong>in the same order as the English</strong>
+          </label>
+          <textarea id={`m-points-ne-${draft?.id ?? 'new'}`} rows={6} lang="ne"
+                    value={pointsNe} onChange={(e) => setPointsNe(e.target.value)} />
+        </div>
+        </div>
+      </details>
       {error && <p className="form-note form-note--error">{error}</p>}
     </>
   )

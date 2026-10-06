@@ -34,7 +34,7 @@ export default async function StoriesPage({ params }: { params: Promise<{ lang: 
   const lang = toLocale((await params).lang)
   const t = getDictionary(lang)
 
-  const [stories, member] = await Promise.all([getStories(), getCurrentMember()])
+  const [stories, member] = await Promise.all([getStories(lang), getCurrentMember()])
 
   /* Their own submissions, whatever state those are in. stories_read_own exists
      precisely so this query returns a pending row: without it a member submits
@@ -45,7 +45,7 @@ export default async function StoriesPage({ params }: { params: Promise<{ lang: 
   if (member) {
     const supabase = await createClient()
     const { data } = await supabase.from('stories')
-      .select('id, quote, author_role, status')
+      .select('id, quote, author_role, quote_ne, author_role_ne, status')
       .eq('member_id', member.id)
       .order('created_at', { ascending: false })
     own = (data ?? []) as OwnStory[]

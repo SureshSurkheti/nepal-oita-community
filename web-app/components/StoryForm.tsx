@@ -12,6 +12,10 @@ export type OwnStory = {
   id: string
   quote: string
   author_role: string | null
+  /* Added in 0025. Optional on the type so the page keeps compiling against a
+     database that has not had it run. */
+  quote_ne?: string | null
+  author_role_ne?: string | null
   status: 'pending' | 'approved' | 'rejected'
 }
 
@@ -50,6 +54,7 @@ export function StoryForm({ member, own }: {
   const router = useRouter()
   const [role, setRole] = useState(member?.role ?? '')
   const [quote, setQuote] = useState('')
+  const [quoteNe, setQuoteNe] = useState('')
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,6 +64,7 @@ export function StoryForm({ member, own }: {
      is already here and splitting it would mean passing the whole thing down. */
   const [editId, setEditId] = useState<string | null>(null)
   const [editQuote, setEditQuote] = useState('')
+  const [editQuoteNe, setEditQuoteNe] = useState('')
   const [editRole, setEditRole] = useState('')
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [rowError, setRowError] = useState<string | null>(null)
@@ -66,6 +72,7 @@ export function StoryForm({ member, own }: {
   const openEdit = (st: OwnStory) => {
     setEditId(st.id)
     setEditQuote(st.quote)
+    setEditQuoteNe(st.quote_ne ?? '')
     setEditRole(st.author_role ?? '')
     setConfirmId(null)
     setRowError(null)
@@ -76,7 +83,11 @@ export function StoryForm({ member, own }: {
     if (text.length < 40) { setRowError(t.forms.tooShort); return }
     setBusy(true); setRowError(null)
     const { error: e } = await createClient().from('stories')
-      .update({ quote: text, author_role: editRole.trim() || null })
+      .update({
+        quote: text,
+        author_role: editRole.trim() || null,
+        quote_ne: editQuoteNe.trim() || null,
+      })
       .eq('id', id)
     setBusy(false)
     if (e) { setRowError(`Could not save that. ${e.message}`); return }
@@ -128,6 +139,7 @@ export function StoryForm({ member, own }: {
       author_name: member!.name,
       author_role: role.trim() || null,
       quote: text,
+      quote_ne: quoteNe.trim() || null,
       // Reuse the portrait already on their card rather than asking for another.
       photo_path: member!.photo_path,
     })
@@ -136,6 +148,7 @@ export function StoryForm({ member, own }: {
     if (insertError) { setError(`Could not send that. ${insertError.message}`); return }
     setSent(true)
     setQuote('')
+    setQuoteNe('')
   }
 
   return (
@@ -171,6 +184,14 @@ export function StoryForm({ member, own }: {
                       <label htmlFor={`e-quote-${st.id}`}>{t.forms.yourStory}</label>
                       <textarea id={`e-quote-${st.id}`} rows={5} maxLength={1200}
                                 value={editQuote} onChange={(e) => setEditQuote(e.target.value)} />
+                    </span>
+                    <span className="field">
+                      <label htmlFor={`e-quote-ne-${st.id}`}>
+                        {t.forms.yourStory} <span className="muted">(नेपालीमा — optional)</span>
+                      </label>
+                      <textarea id={`e-quote-ne-${st.id}`} rows={5} maxLength={1200} lang="ne"
+                                value={editQuoteNe}
+                                onChange={(e) => setEditQuoteNe(e.target.value)} />
                     </span>
                     <span className="cluster">
                       <button className="btn btn--sm btn--primary" type="button"
@@ -252,6 +273,17 @@ export function StoryForm({ member, own }: {
             <textarea id="story-quote" required maxLength={1200} rows={6}
                       placeholder={t.forms.storyPlaceholder}
                       value={quote} onChange={(e) => setQuote(e.target.value)} />
+          </div>
+          {/* The same words in Nepali, if the writer would rather. Optional —
+              left empty, the Nepali page shows the English, which is what it
+              does today. Nobody is asked to write their own story twice; the box
+              is there for the people who would rather it were read in Nepali. */}
+          <div className="field">
+            <label htmlFor="s-quote-ne">
+              {t.forms.yourStory} <span className="muted">(नेपालीमा — {t.common.optional})</span>
+            </label>
+            <textarea id="s-quote-ne" rows={5} maxLength={1200} lang="ne"
+                      value={quoteNe} onChange={(e) => setQuoteNe(e.target.value)} />
           </div>
           <button className="btn btn--primary" type="submit" disabled={busy}>
             {busy ? <Spinner /> : <Icon name="send" />}{busy ? t.common.sending : t.forms.sendToCommittee}

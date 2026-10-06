@@ -19,6 +19,12 @@ export async function savePhoto(formData: FormData): Promise<Result> {
     storage_path: String(formData.get('storage_path') ?? '').trim(),
     caption: String(formData.get('caption') ?? '').trim() || null,
     alt: String(formData.get('alt') ?? '').trim() || null,
+    /* The Nepali pair, added in 0025. alt_ne is the one that matters most and
+       the one nobody checks: a screen reader announces alt text in the voice of
+       the page's language, so an English description on a Nepali page is read
+       aloud in a Nepali voice attempting English words. */
+    caption_ne: String(formData.get('caption_ne') ?? '').trim() || null,
+    alt_ne: String(formData.get('alt_ne') ?? '').trim() || null,
     category: String(formData.get('category') ?? '').trim() || null,
     credit: String(formData.get('credit') ?? '').trim() || null,
     credit_url: String(formData.get('credit_url') ?? '').trim() || null,

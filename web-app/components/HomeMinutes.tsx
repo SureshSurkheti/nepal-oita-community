@@ -31,7 +31,7 @@ import type { Meeting, MeetingPoint } from '@/lib/types'
  * appear and then vanish, and a member waiting half a second for a section far
  * below the fold has not lost anything. */
 export function HomeMinutes() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [meetings, setMeetings] = useState<Meeting[] | null>(null)
   const [canEdit, setCanEdit] = useState(false)
 
@@ -53,15 +53,25 @@ export function HomeMinutes() {
 
       if (meetingRes.error || !meetingRes.data) { setMeetings([]); return }
 
+      /* The same fallback getMeetings() applies on the server: the Nepali when
+         there is one, the English otherwise, so a decision minuted this morning
+         is readable on the Nepali page rather than being an empty bullet. */
+      const ne = locale === 'ne'
       const byMeeting = new Map<string, MeetingPoint[]>()
-      for (const p of (pointRes.data ?? []) as (MeetingPoint & { meeting_id: string })[]) {
+      type RawPoint = MeetingPoint & { meeting_id: string; text_ne: string | null }
+      for (const p of (pointRes.data ?? []) as RawPoint[]) {
         const list = byMeeting.get(p.meeting_id) ?? []
-        list.push(p)
+        list.push({ id: p.id, position: p.position, text: (ne && p.text_ne) || p.text })
         byMeeting.set(p.meeting_id, list)
       }
 
-      const rows = (meetingRes.data as Omit<Meeting, 'points'>[])
-        .map((m) => ({ ...m, points: byMeeting.get(m.id) ?? [] }))
+      type RawMeeting = Omit<Meeting, 'points'> & { title_ne: string | null; summary_ne: string | null }
+      const rows = (meetingRes.data as RawMeeting[]).map((m) => ({
+        ...m,
+        title: (ne && m.title_ne) || m.title,
+        summary: (ne && m.summary_ne) || m.summary,
+        points: byMeeting.get(m.id) ?? [],
+      }))
 
       setMeetings(rows)
       const me = memberRes.data as { can_contribute?: boolean; is_admin?: boolean } | null
@@ -73,7 +83,8 @@ export function HomeMinutes() {
        than leaving a members-only section on a signed-out page until reload. */
     const { data: sub } = supabase.auth.onAuthStateChange(() => { read() })
     return () => { live = false; sub.subscription.unsubscribe() }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale])
 
   if (meetings === null) return null
 

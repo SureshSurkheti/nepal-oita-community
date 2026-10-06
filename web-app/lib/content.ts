@@ -90,7 +90,7 @@ export function tilePhotos(photos: Photo[]) {
  *  done: swallowing a permission error is how a real misconfiguration renders as
  *  "no content", which is a bug this project has already had once. So the caller
  *  says whether there is a member, and if there is not, no query is sent. */
-export async function getMeetings(viewerIsMember: boolean): Promise<Meeting[]> {
+export async function getMeetings(viewerIsMember: boolean, lang: Locale = 'en'): Promise<Meeting[]> {
   if (!viewerIsMember) return []
 
   const supabase = await createClient()
@@ -102,17 +102,30 @@ export async function getMeetings(viewerIsMember: boolean): Promise<Meeting[]> {
 
   // Optional: this is the newest feature, so a project that has not applied
   // 0012 yet should simply not show the section.
-  const meetings = unwrap<MeetingRow[]>('meetings', meetingRes, true)
-  const points = unwrap<(MeetingPoint & { meeting_id: string })[]>('meeting points', pointRes, true)
+  type RawMeeting = MeetingRow & { title_ne: string | null; summary_ne: string | null }
+  type RawPoint = MeetingPoint & { meeting_id: string; text_ne: string | null }
 
+  const meetings = unwrap<RawMeeting[]>('meetings', meetingRes, true)
+  const points = unwrap<RawPoint[]>('meeting points', pointRes, true)
+  const ne = lang === 'ne'
+
+  /* A null translation falls back to English, so a decision minuted in English
+     this morning is readable on the Nepali page rather than being an empty
+     bullet. `place` is deliberately not translated — a venue is a proper noun,
+     and a second spelling of somewhere people have to find is worse than none. */
   const byMeeting = new Map<string, MeetingPoint[]>()
   for (const p of points) {
     const list = byMeeting.get(p.meeting_id) ?? []
-    list.push(p)
+    list.push({ id: p.id, position: p.position, text: (ne && p.text_ne) || p.text })
     byMeeting.set(p.meeting_id, list)
   }
 
-  return meetings.map((m) => ({ ...m, points: byMeeting.get(m.id) ?? [] }))
+  return meetings.map((m) => ({
+    ...m,
+    title: (ne && m.title_ne) || m.title,
+    summary: (ne && m.summary_ne) || m.summary,
+    points: byMeeting.get(m.id) ?? [],
+  }))
 }
 
 /** Public URL for a file in one of the site's storage buckets. */
@@ -314,25 +327,60 @@ export async function getProgrammes(lang: Locale = 'en'): Promise<Programme[]> {
   }))
 }
 
-export const getStories = unstable_cache(
-  async (): Promise<StoryRow[]> => {
+type StoryRowRaw = StoryRow & { quote_ne: string | null; author_role_ne: string | null }
+type PhotoRaw = Photo & { caption_ne: string | null; alt_ne: string | null }
+
+const cachedStoryRows = unstable_cache(
+  async (): Promise<StoryRowRaw[]> => {
     const supabase = createPublicClient()
-    return unwrap<StoryRow[]>('stories', await supabase
+    return unwrap<StoryRowRaw[]>('stories', await supabase
       .from('stories').select('*').eq('status', 'approved').order('sort_order'))
   },
   ['public-stories'],
   { tags: ['stories'], revalidate: PUBLIC_TTL },
 )
 
-export const getPhotos = unstable_cache(
-  async (): Promise<Photo[]> => {
+/* The language is chosen out here, not in the cache — one entry serves both, the
+   same way getEvents does it. A null translation falls back to English, so a
+   story added this afternoon reads in English on the Nepali page rather than
+   leaving a quotation mark with nothing inside it.
+   
+   author_name is NEVER translated. It is a person's name. */
+export async function getStories(lang: Locale = 'en'): Promise<StoryRow[]> {
+  const rows = await cachedStoryRows()
+  const ne = lang === 'ne'
+  return rows.map((r) => ({
+    id: r.id,
+    author_name: r.author_name,
+    author_role: (ne && r.author_role_ne) || r.author_role,
+    quote: (ne && r.quote_ne) || r.quote,
+    photo_path: r.photo_path,
+  }))
+}
+
+const cachedPhotoRows = unstable_cache(
+  async (): Promise<PhotoRaw[]> => {
     const supabase = createPublicClient()
-    return unwrap<Photo[]>('photos', await supabase
+    return unwrap<PhotoRaw[]>('photos', await supabase
       .from('photos').select('*').eq('is_published', true).order('sort_order'))
   },
   ['public-photos'],
   { tags: ['photos'], revalidate: PUBLIC_TTL },
 )
+
+/* `alt` matters more here than the caption does, and it is the one nobody
+   checks: a screen reader announces it in the voice of the page's language, so
+   an English description on a Nepali page is read aloud in a Nepali voice
+   attempting English words. */
+export async function getPhotos(lang: Locale = 'en'): Promise<Photo[]> {
+  const rows = await cachedPhotoRows()
+  const ne = lang === 'ne'
+  return rows.map((r) => ({
+    ...r,
+    caption: (ne && r.caption_ne) || r.caption,
+    alt: (ne && r.alt_ne) || r.alt,
+  }))
+}
 
 
 

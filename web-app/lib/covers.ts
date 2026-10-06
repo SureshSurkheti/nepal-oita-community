@@ -22,36 +22,77 @@
  * still wins; this only fills the gap.
  */
 
-/* The hero rotation. First one first: it is the only one in the server's HTML.
+/* The hero rotation. First one first: it is the only one in the server's HTML,
+ * the only one with `priority`, and therefore the one Largest Contentful Paint
+ * is measured against. Changing the first line changes the page's speed score.
  *
- * WHAT IS NOT IN HERE, AND WHY
- * Four files in public/images are left out of the hero, each for a reason worth
- * writing down so nobody adds them back:
+ * THE COMMUNITY'S OWN PHOTOGRAPHS, which is what this list always wanted to be.
+ * It used to be seven: two stock-ish views of Oita and five Creative Commons
+ * photographs of Nepal — Everest, Boudhanath, Ama Dablam, sakura, Umijigoku.
+ * They were handsome and they were nobody's. A visitor could not tell from them
+ * whether this community has ten people in it or a thousand, which is the one
+ * thing the top of the page should answer.
+ *
+ * Two of the three are now photographs the committee took, of its own people:
+ *
+ *   community-oita.webp   the indoor gathering, the whole room
+ *   best.webp             the mountains over the lake, kept deliberately — it
+ *                         is the "two homes" idea the whole site is built on,
+ *                         and the one slide the headline was composed against
+ *   community-park.webp   the group on the bench, in a park in Oita
+ *
+ * The five Creative Commons files leave the ROTATION only. Every one of them is
+ * still on the page — the "Two homes" section shows all six by name, and the
+ * join band uses Umijigoku — so PHOTO-CREDITS.md stays exactly as load-bearing
+ * as it was, and none of the files may be deleted. Coverless events still borrow
+ * them too; see FALLBACK_COVERS below, which is why that list is written out in
+ * full rather than spread from this one.
+ *
+ * THE HEADLINE SITS ON SLIDE ONE, so a photograph here is not just a photograph.
+ * Measured off the rendered pixels, by hiding the type and sampling the band it
+ * occupies — not estimated from the file. Text is rgb(27,23,20):
+ *
+ *                 mean background      ratio    darkest pixel in the band
+ *   title         rgb(217,213,204)    12.15:1          3.63:1
+ *   lede          rgb(241,234,223)    14.89:1          7.63:1
+ *
+ * The floors are 3.0 for display type and 4.5 for body, so both pass even
+ * against the worst pixel either one lands on, which is the honest test — a mean
+ * hides a dark patch the type happens to sit over. It passes because the band
+ * the type occupies is the room's ceiling and upper wall, which are nearly
+ * white; the people are below it. That is a fact about THIS photograph, so
+ * measure again before putting a different one first.
+ *
+ * SLIDE THREE IS THE WEAK ONE, and it is worth saying so rather than letting
+ * somebody rediscover it. community-park.webp is 1079x1080 — the largest copy
+ * that exists in the gallery. A full-bleed hero on a 1440px retina desktop asks
+ * for about 2880px, so Next upscales it and the faces go soft; it is the only
+ * photograph on this site being enlarged rather than reduced. Its composition
+ * is also the opposite of slide one's: the people fill the frame from top to
+ * bottom, so there is no band of quiet background for the headline to sit on at
+ * ANY object-position, and the title crosses their faces.
+ *
+ * It is here because the committee asked for it. Two things would fix it, and
+ * both need a person rather than a build: the original full-size file off
+ * whoever's phone took it, or a wider frame with sky or grass above the group.
+ * Until then it is third, which is the slot that does the least harm — nobody
+ * sees it until the rotation has run twice.
+ *
+ * WHAT IS STILL LEFT OUT, each for a reason worth keeping written down:
  *
  *   oita_city.png       Carries a DREAMSTIME WATERMARK across the middle. It is
  *                       unlicensed stock and cannot go on the site at all.
  *   logo-mark-1.png     The flags emblem: a logo rather than a photograph.
  *                       Cropped square-to-widescreen it loses both flags, and
  *                       dark hero type on white is unreadable.
- *   og-cover.jpg        The same Everest/Nuptse view as place-everest.jpg, so it
- *                       would show the same mountain twice in one rotation — and
+ *   og-cover.jpg        The same Everest/Nuptse view as place-everest.jpg, and
  *                       at 1200px wide it softens on a desktop.
  *   place-usajingu.jpg  Measured 1.96 contrast for the hero title against the
- *                       dark tree canopy directly behind it. The floor for type
- *                       that size is 3.0.
- *
- * Five of the seven (everest, umijigoku, sakura, amadablam, boudhanath) are the
- * Creative Commons files in PHOTO-CREDITS.md, and attribution is a condition of
- * those licences. Photographs the community took itself would be better here on
- * both counts. Swapping any line is all it takes. */
+ *                       dark tree canopy directly behind it. */
 export const HERO_PHOTOS = [
+  '/images/community-oita.webp',
   '/images/best.webp',
-  '/images/city-view.webp',
-  '/images/place-umijigoku.jpg',
-  '/images/place-everest.jpg',
-  '/images/place-sakura.jpg',
-  '/images/place-amadablam.jpg',
-  '/images/place-boudhanath.jpg',
+  '/images/community-park.webp',
 ]
 
 /* What a coverless event borrows.
@@ -66,7 +107,13 @@ export const HERO_PHOTOS = [
  * the Kabaddi poster on the football tournament — a picture that is wrong rather
  * than merely generic, which is worse than the drawn pattern ever was. */
 const FALLBACK_COVERS = [
-  ...HERO_PHOTOS,
+  '/images/best.webp',
+  '/images/city-view.webp',
+  '/images/place-umijigoku.jpg',
+  '/images/place-everest.jpg',
+  '/images/place-sakura.jpg',
+  '/images/place-amadablam.jpg',
+  '/images/place-boudhanath.jpg',
   '/images/place-usajingu.jpg',
 ]
 

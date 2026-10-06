@@ -27,67 +27,83 @@
  * is measured against. Changing the first line changes the page's speed score.
  *
  * THE COMMUNITY'S OWN PHOTOGRAPHS, which is what this list always wanted to be.
- * It used to be seven: two stock-ish views of Oita and five Creative Commons
- * photographs of Nepal — Everest, Boudhanath, Ama Dablam, sakura, Umijigoku.
- * They were handsome and they were nobody's. A visitor could not tell from them
- * whether this community has ten people in it or a thousand, which is the one
- * thing the top of the page should answer.
- *
- * Two of the three are now photographs the committee took, of its own people:
+ * It used to be seven: two views of Oita and five Creative Commons photographs
+ * of Nepal — Everest, Boudhanath, Ama Dablam, sakura, Umijigoku. They were
+ * handsome and they were nobody's. A visitor could not tell from them whether
+ * this community has ten people in it or a thousand, which is the one thing the
+ * top of the page should answer.
  *
  *   community-oita.webp   the indoor gathering, the whole room
  *   best.webp             the mountains over the lake, kept deliberately — it
- *                         is the "two homes" idea the whole site is built on,
- *                         and the one slide the headline was composed against
- *   community-park.webp   the group on the bench, in a park in Oita
+ *                         is the "two homes" idea the site is built on, and the
+ *                         one slide the headline was composed against
+ *   community-dress.webp  members in Nepali dress at a festival in Oita
  *
- * The five Creative Commons files leave the ROTATION only. Every one of them is
- * still on the page — the "Two homes" section shows all six by name, and the
- * join band uses Umijigoku — so PHOTO-CREDITS.md stays exactly as load-bearing
- * as it was, and none of the files may be deleted. Coverless events still borrow
- * them too; see FALLBACK_COVERS below, which is why that list is written out in
- * full rather than spread from this one.
+ * The five Creative Commons files leave the ROTATION only. All of them are
+ * still on the page in "Two homes", so PHOTO-CREDITS.md stays exactly as
+ * load-bearing and none of the files may be deleted. Coverless events still
+ * borrow them; see FALLBACK_COVERS below, which is why that list is written out
+ * in full rather than spread from this one.
  *
- * THE HEADLINE SITS ON SLIDE ONE, so a photograph here is not just a photograph.
- * Measured off the rendered pixels, by hiding the type and sampling the band it
- * occupies — not estimated from the file. Text is rgb(27,23,20):
+ * community-oita.webp IS CROPPED, and only that one. The gallery original is
+ * 2048x1536 of which the top third is ceiling, air-conditioning ducting and a
+ * spotlight — dead, industrial, and it was most of what a laptop showed. It is
+ * cut to 1920x1157 (top 19%, bottom 4% removed), which leaves the people far
+ * larger, keeps a quiet strip of wall for the headline, and happens to land at
+ * aspect 1.66 against a desktop hero box of about 1.63 — so almost nothing is
+ * cropped a second time by object-fit. It also came out 90KB lighter.
  *
- *                 mean background      ratio    darkest pixel in the band
- *   title         rgb(217,213,204)    12.15:1          3.63:1
- *   lede          rgb(241,234,223)    14.89:1          7.63:1
+ * A HERO PHOTOGRAPH HAS TO CARRY THE HEADLINE, which rules most photographs
+ * out. Every published gallery photograph was measured by covering it into a
+ * 1440x880 box and sampling the band the title occupies, against the
+ * rgb(27,23,20) it is drawn in, BEFORE the page's own scrim:
  *
- * The floors are 3.0 for display type and 4.5 for body, so both pass even
- * against the worst pixel either one lands on, which is the honest test — a mean
- * hides a dark patch the type happens to sit over. It passes because the band
- * the type occupies is the room's ceiling and upper wall, which are nearly
- * white; the people are below it. That is a fact about THIS photograph, so
- * measure again before putting a different one first.
+ *     the room (chosen)        7.04:1      festival banner       4.96:1
+ *     Fukuoka arch             6.45:1      Lakhe dancer          3.23:1
+ *     family portrait          6.32:1      football team         2.95:1
+ *     traditional dress        5.26:1      park bench            5.32:1
  *
- * THE PARK PHOTOGRAPH WAS HERE AND WAS TAKEN OUT, which is worth recording so
- * it is not tried again by accident. community-park.webp is 1079x1080 — the
- * largest copy that exists — so a retina desktop hero upscaled it and the faces
- * went soft; it was the only image on the site being enlarged rather than
- * reduced. Its composition made it worse: the group fills the frame top to
- * bottom, so there was no quiet band for the headline at ANY object-position
- * and the title crossed their faces. The file is still in public/images and is
- * still in the gallery, where it is shown at a size it actually has the pixels
- * for. A full-resolution original, or a wider frame with sky above the group,
- * is what it would take to put it back.
+ * Rejected, and why, so the list is not re-litigated:
+ *   football team      2.95 raw. Dusk sky and dark concrete exactly where the
+ *                      title goes. No scrim rescues a 2.95.
+ *   Lakhe dancer       3.23 raw, and a single masked figure is a portrait
+ *                      rather than a picture of a community.
+ *   Fukuoka arch       Reads well, but "Nepal Festival Fukuoka2025" is printed
+ *                      across the arch at exactly the height of the headline.
+ *                      Two sets of display type fighting.
+ *   festival banner    Same fault: the banner's own title sits under ours.
+ *   family portrait    A child's ceremony. Private in a way a front page is not.
+ *   classroom          Scores best of all (14.65) and shows a whiteboard and
+ *                      the backs of heads. Legible is not the only test.
+ *   park bench         1079x1080 is the largest copy that exists, so a retina
+ *                      hero enlarges it; the group also fills the frame top to
+ *                      bottom, leaving no band for the title at any
+ *                      object-position. It is still in the gallery, at a size
+ *                      it has the pixels for.
  *
- * WHAT IS STILL LEFT OUT, each for a reason worth keeping written down:
+ * MEASURED ON THE RENDERED PAGE, with the scrim, which is the number that
+ * counts. A single worst pixel is a poor statistic — one dark hair fails it —
+ * so what matters is how much of the band falls below the floor:
  *
+ *                        title mean   below 3.0:1   below 4.5:1
+ *     the room            12.15:1        0.00%         0.36%
+ *     traditional dress   11.06:1        0.00%         1.79%
+ *
+ * The floor is 3.0 for display type. Neither has a single percent of the band
+ * under it. Measure the same way before adding a fourth.
+ *
+ * WHAT IS STILL LEFT OUT:
  *   oita_city.png       Carries a DREAMSTIME WATERMARK across the middle. It is
  *                       unlicensed stock and cannot go on the site at all.
- *   logo-mark-1.png     The flags emblem: a logo rather than a photograph.
- *                       Cropped square-to-widescreen it loses both flags, and
- *                       dark hero type on white is unreadable.
- *   og-cover.jpg        The same Everest/Nuptse view as place-everest.jpg, and
- *                       at 1200px wide it softens on a desktop.
- *   place-usajingu.jpg  Measured 1.96 contrast for the hero title against the
- *                       dark tree canopy directly behind it. */
+ *   logo-mark-1.png     A logo rather than a photograph; cropped
+ *                       square-to-widescreen it loses both flags.
+ *   og-cover.jpg        The same Everest view as place-everest.jpg, and at
+ *                       1200px wide it softens on a desktop.
+ *   place-usajingu.jpg  1.96 for the title against the dark tree canopy. */
 export const HERO_PHOTOS = [
   '/images/community-oita.webp',
   '/images/best.webp',
+  '/images/community-dress.webp',
 ]
 
 /* What a coverless event borrows.

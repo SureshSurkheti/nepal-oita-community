@@ -37,6 +37,9 @@ export function EventCard({ event, index = 0, lang }: {
                 to load is replaced rather than leaving a broken-image glyph on
                 the card. See lib/covers. */}
             <CoverImage className="event__img" src={cover} alt=""
+                        /* The rail shows one card per screen on a phone and
+                           three across the 1180px container above 900px. */
+                        sizes="(max-width: 900px) 92vw, 380px"
                         fallback={fallbackCoverFor(event.slug)} />
             {/* Only when there IS a photo. Without one the card keeps its
                 original layout, where the chip sits beside the title — moving it

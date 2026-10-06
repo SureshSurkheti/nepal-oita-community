@@ -127,6 +127,9 @@ export function EventsShowcase({ events, at, setAt }: {
             <span className={`evshow__art ${ART[at % 4]}`} aria-hidden="true" />
             {e.cover && (
               <CoverImage className="evshow__img" src={e.cover} alt={e.title} priority
+                          /* Half of a card that caps near 1100px, full width
+                             once the card stacks on a phone. */
+                          sizes="(max-width: 820px) 100vw, 560px"
                           fallback={fallbackCoverFor(e.slug)} />
             )}
             <div className="evshow__chip">

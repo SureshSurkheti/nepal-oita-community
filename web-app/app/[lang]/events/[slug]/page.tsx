@@ -147,6 +147,8 @@ export default async function EventPage(
           <div className="event-hero reveal">
             <CoverImage src={coverFor(event.slug, event.cover_path)}
                         alt={event.title} priority
+                        /* The banner runs the full container, 1180px. */
+                        sizes="(max-width: 1276px) 100vw, 1180px"
                         fallback={fallbackCoverFor(event.slug)} />
           </div>
 

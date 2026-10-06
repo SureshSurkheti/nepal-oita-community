@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import NextImage from 'next/image'
 
 /* An event's cover, which may be a photograph or a printed poster.
  *
@@ -34,7 +35,7 @@ function isPoster(img: HTMLImageElement): boolean {
   return img.naturalWidth > 0 && img.naturalHeight / img.naturalWidth >= POSTER_RATIO
 }
 
-export function CoverImage({ src, alt, className = '', priority = false, fallback, fit = 'auto' }: {
+export function CoverImage({ src, alt, className = '', priority = false, fallback, fit = 'auto', sizes = '100vw' }: {
   src: string
   alt: string
   className?: string
@@ -42,6 +43,11 @@ export function CoverImage({ src, alt, className = '', priority = false, fallbac
   /** Shown if `src` does not load. See fallbackCoverFor() in lib/covers for why
    *  this is not optional in practice. */
   fallback?: string
+  /** What width this will actually be drawn at, for the browser to pick a copy
+   *  from the srcset. It MUST match the CSS or the whole optimisation is
+   *  pointless — too small and the picture is soft, too large and nothing was
+   *  saved. Each caller knows its own box; the default is the widest case. */
+  sizes?: string
   /** 'auto' asks the image what it is and shows a poster whole; 'cover' always
    *  crops. Use 'cover' only where a contained poster would be unreadable —
    *  the hero ribbon's frame is barely wider than it is tall, so a film bill
@@ -84,17 +90,27 @@ export function CoverImage({ src, alt, className = '', priority = false, fallbac
   return (
     <>
       {portrait && (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img className="cover__wash" src={shown} alt="" aria-hidden="true" />
+        /* The blurred backdrop behind a poster. Asked for at 64px: it is under a
+           26px blur, so anything larger is detail that is thrown away by the
+           filter before anybody sees it. */
+        <NextImage className="cover__wash" src={shown} alt="" aria-hidden="true"
+                   fill sizes="64px" />
       )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      {/* next/image, so the file arrives at the size it is drawn rather than the
+          size it was uploaded. Measured on /events: the event covers were 283KB
+          of unresized photographs across seven cards.
+          
+          `fill` rather than width/height: every frame this sits in is already a
+          fixed shape with object-fit, and the sources are whatever the committee
+          happened to upload. */}
+      <NextImage
         ref={ref}
         className={`${className} cover__img${portrait ? ' cover__img--portrait' : ''}`}
         src={shown}
         alt={alt}
-        decoding="async"
-        {...(priority ? { fetchPriority: 'high' as const } : { loading: 'lazy' as const })}
+        fill
+        sizes={sizes}
+        priority={priority}
         onLoad={(e) => {
           const img = e.currentTarget
           /* Guard the zero case: a cached image can fire load with both at 0 in

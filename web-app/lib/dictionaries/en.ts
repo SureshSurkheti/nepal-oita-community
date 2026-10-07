@@ -113,6 +113,7 @@ export const en = {
       titleB: 'in',
       titleC: 'Japan',
       oita: 'Oita',
+      lede: 'Uniting the Nepali community in Oita through support, culture and togetherness.',
       scroll: 'Explore the community',
     },
     stats: {

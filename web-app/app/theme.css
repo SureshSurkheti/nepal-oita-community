@@ -56,14 +56,47 @@
      needs to see — and that is what gets covered. Everything from about 58%
      down is untouched, which is where the people are in every one of these
      pictures. */
+  /* RESHAPED, NOT DIMMED, and the difference is the whole of this note.
+     
+     The committee said the top of the hero looked washed white, and they were
+     right: the first stop was 0.88 over the photograph. The obvious response is
+     to scale every stop down, and that was tried and measured and does not
+     work. The LEDE is the binding constraint, not the headline — it is smaller
+     text, so its floor is 4.5:1 rather than 3.0, and it sits at roughly 50% of
+     the hero where the gradient has already thinned. Scaling the whole ramp
+     takes the veil out from under the lede first. Measured as the percentage of
+     the lede's own band falling under 4.5:1, on the room slide:
+     
+         100%  0.00%     88%  0.02%     82%   2.15%
+          90%  0.00%     86%  0.21%     72%  19.47%
+     
+     So scaling buys ten percent and then falls off a cliff — and ten percent is
+     not what was being asked for.
+     
+     Reshaping buys far more. The top of the gradient and the part under the
+     lede are different jobs: the very top has the header's own scrim over it
+     already (see body[data-hero] .nav::before), so the hero's veil barely has
+     to do anything up there, while the 34-48% band is the only thing standing
+     between the lede and the photograph. So the ramp now starts at 0.46 instead
+     of 0.88 — nearly half the wash at the top, which is the part that is seen —
+     holds 0.64 across the headline, and keeps 0.52 under the lede.
+     
+     Verified on all three photographic slides, title and lede both:
+     0.00% of either band below 4.5:1, let alone below their actual floors.
+     
+     A WARNING FOR THE NEXT PERSON. An earlier pass at this measured the veil by
+     injecting a style override and reported the lede safe at 72%. It was not —
+     it is 19.47% failing. Change the numbers in THIS file and measure the page
+     that comes out of it; a sweep that patches the DOM is measuring something
+     else. */
   --hero-scrim:
     linear-gradient(to bottom,
-      rgba(255, 252, 247, 0.88) 0%,
-      rgba(255, 252, 247, 0.82) 24%,
-      rgba(255, 252, 247, 0.58) 40%,
-      rgba(255, 252, 247, 0.22) 52%,
-      rgba(255, 252, 247, 0.04) 62%,
-      rgba(255, 252, 247, 0) 70%),
+      rgba(255, 252, 247, 0.46) 0%,
+      rgba(255, 252, 247, 0.64) 18%,
+      rgba(255, 252, 247, 0.64) 34%,
+      rgba(255, 252, 247, 0.52) 48%,
+      rgba(255, 252, 247, 0.20) 60%,
+      rgba(255, 252, 247, 0) 72%),
     /* a little warmth low down, tying the slides together */
     radial-gradient(130% 40% at 50% 102%,
       rgba(255, 234, 202, 0.22) 0%,

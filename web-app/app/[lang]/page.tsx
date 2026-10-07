@@ -279,9 +279,11 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
               ? <>{t.home.hero.titleB} <em>{t.home.hero.oita}</em>{t.home.hero.titleC}<br />{t.home.hero.titleA}</>
               : <>{t.home.hero.titleA}<br />{t.home.hero.titleB} <em>{t.home.hero.oita}</em>, {t.home.hero.titleC}</>}
           </h1>
-          <p className="lede hero__lede">
-            Uniting the Nepali community in Oita through support, culture and togetherness.
-          </p>
+          {/* From the dictionary, not inline. It was a hardcoded English
+              sentence — the most prominent line on the site after the headline
+              itself — so the Nepali homepage announced the community in English
+              underneath a Nepali headline. */}
+          <p className="lede hero__lede">{t.home.hero.lede}</p>
           <div className="hero__actions">
             <Link className="btn btn--primary" href="#join">
               <Icon name="user-plus" /> Join our community

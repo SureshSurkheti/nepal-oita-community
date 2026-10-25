@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Analytics } from "@vercel/analytics/next";
 import '../theme.css'
 import { Sprite } from '@/components/Sprite'
 import { SiteMotion } from '@/components/SiteMotion'
@@ -168,6 +169,7 @@ export default async function RootLayout({
         <main id="main">{children}</main>
         <Footer lang={lang} />
         <SiteMotion />
+        <Analytics />
       </body>
     </html>
   )
